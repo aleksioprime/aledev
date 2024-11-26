@@ -1,2 +1,6 @@
 .env
+__pycache__
+.idea
 .python-version
+education
+.mypy_cache
