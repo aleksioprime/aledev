@@ -4,3 +4,4 @@ __pycache__
 .python-version
 education
 .mypy_cache
+.vscode
