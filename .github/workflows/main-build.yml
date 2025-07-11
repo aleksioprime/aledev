@@ -6,6 +6,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/main-build.yml'
+      - '*'
 
 jobs:
   test:

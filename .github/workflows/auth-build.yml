@@ -3,7 +3,12 @@ name: Build Auth Service
 run-name: "Build Auth Service for ${{ github.ref_name }} by ${{ github.actor }}"
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/auth/**'
+      - '.github/workflows/auth-build.yml'
 
 jobs:
   test:
