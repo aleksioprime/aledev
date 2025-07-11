@@ -9,9 +9,8 @@ from fastapi import APIRouter, Depends, UploadFile, File
 from starlette import status
 
 from src.schemas.security import UserJWT
-from src.core.security import JWTBearer
 from src.dependencies.user import get_user_service, get_user_params
-from src.dependencies.security import role_required
+from src.dependencies.security import permission_required
 from src.schemas.pagination import PaginatedResponse
 from src.schemas.user import UserCreateSchema, UserUpdateSchema, UpdatePasswordUserSchema, UserSchema, UserQueryParams
 from src.services.user import UserService
@@ -27,7 +26,7 @@ router = APIRouter()
 async def get_all_users(
         params: Annotated[UserQueryParams, Depends(get_user_params)],
         service: Annotated[UserService, Depends(get_user_service)],
-        user: Annotated[UserJWT, Depends(role_required(admin=True, superuser=True))],
+        user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ) -> PaginatedResponse[UserSchema]:
     """
     Возвращает список всех пользователей
@@ -43,7 +42,7 @@ async def get_all_users(
 )
 async def get_user_me(
     service: Annotated[UserService, Depends(get_user_service)],
-    user: Annotated[UserJWT, Depends(JWTBearer())],
+    user: Annotated[UserJWT, Depends(permission_required())],
 ):
     """
     Возвращает информацию о текущем пользователе
@@ -60,7 +59,7 @@ async def get_user_me(
 async def register(
         body: UserCreateSchema,
         service: Annotated[UserService, Depends(get_user_service)],
-        user: Annotated[UserJWT, Depends(JWTBearer())],
+        user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ) -> UserSchema:
     """
     Регистрирует нового пользователя.
@@ -79,7 +78,7 @@ async def update_user(
     user_id: UUID,
     body: UserUpdateSchema,
     service: Annotated[UserService, Depends(get_user_service)],
-    user: Annotated[UserJWT, Depends(JWTBearer())],
+    user: Annotated[UserJWT, Depends(permission_required(roles=["admin"], allow_self=True))],
 ):
     """
     Обновляет информацию о пользователе
@@ -95,7 +94,7 @@ async def update_user(
 async def delete_user(
     user_id: UUID,
     service: Annotated[UserService, Depends(get_user_service)],
-    user: Annotated[UserJWT, Depends(role_required(admin=True, superuser=True))],
+    user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ):
     """
     Удаляет пользователя
@@ -111,7 +110,7 @@ async def update_password_user(
     user_id: UUID,
     body: UpdatePasswordUserSchema,
     service: Annotated[UserService, Depends(get_user_service)],
-    user: Annotated[UserJWT, Depends(JWTBearer())],
+    user: Annotated[UserJWT, Depends(permission_required(roles=["admin"], allow_self=True))],
 ):
     """
     Обновляет пароль пользователя
@@ -127,7 +126,7 @@ async def update_password_user(
 async def upload_user_avatar(
     user_id: UUID,
     service: Annotated[UserService, Depends(get_user_service)],
-    user: Annotated[UserJWT, Depends(JWTBearer())],
+    user: Annotated[UserJWT, Depends(permission_required(roles=["admin"], allow_self=True))],
     photo: UploadFile = File(...),
 
 ):
@@ -143,7 +142,7 @@ async def upload_user_avatar(
 async def delete_user_avatar(
     user_id: UUID,
     service: Annotated[UserService, Depends(get_user_service)],
-    user: Annotated[UserJWT, Depends(JWTBearer())],
+    user: Annotated[UserJWT, Depends(permission_required(roles=["admin"], allow_self=True))],
 ):
     """
     Удаляет фотографию пользователя

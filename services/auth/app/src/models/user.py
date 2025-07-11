@@ -25,7 +25,6 @@ class User(Base):
     photo = Column(String(255), nullable=True)
 
     is_superuser = Column(Boolean, default=False, nullable=False)
-    is_admin = Column(Boolean, default=False, nullable=False)
 
     last_activity = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=func.now())

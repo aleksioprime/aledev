@@ -21,18 +21,18 @@ chmod +x app/entrypoint.sh
 
 Создание миграциий:
 ```shell
-docker exec -it empolimer-backend alembic revision --autogenerate -m "init migration"
+docker exec -it aledev-auth-app alembic revision --autogenerate -m "init migration"
 ```
 
 Применение миграции (при перезапуске сервиса делается автоматически):
 ```shell
-docker exec -it empolimer-backend alembic upgrade head
+docker exec -it aledev-auth-app alembic upgrade head
 ```
 
 Создание суперпользователя:
 ```shell
-docker-compose -p empolimer exec backend python scripts/create_superuser.py \
-  --username superuser \
-  --password 1q2w3e \
-  --email admin@empolimer.ru
+docker-compose -p aledev-auth exec app python scripts/create_superuser.py \
+  --username admin \
+  --password Rp2lx3 \
+  --email admin@aledev.ru
 ```

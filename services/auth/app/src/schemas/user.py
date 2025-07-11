@@ -20,7 +20,6 @@ class UserSchema(BaseModel):
     username: Optional[str] = Field(None, description="Логин пользователя")
     email: Optional[str] = Field(None, description="Email пользователя")
     is_superuser: Optional[bool] = Field(..., description="Суперпользователь")
-    is_admin: Optional[bool] = Field(..., description="Администратор")
     photo: str | None = Field(None, description="Изображение пользователя")
 
     class Config:
@@ -38,7 +37,6 @@ class UserCreateSchema(BaseModel):
     email: str = Field(..., description="Email пользователя")
     first_name: str = Field(..., description="Имя пользователя")
     last_name: str = Field(..., description="Фамилия пользователя")
-    is_admin: Optional[bool] = Field(..., description="Администратор")
 
 
 class UserUpdateSchema(BaseModel):
@@ -49,7 +47,6 @@ class UserUpdateSchema(BaseModel):
     first_name: Optional[str] = Field(None, description="Имя пользователя для обновления")
     last_name: Optional[str] = Field(None, description="Фамилия пользователя для обновления")
     email: Optional[str] = Field(None, description="Email пользователя")
-    is_admin: Optional[bool] = Field(None, description="Администратор")
 
 
 class UpdatePasswordUserSchema(BaseModel):

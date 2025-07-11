@@ -84,19 +84,20 @@ class UserService:
         if user_id == auth_user_id:
             raise BaseException("Нельзя удалить самого себя")
 
-        user = await self.uow.user.get_user_by_id(user_id)
-
-        if user and user.photo:
-            # Удаление фотографии пользователя
-            try:
-                filename = os.path.basename(user.photo)
-                filepath = os.path.join(settings.media.photo_path, filename)
-                if os.path.exists(filepath):
-                    os.remove(filepath)
-            except Exception as e:
-                logger.warning(f"Не удалось удалить фото пользователя {user_id}: {e}")
-
         async with self.uow:
+            user = await self.uow.user.get_user_by_id(user_id)
+            if not user:
+                raise BaseException(f"Пользователь {user_id} не найден")
+
+            if user.photo:
+                try:
+                    filename = os.path.basename(user.photo)
+                    filepath = os.path.join(settings.media.photo_path, filename)
+                    if os.path.exists(filepath):
+                        os.remove(filepath)
+                except Exception as e:
+                    logger.warning(f"Не удалось удалить фото пользователя {user_id}: {e}")
+
             await self.uow.user.delete(user_id)
 
     async def update_password(self, user_id: UUID, body: UpdatePasswordUserSchema) -> None:

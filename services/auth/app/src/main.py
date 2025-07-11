@@ -52,7 +52,8 @@ app.add_middleware(
     allow_headers=["*"],  # Разрешить все заголовки
 )
 
-app.mount(settings.media.photo_url, StaticFiles(directory=settings.media.photo_path), name="media")
+os.makedirs(settings.media.base, exist_ok=True)
+app.mount("/media", StaticFiles(directory=os.path.abspath(settings.media.base)), name="media")
 
 # Подключение роутера для версии v1
 app.include_router(router, prefix="/api/v1")
@@ -66,5 +67,5 @@ if __name__ == "__main__":
         port=settings.default_port,  # Порт из настроек
         log_config=LOGGING,  # Конфигурация логирования
         log_level=logging.INFO,  # Уровень логирования
-        # reload=True,  # Автоматическая перезагрузка при изменении файлов
+        reload=True,  # Автоматическая перезагрузка при изменении файлов
     )

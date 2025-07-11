@@ -43,9 +43,9 @@ services:
     <<: *app
     command: python src/main.py
     volumes:
-      - ./back:/usr/src/app/
+      - ./app:/usr/src/app/
     ports:
-      - "8201:8000"
+      - "8501:8000"
     depends_on:
       redis:
         condition: service_healthy

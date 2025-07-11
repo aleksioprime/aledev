@@ -18,7 +18,7 @@ class JWTHelper:
     """
 
     @staticmethod
-    def create_token(user_id: str, expiration: timedelta, is_admin: bool = False, is_superuser: bool = False) -> str:
+    def create_token(user_id: str, expiration: timedelta, is_superuser: bool = False) -> str:
         """
         Создает JWT токен
         """
@@ -27,7 +27,6 @@ class JWTHelper:
             'sub': user_id,                 # Идентификатор пользователя
             'iat': now,                     # Время создания токена
             'exp': now + expiration,        # Время истечения токена
-            'is_admin': is_admin,           # Пользователь - администратор
             'is_superuser': is_superuser,   # Пользователь - суперпользователь
         }
 
@@ -39,19 +38,16 @@ class JWTHelper:
         Генерирует пару access и refresh токенов
         """
         user_id = str(user.id)
-        is_admin = getattr(user, "is_admin", False)
         is_superuser = getattr(user, "is_superuser", False)
 
         access_token = self.create_token(
             user_id=user_id,
             expiration=settings.jwt.access_token_expire_time,
-            is_admin=is_admin,
             is_superuser=is_superuser,
         )
         refresh_token = self.create_token(
             user_id=user_id,
             expiration=settings.jwt.refresh_token_expire_time,
-            is_admin=is_admin,
             is_superuser=is_superuser,
         )
         return access_token, refresh_token
@@ -80,13 +76,11 @@ class JWTHelper:
         payload = self.verify(refresh_token)
 
         user_id = payload['sub']
-        is_admin = payload.get('is_admin', False)
         is_superuser = payload.get('is_superuser', False)
 
         new_access_token = self.create_token(
             user_id=user_id,
             expiration=settings.jwt.access_token_expire_time,
-            is_admin=is_admin,
             is_superuser=is_superuser,
         )
 
@@ -110,7 +104,6 @@ class JWTHelper:
 
             user_data = {
                 "user_id": decoded_token.get("sub"),
-                "is_admin": decoded_token.get("is_admin", False),
                 "is_superuser": decoded_token.get("is_superuser", False),
                 "token": token,
             }

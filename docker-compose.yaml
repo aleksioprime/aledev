@@ -21,7 +21,7 @@ services:
       target: dev
       args:
         - VITE_LOGGING=1
-        - VITE_AUTH_URL=http://localhost:8101
+        - VITE_AUTH_URL=http://localhost:8501
     <<: *app
     container_name: aledev-frontend
     volumes:

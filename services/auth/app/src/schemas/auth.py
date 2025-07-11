@@ -19,4 +19,3 @@ class UserJWT(BaseModel):
     """
     id: UUID = Field(..., description="Уникальный идентификатор пользователя")
     is_superuser: bool = False
-    is_admin: bool = False
