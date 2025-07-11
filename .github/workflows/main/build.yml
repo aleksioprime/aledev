@@ -25,9 +25,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
 
-    outputs:
-      build_app: ${{ steps.check_changes.outputs.BUILD_APP }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
