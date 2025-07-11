@@ -51,6 +51,6 @@ jobs:
       - name: Build and push image
         run: |
           docker build \
-            -t aleksioprime/aledev-auth:latest ./services/auth
+            -t aleksioprime/aledev-auth:latest ./services/auth/app
 
           docker push aleksioprime/aledev-auth:latest
