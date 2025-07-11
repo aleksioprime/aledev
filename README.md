@@ -1,5 +1,18 @@
 # Домашний проект
 
+## Запуск для разработчика
+
+Скачайте репозиторий:
+```
+git clone https://github.com/aleksioprime/aledev.git
+cd hyperspectrus
+```
+
+Запустите сервис локально:
+```
+docker-compose -p aledev up -d --build
+```
+
 ### Установка окружения
 
 Установить [Pyenv](https://github.com/pyenv/pyenv#installation) (утилиту для управления версиями Python)
