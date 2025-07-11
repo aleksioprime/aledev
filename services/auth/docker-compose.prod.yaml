@@ -19,7 +19,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - postgres_volume:/var/lib/postgresql/data/
+      - postgres_volume_auth:/var/lib/postgresql/data/
     environment:
       TZ: "Europe/Moscow"
       PGTZ: "Europe/Moscow"
@@ -29,7 +29,7 @@ services:
     container_name: aledev-auth-redis
     <<: *app
     volumes:
-      - redis_volume:/data
+      - redis_volume_auth:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
