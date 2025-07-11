@@ -42,7 +42,9 @@ services:
     <<: *app
     command: python src/main.py
     volumes:
-      - media:/usr/src/app/media
+      - /root/aledev/media:/usr/src/app/media
+    ports:
+      - "8001:8000"
     depends_on:
       redis:
         condition: service_healthy
@@ -50,6 +52,5 @@ services:
         condition: service_healthy
 
 volumes:
-  media:
   postgres_volume_auth:
   redis_volume_auth:
