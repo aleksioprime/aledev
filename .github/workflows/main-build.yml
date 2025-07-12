@@ -10,6 +10,9 @@ on:
       - 'frontend/**'
       - '.github/workflows/main-build.yml'
       - '*'
+    paths-ignore:
+      - 'README.md'
+      - 'readme.md'
 
 jobs:
   test:
