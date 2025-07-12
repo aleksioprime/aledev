@@ -98,14 +98,21 @@ docker exec -it aledev-frontend rm -rf /etc/letsencrypt/archive/hyperspectrus.ru
 ```
 docker compose -p aledev logs
 docker logs aledev-frontend
+
 docker compose -f ~/aledev/docker-compose.prod.yaml ps
 
 docker compose -f ~/aledev/services/auth/docker-compose.prod.yaml ps
-docker logs aledev-auth-app
+
+docker compose -f ~/aledev/services/hyperspectrus/docker-compose.aledev.yaml ps
 ```
 
 Редактирование NGINX:
 ```
 sudo nano ~/aledev/nginx/nginx.conf
 docker exec -it aledev-frontend nginx -s reload
+```
+
+Проверить нагрузку:
+```
+docker stats
 ```
