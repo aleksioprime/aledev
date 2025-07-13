@@ -41,3 +41,51 @@ docker-compose -p aledev-auth exec app python scripts/create_superuser.py \
   --password Rp2lx3 \
   --email admin@aledev.ru
 ```
+
+
+# Запуск на сервере:
+
+## Подготовка сервера
+
+Проверьте установку docker compose
+```
+docker compose version
+```
+
+## Переменные окружения
+
+Переменные окружения берутся из репозитория.
+
+Для сервиса создаётся переменная `ENV_AUTH_VARS`, куда записываются все переменные из `.env.example`
+
+## Добавление бесплатного SSL-сертификата
+
+В контейнер фронтенда добавлен CertBot, с помощью которого происходит регистрация сертификата
+
+Проверьте установку:
+```
+docker exec -it aledev-frontend certbot --version
+```
+
+Запустите CertBot для получения сертификатов
+```
+docker exec -it aledev-frontend certbot --nginx -d auth.aledev.ru -d www.auth.aledev.ru
+ls -l /etc/letsencrypt/live/auth.aledev.ru/
+```
+
+Добавьте автообновление сертификатов (каждые 90 дней). Для этого откройте crontab:
+```
+sudo crontab -e
+```
+
+Добавьте строку:
+```
+0 3 * * * docker exec aledev-frontend certbot renew --quiet && docker exec aledev-frontend nginx -s reload
+```
+
+В случае необхожимости можно удалить сертификаты:
+```
+docker exec -it aledev-frontend rm -rf /etc/letsencrypt/renewal/auth.aledev.ru.conf
+docker exec -it aledev-frontend rm -rf /etc/letsencrypt/live/auth.aledev.ru
+docker exec -it aledev-frontend rm -rf /etc/letsencrypt/archive/auth.aledev.ru
+```

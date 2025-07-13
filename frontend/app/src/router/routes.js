@@ -9,4 +9,12 @@ export const routes = [
       title: '',
     },
   },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import("@/views/NotFound.vue"),
+    meta: {
+      title: 'Страница не найдена',
+    },
+  },
 ]
