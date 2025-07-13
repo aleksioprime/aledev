@@ -29,6 +29,11 @@ docker exec -it aledev-auth-app alembic revision --autogenerate -m "init migrati
 docker exec -it aledev-auth-app alembic upgrade head
 ```
 
+Проверить базы:
+```
+docker exec -it aledev-auth-postgres psql -U admin aledev -c "\dt"
+```
+
 Создание суперпользователя:
 ```shell
 docker-compose -p aledev-auth exec app python scripts/create_superuser.py \

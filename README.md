@@ -116,3 +116,9 @@ docker exec -it aledev-frontend nginx -s reload
 ```
 docker stats
 ```
+
+Формирование ключа:
+
+```
+python3 -c "import secrets; print(''.join(secrets.choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_') for _ in range(86)))"
+```

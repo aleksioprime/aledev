@@ -1,9 +1,9 @@
-// Импортируем стили приложения
-import '@/assets/styles/main.css'
 // Импортируем функцию для создания приложения Vue
 import { createApp } from 'vue'
 // Импортируем главный компонент App.vue
 import App from "@/App.vue";
+// Импортируем i18n (мультиязычность)
+import i18n from './i18n'
 
 // Импорт модуля хранилища Pinia
 import { createPinia } from 'pinia'
@@ -16,6 +16,9 @@ import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import * as vuetifyComponents from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+
+// Импортируем стили приложения
+import '@/assets/styles/main.css'
 
 // Импортируем иконки Material Design Icons
 import '@mdi/font/css/materialdesignicons.css'
@@ -41,8 +44,10 @@ const app = createApp(App);
 // Подключаем Vuetify для быстрого дизайна
 app.use(vuetify);
 // Подключаем Pinia для общего хранилища
-app.use(createPinia())
+app.use(createPinia());
 // Подключем Vue Router для навигации
 app.use(router);
+// Подключаем i18n для мультиязычности
+app.use(i18n);
 // Монтируем приложение в элемент с id="app"
 app.mount("#app");

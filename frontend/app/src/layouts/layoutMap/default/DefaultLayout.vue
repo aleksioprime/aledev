@@ -1,11 +1,9 @@
 <template>
   <!-- Основной контент страницы -->
-  <v-main app>
-    <div class="pa-4">
+  <div>
       <!-- Слот для контента, передаваемого в layout -->
       <slot />
-    </div>
-  </v-main>
+  </div>
 </template>
 
 <script setup>

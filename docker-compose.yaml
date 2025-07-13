@@ -5,16 +5,6 @@ x-app: &app
   platform: linux/amd64
 
 services:
-
-  pgadmin:
-    container_name: aledev-pgadmin
-    image: dpage/pgadmin4:latest
-    <<: *app
-    ports:
-      - "8085:80"
-    volumes:
-      - "data-pgadmin:/var/lib/pgadmin"
-
   frontend:
     build:
       context: ./frontend
@@ -28,6 +18,3 @@ services:
       - ./frontend/app/src:/usr/src/app/src
     ports:
       - "8080:5173"
-
-volumes:
-  data-pgadmin:
