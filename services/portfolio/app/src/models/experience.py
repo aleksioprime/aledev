@@ -1,9 +1,18 @@
 import uuid
+from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, Text, String, Boolean, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import (
+    DateTime,
+    Text,
+    String,
+    Boolean,
+    ForeignKey,
+    UniqueConstraint,
+    Enum as SqlEnum,
+)
 
-
+from src.constants.base import LangEnum
 from src.db.postgres import Base
 
 
@@ -11,18 +20,41 @@ class Experience(Base):
     """
     Модель опыта (работа, стажировка)
     """
-    __tablename__ = 'experiences'
+    __tablename__ = "experiences"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    start_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    end_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    is_current: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
-    position = Column(String(255), nullable=False)
-    company = Column(String(255), nullable=False)
-    description = Column(Text, nullable=True)
-    start_date = Column(DateTime(timezone=True), nullable=False)
-    end_date = Column(DateTime(timezone=True), nullable=True)
-    is_current = Column(Boolean, default=False, nullable=False)
-
-    created_at = Column(DateTime(timezone=True), default=func.now())
+    translations: Mapped[list["ExperienceTranslation"]] = relationship(
+        "ExperienceTranslation", back_populates="experience", cascade="all, delete-orphan", lazy="joined"
+    )
 
     def __repr__(self) -> str:
-        return f'<Experience {self.position} at {self.company}>'
+        return f"<Experience {self.id}>"
+
+class ExperienceTranslation(Base):
+    """
+    Модель перевода для опыта
+    """
+    __tablename__ = "experience_translations"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    experience_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("experiences.id"), index=True)
+    lang: Mapped[LangEnum] = mapped_column(SqlEnum(LangEnum), nullable=False)
+    position: Mapped[str] = mapped_column(String(255), nullable=False)
+    company: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+
+    experience: Mapped["Experience"] = relationship(
+        "Experience", back_populates="translations"
+    )
+
+    __table_args__ = (
+        UniqueConstraint("experience_id", "lang", name="_experience_lang_uc"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<ExperienceTranslation lang={self.lang} experience_id={self.experience_id}>"
