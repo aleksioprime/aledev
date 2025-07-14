@@ -7,6 +7,7 @@ from src.schemas.pagination import BasePaginationParams
 
 
 class ProjectQueryParams(BasePaginationParams):
+    is_favorite: bool | None = Field(None, description="Метка изобранного проекта")
 
     class Config:
         arbitrary_types_allowed = True
@@ -106,7 +107,7 @@ class ProjectUpdateSchema(BaseModel):
     demo_url: str | None = Field(None, description="Ссылка на демо-версию проекта")
     is_favorite: bool | None = Field(None, description="Является ли проект избранным")
 
-    translations: list[ProjectTranslationUpdateSchema] | None = Field(
+    translations: list[ProjectTranslationCreateSchema] | None = Field(
         None,
         description="Список переводов проекта для обновления"
     )

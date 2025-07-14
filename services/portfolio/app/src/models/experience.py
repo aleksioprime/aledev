@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import (
     DateTime,
+    Date,
     Text,
     String,
     Boolean,
@@ -23,8 +24,8 @@ class Experience(Base):
     __tablename__ = "experiences"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    start_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    end_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    start_date: Mapped[datetime] = mapped_column(Date, nullable=False)
+    end_date: Mapped[datetime | None] = mapped_column(Date)
     is_current: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
@@ -46,6 +47,7 @@ class ExperienceTranslation(Base):
     lang: Mapped[LangEnum] = mapped_column(SqlEnum(LangEnum), nullable=False)
     position: Mapped[str] = mapped_column(String(255), nullable=False)
     company: Mapped[str] = mapped_column(String(255), nullable=False)
+    responsibilities: Mapped[str | None] = mapped_column(Text)
     description: Mapped[str | None] = mapped_column(Text)
 
     experience: Mapped["Experience"] = relationship(

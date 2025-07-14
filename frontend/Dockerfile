@@ -9,10 +9,12 @@ ENV NODE_OPTIONS=--trace-deprecation
 
 # Внедряем все переменные окружения, которые нам понадобятся
 ARG VITE_AUTH_URL
+ARG VITE_PORTFOLIO_URL
 ARG VITE_LOGGING
 
 # Предоставлем переменную готовому контейнеру
 ENV VITE_AUTH_URL=$VITE_AUTH_URL
+ENV VITE_PORTFOLIO_URL=$VITE_PORTFOLIO_URL
 ENV VITE_LOGGING=$VITE_LOGGING
 
 # Копируем файлы пакетов в контейнер и устанавливаем их

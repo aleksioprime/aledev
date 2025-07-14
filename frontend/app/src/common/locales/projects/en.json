@@ -1,5 +1,7 @@
 {
   "sectionTitle": "Projects",
   "github": "Github",
-  "demo": "Demo"
+  "demo": "Demo",
+  "showMore": "Show more",
+  "loading": "Loading..."
 }

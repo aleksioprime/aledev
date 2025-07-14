@@ -1,8 +1,10 @@
 import { ApiService } from "@/services/api/api.service";
+import { authClient } from "@/services/api/axios.clients";
 
 export class UserResource extends ApiService {
   constructor() {
     super();
+    this.client = authClient;
   }
 
   getUsers(params) {

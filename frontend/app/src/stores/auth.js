@@ -2,11 +2,10 @@ import { defineStore } from "pinia";
 import resources from "@/services/resources"; // API-ресурсы
 import jwtService from "@/services/jwt/jwt.service"; // Работа с токенами
 import { jwtDecode } from "jwt-decode"; // Декодирование JWT
-import logger from '@/common/helpers/logger';
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    user: null,
+    user: null, // Текущий пользователь
     access_token: jwtService.getAccessToken(),
   }),
 
@@ -28,11 +27,8 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
-    /**
-     * Проверка, является ли пользователь админом
-     */
-    isAdmin(state) {
-      return state.user?.roles?.some(role => role.name === 'admin');
+    isSuperuser(state) {
+      return state.user?.is_superuser;
     },
   },
 
@@ -80,6 +76,7 @@ export const useAuthStore = defineStore("auth", {
         this.access_token = result.data.access_token;
         jwtService.saveAccessToken(result.data.access_token);
         resources.auth.setAuthHeader(result.data.access_token);
+        await this.getMe();
         return true;
       }
 
@@ -95,12 +92,12 @@ export const useAuthStore = defineStore("auth", {
       const result = await resources.auth.login(credentials);
 
       if (result.__state === "success") {
+        this.access_token = result.data.access_token;
         jwtService.saveAccessToken(result.data.access_token);
         jwtService.saveRefreshToken(result.data.refresh_token);
         resources.auth.setAuthHeader(result.data.access_token);
         return result.__state;
       }
-
       return (
         result.data?.response?.data?.detail ||
         result.data?.message ||

@@ -3,7 +3,7 @@ from uuid import UUID
 import logging
 
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy import update, select, func
+from sqlalchemy import update, select, delete, func
 
 from src.constants.base import LangEnum
 from src.models.experience import Experience, ExperienceTranslation
@@ -81,7 +81,7 @@ class ExperienceRepository(BaseExperienceRepository, BaseSQLRepository):
 
     async def update(self, experience_id: UUID, body: ExperienceUpdateSchema) -> Experience | None:
         """ Обновляет запись об опыте работы по её ID """
-        update_data = {key: value for key, value in body.dict(exclude_unset=True).items()}
+        update_data = {key: value for key, value in body.dict(exclude_unset=True).items() if key != "translations"}
         if not update_data:
             raise NoResultFound("Нет данных для обновления")
 
@@ -93,6 +93,26 @@ class ExperienceRepository(BaseExperienceRepository, BaseSQLRepository):
         )
 
         await self.session.execute(stmt)
+
+        if body.translations is not None:
+            await self.session.execute(
+                delete(ExperienceTranslation).where(ExperienceTranslation.experience_id == experience_id)
+            )
+
+            if body.translations:
+                objects = [
+                    ExperienceTranslation(
+                        experience_id=experience_id,
+                        lang=tr.lang,
+                        position=tr.position,
+                        company=tr.company,
+                        responsibilities=tr.responsibilities,
+                        description=tr.description
+                    )
+                    for tr in body.translations
+                ]
+                self.session.add_all(objects)
+
         return await self.get_by_id(experience_id)
 
     async def delete(self, experience_id: UUID) -> None:

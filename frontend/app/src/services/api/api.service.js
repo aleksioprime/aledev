@@ -7,8 +7,8 @@ import { getApiError } from "./api.error";
 
 
 export class ApiService {
-  constructor() {
-    this.client = backendClient;
+  constructor(client = backendClient) {
+    this.client = client;
     this.initRequestInterceptor();
     this.initResponseInterceptor();
   }
@@ -71,7 +71,7 @@ export class ApiService {
     // window.location.href = authUrl;
 
     // Переход на страницу логирования в текущем сервисе
-    window.location.href = '/login';
+    // window.location.href = '/admin';
   }
 
   // Логирование запросов

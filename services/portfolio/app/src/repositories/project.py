@@ -3,7 +3,7 @@ from uuid import UUID
 import logging
 
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy import update, select, func
+from sqlalchemy import update, delete, select, func
 
 from src.constants.base import LangEnum
 from src.models.project import Project, ProjectTranslation
@@ -54,15 +54,18 @@ class ProjectRepository(BaseProjectRepository, BaseSQLRepository):
 
     async def get_all(self, params: ProjectQueryParams) -> tuple[list[Project], int]:
         """ Получает пагинированный список всех проектов и количество записей"""
-        stmt = (
-            select(Project)
-            .limit(params.limit)
-            .offset(params.offset)
-        )
+        stmt = select(Project)
+        count_stmt = select(func.count()).select_from(Project)
+
+        if params.is_favorite is not None:
+            stmt = stmt.where(Project.is_favorite == params.is_favorite)
+            count_stmt = count_stmt.where(Project.is_favorite == params.is_favorite)
+
+        stmt = stmt.limit(params.limit).offset(params.offset)
+
         result = await self.session.execute(stmt)
         projects = result.scalars().unique().all()
 
-        count_stmt = select(func.count()).select_from(Project)
         total = (await self.session.execute(count_stmt)).scalar_one()
         return projects, total
 
@@ -81,7 +84,7 @@ class ProjectRepository(BaseProjectRepository, BaseSQLRepository):
 
     async def update(self, project_id: UUID, body: ProjectUpdateSchema) -> Project | None:
         """ Обновляет проект по его ID """
-        update_data = {key: value for key, value in body.dict(exclude_unset=True).items()}
+        update_data = {key: value for key, value in body.dict(exclude_unset=True).items() if key != "translations"}
         if not update_data:
             raise NoResultFound("Нет данных для обновления")
 
@@ -93,6 +96,24 @@ class ProjectRepository(BaseProjectRepository, BaseSQLRepository):
         )
 
         await self.session.execute(stmt)
+
+        if body.translations is not None:
+            await self.session.execute(
+                delete(ProjectTranslation).where(ProjectTranslation.project_id == project_id)
+            )
+
+            if body.translations:
+                objects = [
+                    ProjectTranslation(
+                        project_id=project_id,
+                        lang=tr.lang,
+                        title=tr.title,
+                        description=tr.description
+                    )
+                    for tr in body.translations
+                ]
+                self.session.add_all(objects)
+
         return await self.get_by_id(project_id)
 
     async def delete(self, project_id: UUID) -> None:

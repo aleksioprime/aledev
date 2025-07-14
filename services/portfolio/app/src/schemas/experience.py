@@ -20,6 +20,7 @@ class ExperienceTranslationSchema(BaseModel):
     lang: LangEnum = Field(..., description="Язык перевода, например 'ru' или 'en'")
     position: str = Field(..., description="Должность/позиция на данном языке")
     company: str = Field(..., description="Компания/организация на данном языке")
+    responsibilities: str | None = Field(None, description="Краткие обязанности")
     description: str | None = Field(None, description="Описание опыта на данном языке")
 
     class Config:
@@ -71,6 +72,7 @@ class ExperienceTranslationCreateSchema(BaseModel):
     lang: LangEnum = Field(..., description="Язык перевода")
     position: str = Field(..., description="Должность/позиция")
     company: str = Field(..., description="Компания/организация")
+    responsibilities: str | None = Field(None, description="Краткие обязанности")
     description: str | None = Field(None, description="Описание")
 
 
@@ -80,6 +82,7 @@ class ExperienceTranslationUpdateSchema(BaseModel):
     """
     position: str | None = Field(None, description="Должность/позиция")
     company: str | None = Field(None, description="Компания/организация")
+    responsibilities: str | None = Field(None, description="Краткие обязанности")
     description: str | None = Field(None, description="Описание")
 
 
@@ -104,7 +107,8 @@ class ExperienceUpdateSchema(BaseModel):
     start_date: datetime | None = Field(None, description="Дата начала")
     end_date: datetime | None = Field(None, description="Дата окончания")
     is_current: bool | None = Field(None, description="Текущий опыт?")
-    translations: List[ExperienceTranslationUpdateSchema] | None = Field(
+
+    translations: List[ExperienceTranslationCreateSchema] | None = Field(
         None,
         description="Список переводов опыта для обновления"
     )

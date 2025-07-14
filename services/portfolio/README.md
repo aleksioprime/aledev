@@ -80,3 +80,20 @@ docker exec -it aledev-frontend rm -rf /etc/letsencrypt/renewal/portfolio.aledev
 docker exec -it aledev-frontend rm -rf /etc/letsencrypt/live/portfolio.aledev.ru
 docker exec -it aledev-frontend rm -rf /etc/letsencrypt/archive/portfolio.aledev.ru
 ```
+## Справочные команды:
+
+Удаление контейнеров и переменных:
+```
+docker compose -f ~/aledev/services/portfolio/docker-compose.prod.yaml down - v
+docker image prune -a -f
+```
+
+Посмотреть все volume:
+```
+docker volume ls
+```
+
+Удалить выбранный volume:
+```
+docker volume rm <volume_name>
+```

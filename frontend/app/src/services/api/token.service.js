@@ -1,4 +1,4 @@
-import { backendClient } from "./axios.clients";
+import { authClient } from "./axios.clients";
 import jwtService from "@/services/jwt/jwt.service";
 import { jwtDecode } from "jwt-decode";
 import logger from '@/common/helpers/logger';
@@ -20,7 +20,7 @@ async function _refreshToken() {
   logger.info("Токен истёк. Обновление токена...");
 
   try {
-    const result = await backendClient.post("/api/v1/refresh/", {
+    const result = await authClient.post("/api/v1/refresh/", {
       refresh_token: jwtService.getRefreshToken(),
     });
 

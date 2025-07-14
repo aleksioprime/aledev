@@ -4,21 +4,21 @@
       {{ $t('experience.sectionTitle') }}
     </h2>
     <ol class="relative border-l border-neutral-700 max-w-2xl mx-auto">
-      <li v-for="(exp, i) in experience" :key="exp.period" class="mb-12 ml-6 group last:mb-0">
+      <li v-for="exp in experiences" :key="exp.id" class="mb-12 ml-6 group last:mb-0">
         <span
           class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-cyan-400 rounded-full ring-8 ring-neutral-950 group-hover:scale-110 transition-transform"></span>
         <h3 class="font-bold text-lg text-cyan-400 mb-0.5 group-hover:text-cyan-300 transition-colors">
-          {{ exp.position }}
+          {{ getTranslation(exp, $i18n.locale).position }}
         </h3>
         <div class="text-cyan-200 font-semibold text-sm mb-0.5">
-          {{ exp.organization }}
+          {{ getTranslation(exp, $i18n.locale).organization }}
         </div>
-        <time class="block mb-1 text-xs text-neutral-400">{{ exp.period }}</time>
+        <time class="block mb-1 text-xs text-neutral-400">{{ getTranslation(exp, $i18n.locale).period }}</time>
         <div class=" text-neutral-300 text-base mb-2">
-          {{ exp.description }}
+          {{ getTranslation(exp, $i18n.locale).responsibilities }}
         </div>
         <p class="italic text-neutral-400  whitespace-pre-line">
-          {{ exp.details }}
+          {{ getTranslation(exp, $i18n.locale).description }}
         </p>
       </li>
     </ol>
@@ -28,36 +28,63 @@
 
 
 <script setup>
-import { ref } from "vue"
+import { ref, onMounted } from "vue";
+
+import { useExperienceStore } from "@/stores/experience";
+const experienceStore = useExperienceStore();
+const experiences = ref([]);
+
 const sectionId = "experience"
-const experience = ref([
-  {
-    period: "2023 – По настоящее время",
-    position: "Инженер-программист, тьютор",
-    organization: "ОЧУ МГ Сколково",
-    description: "Веб-разработка на FastAPI и Django, проектирование и внедрение сервисов для администрирования учебного процесса",
-    details: "Разработал и внедрил комплекс модулей для веб-приложения, автоматизирующего ключевые образовательные и административные процессы школы по стандартам международного бакалавриата: создание учебных юнитов, индивидуальных студенчески репортов, графика итоговых работ, модерирование проектов и конкурсов, формирование портфолио. Реализовал экспериментальный AI-сервис для анализа достижений. Проведёл юзабилити-тестирование, внедрение и сопровождение проекта. Организовал менторство в детских ИТ-проектах и конкурсах"
-  },
-  {
-    period: "2019 – По настоящее время",
-    position: "Разработчик и ментор IT-проектов",
-    organization: "Фриланс",
-    description: "Разработка Web-приложений, IoT и ML сервисов",
-    details: "Лауреат гранта Фонда содействия инновациям и НТИ: спроектировал платформу для обучения техническому зрению, реализовал алгоритмы машинного зрения и апробировал их в образовательных задачах. Разработал комплексное ПО для стартапа Hyperspectrus: приложение для устройства гиперспектральной съёмки изображений на Raspberry Pi, оконное приложение для сбора и анализа снимков, веб-приложение для централизованного учёта и исследования результатов. В рамках стартапа «Ем полимер» разработал комплексное ПО мониторинга микроклимата в биоустановке биодеградации полиэтилена для управляющего устройства и сервера"
-  },
-  {
-    period: "2016 - 2024",
-    position: "Заведующий кафедрой, учитель технических дисциплин",
-    organization: "ОЧУ МГ Сколково",
-    description: "Разработка образовательных программ и курсов IT-направления, менторство ",
-    details: "Разработал и внедрил учебные программы для средней и старшей школы: технологии с элементами робототехники, основы Python, 3D-моделирование, программируемая электроника, компьютерная графика и основы машинного обучения. Организовал курсы по Python от Яндекса (преподаватель Яндекс.Лицея) и AI от Intel (коуч Intel AI for Youth). Победитель международного конкурса проектов: разработал цикл уроков по распознаванию дорожных знаков с применением Python и ИИ; руководил проектом-призёром по анализу социальных контактов. Являлся IT-ментором для подчинённых и коллег, обучал и сопровождал их развитие в профессиональных задачах"
-  },
-  {
-    period: "2014 - 2016",
-    position: "Методист, преподаватель робототехники",
-    organization: "Центр развития творчества детей и юношества г. Пензы",
-    description: "Разработка образовательных курсов, конкурсных задач, организация соревнований",
-    details: "Организовал ежегодные отборочные соревнования по робототехнике при сотрудничестве с оргкомитетом «Робофест» и Worl Robot Olympiad. Организовал курсы для учителей и учеников региона и разработал эталонные решения для конкурсных задач по робототехнике по Robolab и RobotC для Lego Mindstorms, C++ для Arduino и Python для Raspberry Pi.  Инициировал и сопровождал успешное участие школьников Пензенской области, занявших призовые места на межрегиональных и всероссийских робототехнических конкурсах"
-  },
-])
+
+// --- СПИСОК ОПЫТА ---
+
+// Переменные пагинированного списка
+const page = ref(1);
+const limit = 3;
+const total = ref(0);
+const hasNextPage = ref(true);
+
+// Переменная процесса загрузки
+const loading = ref(false);
+
+const fetchProjects = async (reset = false) => {
+  if (loading.value) return;
+  loading.value = true;
+
+  if (reset) {
+    experiences.value = [];
+    page.value = 1;
+    hasNextPage.value = true;
+  }
+
+  const params = {
+    offset: page.value,
+    limit,
+  };
+
+  const data = await experienceStore.loadExperiences({ params });
+
+  if (data) {
+    if (reset) {
+      experiences.value = data.items;
+    } else {
+      experiences.value.push(...data.items);
+    }
+    total.value = data.total;
+    hasNextPage.value = data.has_next;
+    page.value += 1;
+  } else {
+    hasNextPage.value = false;
+  }
+
+  loading.value = false;
+};
+
+function getTranslation(proj, currentLang) {
+  return proj.translations?.find(t => t.lang === currentLang) ||
+    proj.translations?.[0] ||
+    { title: proj.title, description: "" };
+}
+
+onMounted(() => fetchProjects(true));
 </script>

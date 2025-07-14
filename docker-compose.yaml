@@ -12,9 +12,12 @@ services:
       args:
         - VITE_LOGGING=1
         - VITE_AUTH_URL=http://localhost:8501
+        - VITE_PORTFOLIO_URL=http://localhost:8502
     <<: *app
     container_name: aledev-frontend
     volumes:
       - ./frontend/app/src:/usr/src/app/src
     ports:
-      - "8080:5173"
+      - "8085:5173"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

@@ -1,5 +1,7 @@
 {
   "sectionTitle": "Проекты",
   "github": "Github",
-  "demo": "Демо"
+  "demo": "Демо",
+  "showMore": "Показать ещё",
+  "loading": "Загрузка"
 }

@@ -51,7 +51,6 @@ function changeLang(lang) {
   console.log('Доступные сообщения:', messages.value)
 }
 
-// menu теперь с ключами для мультиязычности
 const menu = [
   { key: "projects", anchor: "projects" },
   { key: "experience", anchor: "experience" },
@@ -65,6 +64,16 @@ function scrollToSection(anchor) {
     return
   }
   const el = document.getElementById(anchor)
-  if (el) el.scrollIntoView({ behavior: "smooth" })
+  if (el) {
+    const header = document.querySelector('header')
+    const headerHeight = header ? header.offsetHeight : 0
+
+    const elementTop = el.getBoundingClientRect().top + window.scrollY
+
+    window.scrollTo({
+      top: elementTop - headerHeight + 40,
+      behavior: 'smooth'
+    })
+  }
 }
 </script>

@@ -8,8 +8,8 @@ import { dirname, resolve } from 'path'
 
 
 console.log(
-  'Путь к локалям:',
-  resolve(dirname(fileURLToPath(import.meta.url)), './src/common/locales/**')
+	'Путь к локалям:',
+	resolve(dirname(fileURLToPath(import.meta.url)), './src/common/locales/**')
 )
 
 // https://vite.dev/config/
@@ -25,6 +25,15 @@ const config = defineConfig({
 			),
 		}),
 	],
+	server: {
+		host: "0.0.0.0",
+		port: 5173,
+		proxy: {
+			"^/(media)": {
+				target: 'http://host.docker.internal:8501',
+			}
+		},
+	},
 	resolve: {
 		alias: {
 			'@': fileURLToPath(new URL('./src', import.meta.url)),
