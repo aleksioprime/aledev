@@ -54,6 +54,7 @@ jobs:
           docker build --target prod \
             --build-arg VITE_LOGGING=0 \
             --build-arg VITE_AUTH_URL=$VITE_AUTH_URL \
+            --build-arg VITE_PORTFOLIO_URL=$VITE_PORTFOLIO_URL \
             -t aleksioprime/aledev-frontend:latest ./frontend
 
           docker push aleksioprime/aledev-frontend:latest
