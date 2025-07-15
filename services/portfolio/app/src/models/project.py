@@ -7,6 +7,7 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     Text,
+    Integer,
     ForeignKey,
     UniqueConstraint,
     Enum as SqlEnum,
@@ -23,6 +24,7 @@ class Project(Base):
     __tablename__ = 'projects'
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     stack: Mapped[str | None] = mapped_column(String(255))
     link: Mapped[str | None] = mapped_column(String(255))
     github_url: Mapped[str | None] = mapped_column(String(255))

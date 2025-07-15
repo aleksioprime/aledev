@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref } from "vue";
 import { useIntersectionObserver } from "@vueuse/core";
 import { format } from "date-fns";
 import ru from "date-fns/locale/ru";
@@ -113,10 +113,6 @@ function getExperienceTitle(experience) {
   if (tr.position) return tr.position;
   if (tr.company) return tr.company;
   return "Без данных";
-}
-
-function getExperienceDescription(experience) {
-  return getExperienceTranslation(experience).description || "";
 }
 
 const canEdit = (experience) => {
@@ -184,6 +180,25 @@ useIntersectionObserver(
   }
 );
 
+// Перезагрузка списка с сохранением погруженных данных
+const reloadLoadedExperiences = async () => {
+  loading.value = true;
+  const loadedPages = page.value;
+  const newExperiences = [];
+  for (let i = 0; i < loadedPages; i++) {
+    const params = {
+      offset: i,
+      limit,
+    };
+    const data = await experienceStore.loadExperiences({ params });
+    if (data && data.items) {
+      newExperiences.push(...data.items);
+    }
+  }
+  experiences.value = newExperiences;
+  loading.value = false;
+};
+
 // --- ДОБАВЛЕНИЕ/РЕДАКТИРОВАНИЕ ОПЫТА ---
 
 // Объект модального окна
@@ -243,14 +258,13 @@ const submitDialog = async () => {
     const result = await experienceStore.updateExperience(form.id, payload);
     if (!result) return;
 
-    const index = experiences.value.findIndex(p => p.id === form.id);
-    if (index !== -1) experiences.value[index] = { ...experiences.value[index], ...form };
+    await reloadLoadedExperiences();
 
   } else {
     const newExperience = await experienceStore.createExperience(payload);
     if (!newExperience) return;
 
-    await fetchExperiences(true);
+    await reloadLoadedExperiences();
   }
 
   modalDialogEdit.value.visible = false;

@@ -32,4 +32,8 @@ export class ProjectResource extends ApiService {
   deleteTranslationFromProject(project_id, lang) {
     return this.$delete(`/api/v1/projects/${project_id}/translation/${lang}`);
   }
+
+  reorderProjects(data) {
+    return this.$post(`/api/v1/projects/reorder/`, data);
+  }
 }

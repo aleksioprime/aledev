@@ -2,7 +2,7 @@
 Модуль с эндпоинтами для управления проектами
 """
 
-from typing import Annotated
+from typing import Annotated, List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -20,7 +20,8 @@ from src.schemas.project import (
     ProjectUpdateSchema,
     ProjectTranslationSchema,
     ProjectTranslationCreateSchema,
-    ProjectTranslationUpdateSchema
+    ProjectTranslationUpdateSchema,
+    ProjectOrderSchema
     )
 from src.services.project import ProjectService
 
@@ -169,3 +170,20 @@ async def delete_project_translation(
     Удаляет перевод проекта по языку
     """
     await service.delete_translation(project_id, lang)
+
+
+@router.post(
+    path='/reorder/',
+    summary='Изменить порядок проектов',
+    status_code=status.HTTP_200_OK,
+)
+async def reorder_projects(
+    body: List[ProjectOrderSchema],
+    service: Annotated[ProjectService, Depends(get_project_service)],
+    user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
+):
+    """
+    Массово обновляет порядок проектов.
+    """
+    await service.reorder(body)
+    return {"success": True}

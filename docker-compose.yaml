@@ -1,9 +1,3 @@
-x-app: &app
-  env_file:
-    - ./.env
-  restart: always
-  platform: linux/amd64
-
 services:
   frontend:
     build:
@@ -13,7 +7,8 @@ services:
         - VITE_LOGGING=1
         - VITE_AUTH_URL=http://localhost:8501
         - VITE_PORTFOLIO_URL=http://localhost:8502
-    <<: *app
+    restart: always
+    platform: linux/amd64
     container_name: aledev-frontend
     volumes:
       - ./frontend/app/src:/usr/src/app/src

@@ -64,5 +64,13 @@ export const useProjectStore = defineStore("project", {
       }
       return null
     },
+    // Изменение порядка
+    async reorderProjects(data) {
+      const res = await resources.project.reorderProjects(data);
+      if (res.__state === "success") {
+        return res.data
+      }
+      return null
+    },
   },
 })

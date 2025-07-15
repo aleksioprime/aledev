@@ -6,6 +6,11 @@ from src.constants.base import LangEnum
 from src.schemas.pagination import BasePaginationParams
 
 
+class ProjectOrderSchema(BaseModel):
+    id: UUID = Field(..., description="Уникальный идентификатор проекта")
+    order: int = Field(0, ge=0, description="Порядок")
+
+
 class ProjectQueryParams(BasePaginationParams):
     is_favorite: bool | None = Field(None, description="Метка изобранного проекта")
 
@@ -30,6 +35,7 @@ class ProjectBaseSchema(BaseModel):
     Базовая схема для представления данных проекта
     """
     id: UUID = Field(..., description="Уникальный идентификатор проекта")
+    order: int = Field(0, ge=0, description="Порядок")
     stack: str | None = Field(None, description="Используемый стек технологий")
     link: str | None = Field(None, description="Ссылка на проект")
     github_url: str | None = Field(None, description="Ссылка на репозиторий GitHub")
@@ -85,6 +91,7 @@ class ProjectCreateSchema(BaseModel):
     """
     Схема для создания проекта
     """
+    order: int = Field(0, ge=0, description="Порядок")
     stack: str | None = Field(None, description="Используемый стек технологий")
     link: str | None = Field(None, description="Ссылка на проект")
     github_url: str | None = Field(None, description="Ссылка на репозиторий GitHub")
@@ -101,6 +108,7 @@ class ProjectUpdateSchema(BaseModel):
     """
     Схема для обновления проекта
     """
+    order: int = Field(0, ge=0, description="Порядок")
     stack: str | None = Field(None, description="Используемый стек технологий")
     link: str | None = Field(None, description="Ссылка на проект")
     github_url: str | None = Field(None, description="Ссылка на репозиторий GitHub")

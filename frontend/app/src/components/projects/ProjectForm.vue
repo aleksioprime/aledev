@@ -1,6 +1,12 @@
 <template>
   <v-form ref="formRef" @submit.prevent="onSubmit">
     <!-- Базовые поля проекта -->
+    <div class="flex ">
+      <v-checkbox v-model="useOrder" label="Задать порядок вручную" />
+    <v-text-field v-if="useOrder" v-model="form.order" label="Порядок" type="number" min="0"
+      hint="0 — первый, 1 — второй и т.д." persistent-hint class="ms-5" />
+    </div>
+
     <v-text-field v-model="form.stack" label="Технологический стек" />
     <v-text-field v-model="form.link" label="Ссылка на проект" />
     <v-text-field v-model="form.github_url" label="GitHub" />
@@ -41,6 +47,8 @@ const props = defineProps({
 });
 const emit = defineEmits(["update:modelValue"]);
 
+const useOrder = ref(false);
+
 // Базовое состояние формы
 const blankTranslation = lang => ({ lang, title: "", description: "" });
 const form = reactive({
@@ -49,6 +57,7 @@ const form = reactive({
   github_url: "",
   demo_url: "",
   is_favorite: false,
+  order: null,
   translations: [blankTranslation("ru"), blankTranslation("en")]
 });
 

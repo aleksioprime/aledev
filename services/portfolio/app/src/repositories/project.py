@@ -14,6 +14,7 @@ from src.schemas.project import (
     ProjectUpdateSchema,
     ProjectTranslationCreateSchema,
     ProjectTranslationUpdateSchema,
+    ProjectOrderSchema,
     )
 
 logger = logging.getLogger(__name__)
@@ -61,7 +62,7 @@ class ProjectRepository(BaseProjectRepository, BaseSQLRepository):
             stmt = stmt.where(Project.is_favorite == params.is_favorite)
             count_stmt = count_stmt.where(Project.is_favorite == params.is_favorite)
 
-        stmt = stmt.order_by(Project.name).limit(params.limit).offset(params.offset)
+        stmt = stmt.order_by(Project.order).limit(params.limit).offset(params.offset)
 
         result = await self.session.execute(stmt)
         projects = result.scalars().unique().all()
@@ -71,7 +72,23 @@ class ProjectRepository(BaseProjectRepository, BaseSQLRepository):
 
     async def create(self, body: ProjectCreateSchema) -> Project:
         """ Создаёт новый проект """
+
+        # Если явно передан order, надо сдвинуть остальных
+        if body.order is not None:
+            await self.session.execute(
+                update(Project)
+                .where(Project.order >= body.order)
+                .values(order=Project.order + 1)
+            )
+            order = body.order
+        else:
+            max_order = (await self.session.execute(
+                select(func.max(Project.order))
+            )).scalar()
+            order = (max_order or 0) + 1
+
         create_data = body.model_dump(exclude_unset=True, exclude={"translations"})
+        create_data["order"] = order
 
         project = Project(**create_data)
         project.translations = [
@@ -84,9 +101,35 @@ class ProjectRepository(BaseProjectRepository, BaseSQLRepository):
 
     async def update(self, project_id: UUID, body: ProjectUpdateSchema) -> Project | None:
         """ Обновляет проект по его ID """
+        # Получаем текущий order этого проекта
+        project = await self.get_by_id(project_id)
+        if not project:
+            raise NoResultFound("Проект не найден")
+
+        old_order = project.order
+        new_order = body.order if body.order is not None else old_order
+
+        if new_order != old_order:
+            if new_order > old_order:
+                # Сдвигаем все проекты между old_order+1 и new_order включительно на -1
+                await self.session.execute(
+                    update(Project)
+                    .where(Project.order > old_order, Project.order <= new_order)
+                    .values(order=Project.order - 1)
+                )
+            else:
+                # Сдвигаем все проекты между new_order и old_order-1 на +1
+                await self.session.execute(
+                    update(Project)
+                    .where(Project.order >= new_order, Project.order < old_order)
+                    .values(order=Project.order + 1)
+                )
+
         update_data = {key: value for key, value in body.dict(exclude_unset=True).items() if key != "translations"}
         if not update_data:
             raise NoResultFound("Нет данных для обновления")
+
+        update_data["order"] = new_order
 
         stmt = (
             update(Project)
@@ -161,3 +204,17 @@ class ProjectRepository(BaseProjectRepository, BaseSQLRepository):
             return True
 
         return False
+
+    async def reorder(self, items: list[ProjectOrderSchema]) -> None:
+        """
+        Массово обновляет поле order для проектов.
+        """
+        for item in items:
+            stmt = (
+                update(Project)
+                .where(Project.id == item.id)
+                .values(order=item.order)
+                .execution_options(synchronize_session="fetch")
+            )
+            await self.session.execute(stmt)
+        await self.session.flush()

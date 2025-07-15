@@ -9,32 +9,32 @@
       </v-btn>
     </div>
 
-    <v-list class="pa-0 mt-4">
-      <v-list-item v-for="project in projects" :key="project.id">
-        <v-list-item-title>
-          {{ getProjectTitle(project) }}
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          {{ getProjectDescription(project) }}
-        </v-list-item-subtitle>
-        <v-list-item-subtitle v-if="project.stack">
-          Технологии: {{ project.stack }}
-        </v-list-item-subtitle>
-        <v-list-item-subtitle v-if="project.github_url">
-          <a :href="project.github_url" target="_blank">GitHub</a>
-        </v-list-item-subtitle>
-        <template #append>
-          <template v-if="canEdit">
-            <v-btn icon @click.stop="openEditDialog(project)" class="me-2">
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn>
-            <v-btn icon @click.stop="deleteProject(project)">
-              <v-icon color="red">mdi-delete</v-icon>
-            </v-btn>
+    <draggable v-model="projects" item-key="id" :disabled="!canEdit()" @end="onProjectsReorder" handle=".drag-handle">
+      <template #item="{ element: project }">
+        <v-list-item :key="project.id">
+          <template #prepend v-if="canEdit()">
+            <v-icon class="drag-handle me-1 drag-handle" small>mdi-drag</v-icon>
           </template>
-        </template>
-      </v-list-item>
-    </v-list>
+          <v-list-item-title>
+            {{ getProjectTitle(project) }}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ getProjectDescription(project) }}
+          </v-list-item-subtitle>
+          <!-- остальной контент, как раньше -->
+          <template #append>
+            <template v-if="canEdit()">
+              <v-btn icon @click.stop="openEditDialog(project)" class="me-2">
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+              <v-btn icon @click.stop="deleteProject(project)">
+                <v-icon color="red">mdi-delete</v-icon>
+              </v-btn>
+            </template>
+          </template>
+        </v-list-item>
+      </template>
+    </draggable>
 
     <div ref="infiniteScrollTarget" />
 
@@ -90,6 +90,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
+import draggable from 'vuedraggable';
 import { useIntersectionObserver } from "@vueuse/core";
 import { format } from "date-fns";
 import ru from "date-fns/locale/ru";
@@ -125,6 +126,23 @@ const canEdit = (project) => {
     authStore.isSuperuser
   );
 };
+
+// Отправляем новый порядок на backend
+const onProjectsReorder = async () => {
+  // Сформируй массив [{id, order}]
+  const payload = projects.value.map((p, idx) => ({
+    id: p.id,
+    order: idx
+  }));
+  await projectStore.reorderProjects(payload);
+  // Если backend вернёт актуальный список — можешь обновить projects.value из ответа
+  fetchProjects(true);
+};
+
+// Функция сортировки по полю order
+function sortByOrder(list) {
+  list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+}
 
 // --- СПИСОК ПРОЕКТОВ ---
 
@@ -185,6 +203,25 @@ useIntersectionObserver(
   }
 );
 
+// Перезагрузка списка с сохранением погруженных данных
+const reloadLoadedProjects = async () => {
+  loading.value = true;
+  const loadedPages = page.value;
+  const newProjects = [];
+  for (let i = 0; i < loadedPages; i++) {
+    const params = {
+      offset: i,
+      limit,
+    };
+    const data = await projectStore.loadProjects({ params });
+    if (data && data.items) {
+      newProjects.push(...data.items);
+    }
+  }
+  projects.value = newProjects;
+  loading.value = false;
+};
+
 // --- ДОБАВЛЕНИЕ/РЕДАКТИРОВАНИЕ ПРОЕКТОВ ---
 
 // Объект модального окна
@@ -241,14 +278,13 @@ const submitDialog = async () => {
     const result = await projectStore.updateProject(form.id, payload);
     if (!result) return;
 
-    const index = projects.value.findIndex(p => p.id === form.id);
-    if (index !== -1) projects.value[index] = { ...projects.value[index], ...form };
+    await reloadLoadedProjects();
 
   } else {
     const newProject = await projectStore.createProject(payload);
     if (!newProject) return;
 
-    await fetchProjects(true);
+    await reloadLoadedProjects();
   }
 
   modalDialogEdit.value.visible = false;
@@ -281,10 +317,14 @@ const confirmDeleteProject = async () => {
   modalDialogDelete.value.visible = false;
 };
 
-
-
-const formatDate = (dateStr) => {
-  return format(new Date(dateStr), "d MMMM yyyy", { locale: ru });
-};
-
 </script>
+
+<style scoped>
+.drag-handle {
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+</style>

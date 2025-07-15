@@ -14,7 +14,8 @@ from src.schemas.project import (
     ProjectUpdateSchema,
     ProjectTranslationSchema,
     ProjectTranslationCreateSchema,
-    ProjectTranslationUpdateSchema
+    ProjectTranslationUpdateSchema,
+    ProjectOrderSchema
     )
 
 logger = logging.getLogger(__name__)
@@ -129,3 +130,10 @@ class ProjectService:
 
             if not deleted:
                 raise NotFoundException(f"Перевод <{lang}> не найден")
+
+    async def reorder(self, items: list[ProjectOrderSchema]) -> None:
+        """
+        Массово обновляет порядок проектов.
+        """
+        async with self.uow:
+            await self.uow.project.reorder(items)
