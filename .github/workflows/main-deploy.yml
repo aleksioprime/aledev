@@ -13,25 +13,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Test connection
+        run: nc -vz ${{ secrets.SERVER_HOST }} 22 || echo "Port closed"
+
       - name: Setup SSH
         run: |
-          set -e
           mkdir -p ~/.ssh
-
-          # Выводим длину и первые строки ключа для проверки (секрет скрывается в логах)
-          echo "KEY LENGTH: $(echo "${{ secrets.SERVER_SSH_KEY }}" | wc -c)"
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
-
           chmod 600 ~/.ssh/id_rsa
-          ls -l ~/.ssh
-          head -2 ~/.ssh/id_rsa | sed 's/./*/g' # маскируем вывод
+          ssh-keyscan -v -H ${{ secrets.SERVER_HOST }} 2>&1 | tee -a ~/.ssh/known_hosts
 
-          # Проверяем, что переменная с хостом задана
-          echo "HOST: ${{ secrets.SERVER_HOST }}"
-
-          # Складываем известные хосты
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-          cat ~/.ssh/known_hosts
+      - name: Show known_hosts
+        run: cat ~/.ssh/known_hosts || echo "No known_hosts file"
 
       - name: Deploy on server
         run: |
