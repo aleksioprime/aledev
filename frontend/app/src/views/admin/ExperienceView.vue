@@ -125,7 +125,7 @@ const canEdit = (experience) => {
   );
 };
 
-// --- СПИСОК ПРОЕКТОВ ---
+// --- СПИСОК ОПЫТА ---
 
 // Переменные пагинированного списка
 const page = ref(0);
@@ -184,7 +184,7 @@ useIntersectionObserver(
   }
 );
 
-// --- ДОБАВЛЕНИЕ/РЕДАКТИРОВАНИЕ ПРОЕКТОВ ---
+// --- ДОБАВЛЕНИЕ/РЕДАКТИРОВАНИЕ ОПЫТА ---
 
 // Объект модального окна
 const modalDialogEdit = ref({
@@ -193,7 +193,7 @@ const modalDialogEdit = ref({
   form: {},
 });
 
-// Открытие модального окна для создания/редактирования проекта
+// Открытие модального окна для создания/редактирования опыта
 const toDateInput = (val) => (val ? val.slice(0, 10) : null);
 
 const openEditDialog = (experience = null) => {
@@ -208,7 +208,7 @@ const openEditDialog = (experience = null) => {
       }
       : {
         start_date: '',
-        end_date: '',
+        end_date: null,
         is_current: false,
         translations: [
           { lang: "ru", position: "", company: "", responsibilities: "", description: "" },
@@ -218,7 +218,7 @@ const openEditDialog = (experience = null) => {
   };
 };
 
-// Подготовка данных формы для запроса создания/редактирования проектов
+// Подготовка данных формы для запроса создания/редактирования опыта
 function getFormPayload(form) {
   const { id, created_at, updated_at, ...data } = form;
   data.translations = (data.translations || []).map(
@@ -229,7 +229,7 @@ function getFormPayload(form) {
   return data;
 }
 
-// Подтверждение создания/редактирования проекта
+// Подтверждение создания/редактирования опыта
 const experienceFormRef = ref();
 
 const submitDialog = async () => {
@@ -256,7 +256,7 @@ const submitDialog = async () => {
   modalDialogEdit.value.visible = false;
 };
 
-// --- УДАЛЕНИЕ ПАЦИЕНТА ---
+// --- УДАЛЕНИЕ ОПЫТА ---
 
 // Объект модального окна
 const modalDialogDelete = ref({

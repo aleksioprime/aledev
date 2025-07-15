@@ -49,7 +49,7 @@
     </div>
 
     <v-alert v-if="!projects.length" type="info" class="mt-4">
-      Пациенты пока не добавлены
+      Проекты пока не добавлены
     </v-alert>
 
     <!-- Модальное окно добавления/редактирования -->
@@ -254,7 +254,7 @@ const submitDialog = async () => {
   modalDialogEdit.value.visible = false;
 };
 
-// --- УДАЛЕНИЕ ПАЦИЕНТА ---
+// --- УДАЛЕНИЕ ПРОЕКТА ---
 
 // Объект модального окна
 const modalDialogDelete = ref({
