@@ -14,9 +14,6 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Test connection
-        run: nc -vz ${{ secrets.SERVER_HOST }} 22 || echo "Port closed"
-
-      - name: Test connection port 2222
         run: nc -vz ${{ secrets.SERVER_HOST }} 2222 || echo "Port closed"
 
       - name: Setup SSH
@@ -24,14 +21,14 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -v -H ${{ secrets.SERVER_HOST }} 2>&1 | tee -a ~/.ssh/known_hosts
+          ssh-keyscan -p 2222 -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
       - name: Show known_hosts
         run: cat ~/.ssh/known_hosts || echo "No known_hosts file"
 
       - name: Deploy on server
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          ssh -i ~/.ssh/id_rsa -p 2222 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
 
             mkdir -p ~/aledev
             cd ~/aledev
