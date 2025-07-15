@@ -3,7 +3,7 @@ from uuid import UUID
 import logging
 
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy import update, select, delete, func
+from sqlalchemy import update, select, delete, func, desc, nulls_first
 
 from src.constants.base import LangEnum
 from src.models.experience import Experience, ExperienceTranslation
@@ -56,6 +56,10 @@ class ExperienceRepository(BaseExperienceRepository, BaseSQLRepository):
         """ Получает пагинированный список всех записей об опыте работы и количество записей"""
         stmt = (
             select(Experience)
+            .order_by(
+                nulls_first(desc(Experience.end_date)),
+                desc(Experience.start_date)
+            )
             .limit(params.limit)
             .offset(params.offset)
         )

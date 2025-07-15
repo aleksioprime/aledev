@@ -61,7 +61,7 @@ class ProjectRepository(BaseProjectRepository, BaseSQLRepository):
             stmt = stmt.where(Project.is_favorite == params.is_favorite)
             count_stmt = count_stmt.where(Project.is_favorite == params.is_favorite)
 
-        stmt = stmt.limit(params.limit).offset(params.offset)
+        stmt = stmt.order_by(Project.name).limit(params.limit).offset(params.offset)
 
         result = await self.session.execute(stmt)
         projects = result.scalars().unique().all()

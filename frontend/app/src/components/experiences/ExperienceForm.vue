@@ -6,8 +6,7 @@
         <v-text-field v-model="form.start_date" label="Дата начала" type="date" :rules="[rules.required]" required />
       </v-col>
       <v-col cols="12" sm="6">
-        <v-text-field v-model="form.end_date" label="Дата окончания" type="date" :disabled="form.is_current"
-          :rules="[v => form.is_current || !rules.required(v) || 'Обязательное поле']" />
+        <v-text-field v-model="form.end_date" label="Дата окончания" type="date" :disabled="form.is_current" />
       </v-col>
     </v-row>
 
@@ -112,7 +111,7 @@ function removeTranslation(idx) {
 
 // Если выбран is_current — обнуляем дату окончания
 watch(() => form.is_current, val => {
-  if (val) form.end_date = null;
+  if (val) emit("update:modelValue", { ...form, end_date: null });
 });
 
 // Валидация

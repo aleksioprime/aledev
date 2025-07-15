@@ -12,7 +12,7 @@
 
       <!-- Список пунктов меню -->
       <v-list-item v-for="item in menuItems" :key="item.title" :title="item.title" :prepend-icon="item.icon" link
-        :to="{ name: item.to }" @click="handleMenuItemClick"/>
+        :to="{ name: item.to }" @click="handleMenuItemClick" />
     </v-list>
   </v-navigation-drawer>
 
@@ -47,6 +47,9 @@
           </v-btn>
         </template>
         <v-list>
+          <v-list-item @click="router.push({ name: 'home' })">
+            <v-list-item-title>Перейти на сайт</v-list-item-title>
+          </v-list-item>
           <v-list-item @click="logout">
             <v-list-item-title>Выйти</v-list-item-title>
           </v-list-item>
@@ -121,7 +124,7 @@ const menuItems = [
 // Выход пользователя и переход на страницу логина
 async function logout() {
   await authStore.logout()
-  router.push({ name: 'login' }) // редирект на login после logout
+  router.push({ name: 'login' })
 }
 </script>
 

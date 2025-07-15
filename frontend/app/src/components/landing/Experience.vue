@@ -11,9 +11,11 @@
           {{ getTranslation(exp, $i18n.locale).position }}
         </h3>
         <div class="text-cyan-200 font-semibold text-sm mb-0.5">
-          {{ getTranslation(exp, $i18n.locale).organization }}
+          {{ getTranslation(exp, $i18n.locale).company }}
         </div>
-        <time class="block mb-1 text-xs text-neutral-400">{{ getTranslation(exp, $i18n.locale).period }}</time>
+        <time class="block mb-1 text-xs text-neutral-400">
+          {{ formatDate(exp.start_date) }} <span v-if="exp.end_date"> - {{ formatDate(exp.end_date) }}</span><span v-else-if="exp.is_current"> - по настоящее время</span>
+        </time>
         <div class=" text-neutral-300 text-base mb-2">
           {{ getTranslation(exp, $i18n.locale).responsibilities }}
         </div>
@@ -25,10 +27,10 @@
   </section>
 </template>
 
-
-
 <script setup>
 import { ref, onMounted } from "vue";
+
+import { formatDate } from '@/common/helpers/dateFormat'
 
 import { useExperienceStore } from "@/stores/experience";
 const experienceStore = useExperienceStore();
@@ -40,7 +42,7 @@ const sectionId = "experience"
 
 // Переменные пагинированного списка
 const page = ref(1);
-const limit = 3;
+const limit = 5;
 const total = ref(0);
 const hasNextPage = ref(true);
 
