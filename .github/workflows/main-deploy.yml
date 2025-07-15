@@ -16,6 +16,9 @@ jobs:
       - name: Test connection
         run: nc -vz ${{ secrets.SERVER_HOST }} 22 || echo "Port closed"
 
+      - name: Test connection port 2222
+        run: nc -vz ${{ secrets.SERVER_HOST }} 2222 || echo "Port closed"
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
