@@ -14,3 +14,8 @@ python-multipart==0.0.20
 alembic==1.16.2
 asyncpg==0.30.0
 psycopg2-binary==2.9.10
+
+aiosmtplib==4.0.1
+dnspython==2.7.0
+email-validator==2.2.0
+Jinja2==3.1.6

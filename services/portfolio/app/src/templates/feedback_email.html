@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <body style="font-family: Arial, sans-serif; background: #f6f8fa; padding: 30px;">
+    <div style="max-width: 460px; margin: 0 auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 12px #0001; padding: 32px 28px;">
+      <h2 style="margin-top:0;color:#2D8CFF;">Обратная связь с сайта <a href="https://aledev.ru" target="_blank" rel="noopener noreferrer">AleDev</a></h2>
+      <p>
+        <strong>Имя:</strong> {{ name }}<br>
+        <strong>Email:</strong> <a href="mailto:{{ email }}">{{ email }}</a>
+      </p>
+      <hr style="border:none; border-top:1px solid #eee; margin:18px 0;">
+      <div style="white-space: pre-line; color:#222;">
+        {{ message }}
+      </div>
+    </div>
+    <div style="text-align:center;color:#bbb;font-size:12px;margin-top:18px;">
+      Это автоматическое письмо с формы обратной связи c <a href="https://aledev.ru" target="_blank" rel="noopener noreferrer">https://aledev.ru</a>
+    </div>
+  </body>
+</html>

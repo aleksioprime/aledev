@@ -122,3 +122,7 @@ docker stats
 ```
 python3 -c "import secrets; print(''.join(secrets.choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_') for _ in range(86)))"
 ```
+
+```
+docker exec -it aledev-frontend certbot --nginx -d hyperspectrus.aledev.ru -d www.hyperspectrus.aledev.ru
+```

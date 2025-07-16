@@ -60,6 +60,18 @@ class MediaSettings(BaseSettings):
         raise AttributeError(f"No such attribute: {name}")
 
 
+class EmailSettings(BaseSettings):
+    smtp_host: str = Field(alias="SMTP_HOST", default="smtp.yandex.ru")
+    smtp_port: int = Field(alias="SMTP_PORT", default=465)
+    smtp_user: str = Field(alias="SMTP_USER", default="your@yandex.ru")
+    smtp_password: str = Field(alias="SMTP_PASSWORD", default="password")
+    feedback_receiver: str = Field(alias="FEEDBACK_RECEIVER", default="admin@yourdomain.com")
+    templates_path: str = Field(
+        alias="EMAIL_TEMPLATES_PATH",
+        default=os.path.join(os.path.dirname(__file__), "../templates")
+    )
+
+
 class Settings(BaseSettings):
     project_name: str = Field(alias="PROJECT_NAME", default="AledevPortfolio")
     project_description: str = Field(
@@ -69,6 +81,7 @@ class Settings(BaseSettings):
     jwt: JWTSettings = JWTSettings()
     db: DBSettings = DBSettings()
     media: MediaSettings = MediaSettings()
+    email: EmailSettings = EmailSettings()
 
     default_host: str = "0.0.0.0"
     default_port: int = 8000
