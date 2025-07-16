@@ -16,10 +16,7 @@ async def send_feedback(
     background_tasks: BackgroundTasks,
     service: FeedbackService = Depends(get_feedback_service)
 ):
-    try:
-        background_tasks.add_task(
-            service.send_feedback, body.name, body.email, body.message
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ошибка отправки: {e}")
+    background_tasks.add_task(
+        service.send_feedback, body.name, body.email, body.message
+    )
     return {"message": "Обратная связь отправлена!"}
