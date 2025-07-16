@@ -139,11 +139,6 @@ const onProjectsReorder = async () => {
   fetchProjects(true);
 };
 
-// Функция сортировки по полю order
-function sortByOrder(list) {
-  list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-}
-
 // --- СПИСОК ПРОЕКТОВ ---
 
 // Переменные пагинированного списка

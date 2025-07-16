@@ -57,7 +57,7 @@ const form = reactive({
   github_url: "",
   demo_url: "",
   is_favorite: false,
-  order: null,
+  order: 0,
   translations: [blankTranslation("ru"), blankTranslation("en")]
 });
 
