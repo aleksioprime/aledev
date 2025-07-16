@@ -19,7 +19,7 @@ watch(
   () => {
     document.title = route.meta.title
       ? `AleDev - ${route.meta.title}`
-      : 'Aledev';
+      : 'AleDev';
   },
   { immediate: true }
 )
