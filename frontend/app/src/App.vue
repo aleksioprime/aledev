@@ -18,8 +18,8 @@ watch(
   () => route.name,
   () => {
     document.title = route.meta.title
-      ? `AleDev - ${route.meta.title}`
-      : 'AleDev';
+      ? `Aleksei Semochkin — ${route.meta.title}`
+      : 'Aleksei Semochkin — Software Engineer Portfolio';
   },
   { immediate: true }
 )
