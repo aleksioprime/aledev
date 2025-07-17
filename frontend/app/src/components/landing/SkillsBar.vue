@@ -12,7 +12,7 @@
 <script setup>
 import { ref } from "vue"
 const skills = ref([
-  "Python", "FastAPI", "Django", "Docker", "PostgreSQL",
-  "Vue.js", "MQTT", "RabbitMQ", "Arduino"
+  "Python", "FastAPI", "Flask", "Django", "PostgreSQL", "RabbitMQ", "Elasticsearch", "Kafka",
+  "JavaScript", "Vue.js", "Docker", "CI/CD", "OpenCV", "TensorFlow", "Arduino", "MQTT"
 ])
 </script>

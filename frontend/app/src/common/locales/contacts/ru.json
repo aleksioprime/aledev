@@ -1,5 +1,10 @@
 {
   "sectionTitle": "Контакты",
   "email": "Email",
-  "telegram": "Telegram"
+  "telegram": "Telegram",
+  "name": "Ваше имя",
+  "message": "Сообщение",
+  "send": "Отправить",
+  "thankYou": "Спасибо! Ваше сообщение отправлено",
+  "errorSend": "Ошибка отправки. Попробуйте ещё раз"
 }

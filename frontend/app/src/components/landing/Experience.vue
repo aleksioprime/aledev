@@ -14,7 +14,7 @@
           {{ getTranslation(exp, $i18n.locale).company }}
         </div>
         <time class="block mb-1 text-xs text-neutral-400">
-          {{ formatDate(exp.start_date) }} <span v-if="exp.end_date"> - {{ formatDate(exp.end_date) }}</span><span v-else-if="exp.is_current"> - по настоящее время</span>
+          {{ formatDate(exp.start_date, "auto", $i18n.locale) }} <span v-if="exp.end_date"> - {{ formatDate(exp.end_date, "auto", $i18n.locale) }}</span><span v-else-if="exp.is_current"> - {{ $t('experience.present') }}</span>
         </time>
         <div class=" text-neutral-300 text-base mb-2">
           {{ getTranslation(exp, $i18n.locale).responsibilities }}

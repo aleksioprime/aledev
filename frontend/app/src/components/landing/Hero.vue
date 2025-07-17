@@ -30,7 +30,7 @@ import { useI18n } from 'vue-i18n'
 import avatar from "@/assets/img/avatar.png"
 
 const sectionId = "about"
-const cv = "/cv.pdf"
+const cv = "/files/cv_asemochkin.pdf"
 const socials = [
   { icon: "fa-brands fa-github", href: "https://github.com/your-github" },
   { icon: "fa-brands fa-linkedin", href: "https://linkedin.com/in/your-linkedin" },

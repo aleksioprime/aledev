@@ -55,7 +55,7 @@ const menu = [
   { key: "projects", anchor: "projects" },
   { key: "experience", anchor: "experience" },
   { key: "contacts", anchor: "contacts" },
-  { key: "cv", anchor: "/cv.pdf", ext: true },
+  { key: "cv", anchor: "/files/cv_asemochkin.pdf", ext: true },
 ]
 
 function scrollToSection(anchor) {

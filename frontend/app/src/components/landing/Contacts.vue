@@ -29,28 +29,30 @@
     <div class="bg-neutral-100/10 border !border-neutral-700 rounded-2xl shadow pa-6">
       <Transition name="fade" mode="out-in">
         <form v-if="!success" @submit.prevent="submitForm" class="flex flex-col" key="form">
+          <input v-model="form.name" type="text" autocomplete="name" :placeholder="$t('contacts.name')" :class="[
+            'rounded-lg bg-neutral-900/70 border px-4 py-2 focus:outline-none transition placeholder-neutral-400 text-neutral-100',
+            showErrors && errors.name ? '!border-red-500 focus:!border-red-500' : '!border-neutral-700 focus:!border-cyan-400'
+          ]" />
 
-          <input v-model="form.name" type="text" autocomplete="name" placeholder="Ваше имя"
-            class="rounded-lg bg-neutral-900/70 border !border-neutral-700 px-4 py-2 focus:outline-none focus:!border-cyan-400 transition placeholder-neutral-400 text-neutral-100" />
-          <div v-if="showErrors && errors.name" class="text-xs text-red-500 pt-2">{{ errors.name }}</div>
+          <input v-model="form.email" type="email" autocomplete="email" :placeholder="$t('contacts.email')" :class="[
+            'rounded-lg bg-neutral-800 border px-4 py-2 mt-3 focus:outline-none transition placeholder-neutral-400 text-neutral-100',
+            showErrors && errors.email ? '!border-red-500 focus:!border-red-500' : '!border-neutral-700 focus:!border-cyan-400'
+          ]" />
 
-          <input v-model="form.email" type="email" autocomplete="email" placeholder="Email"
-            class="rounded-lg bg-neutral-800 border !border-neutral-700 px-4 py-2 mt-3 focus:outline-none focus:!border-cyan-400 transition placeholder-neutral-400 text-neutral-100" />
-          <div v-if="showErrors && errors.email" class="text-xs text-red-500 pt-2">{{ errors.email }}</div>
-
-          <textarea v-model="form.message" rows="4" placeholder="Сообщение"
-            class="rounded-lg bg-neutral-900 border !border-neutral-700 px-4 py-2 mt-3 focus:outline-none focus:!border-cyan-400 transition placeholder-neutral-400 text-neutral-100 resize-none" />
-          <div v-if="showErrors && errors.message" class="text-xs text-red-500 pt-2">{{ errors.message }}</div>
+          <textarea v-model="form.message" rows="4" :placeholder="$t('contacts.message')" :class="[
+            'rounded-lg bg-neutral-900 border px-4 py-2 mt-3 focus:outline-none transition placeholder-neutral-400 text-neutral-100 resize-none',
+            showErrors && errors.message ? '!border-red-500 focus:!border-red-500' : '!border-neutral-700 focus:!border-cyan-400'
+          ]" />
 
           <button type="submit"
             class="mt-5 w-full rounded-lg !bg-cyan-400 hover:!bg-cyan-500 text-neutral-950 font-semibold py-2 transition">
-            Отправить
+            {{ $t('contacts.send') }}
           </button>
-
         </form>
 
-        <div v-else class="mt-3 text-center !text-cyan-400 text-lg min-h-[120px] flex items-center justify-center" key="thanks">
-          Спасибо! Ваше сообщение отправлено.
+        <div v-else class="mt-3 text-center !text-cyan-400 text-lg min-h-[120px] flex items-center justify-center"
+          key="thanks">
+          {{ $t('contacts.success') }}
         </div>
       </Transition>
 
@@ -137,7 +139,7 @@ async function submitForm() {
   })
 
   if (!result) {
-    error.value = "Ошибка отправки. Попробуйте ещё раз."
+    error.value = $t('contacts.error')
     return
   }
 

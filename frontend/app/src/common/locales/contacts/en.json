@@ -1,5 +1,10 @@
 {
   "sectionTitle": "Contacts",
   "email": "Email",
-  "telegram": "Telegram"
+  "telegram": "Telegram",
+  "name": "Your Name",
+  "message": "Message",
+  "send": "Send",
+  "thankYou": "Thank you! Your message has been sent",
+  "errorSend": "Sending failed. Please try again"
 }
