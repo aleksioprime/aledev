@@ -1,6 +1,6 @@
 <template>
   <section class="container mx-auto py-4">
-    <div class="flex flex-wrap justify-center gap-3 animate-fade-in">
+    <div class="mx-auto flex flex-wrap justify-center gap-3 animate-fade-in" style="max-width: 700px;">
       <span v-for="skill in skills" :key="skill"
             class="bg-neutral-800 text-cyan-200 px-4 py-2 rounded-xl text-base font-medium shadow hover:scale-105 transition cursor-default">
         {{ skill }}
@@ -12,7 +12,7 @@
 <script setup>
 import { ref } from "vue"
 const skills = ref([
-  "Python", "AsyncIO", "FastAPI", "Django", "Flask", "RabbitMQ", "Elasticsearch", "PostgreSQL", "ETL",
+  "Python", "AsyncIO", "FastAPI", "Django", "Flask", "RabbitMQ", "PostgreSQL", "ETL",
   "JavaScript", "Vue.js", "Docker", "CI/CD", "OpenCV", "TensorFlow", "IoT"
 ])
 </script>
