@@ -6,11 +6,11 @@ from src.repositories.post import PostRepository
 class UnitOfWork:
     def __init__(self):
         self.session_factory = async_session_maker
-        self.project = None
+        self.post = None
 
     async def __aenter__(self):
         self.session = self.session_factory()
-        self.posr = PostRepository(self.session)
+        self.post = PostRepository(self.session)
 
     async def __aexit__(self, exc_type, exc_value, traceback):
         if exc_type is not None:

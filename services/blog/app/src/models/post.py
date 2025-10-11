@@ -82,8 +82,8 @@ class Post(Base):
     slug:  Mapped[str] = mapped_column(String(320), unique=True, index=True, nullable=False)
 
     excerpt: Mapped[str | None] = mapped_column(String(500))
-    content_html: Mapped[str] = mapped_column(Text, nullable=False)
-    cover_url: Mapped[str | None] = mapped_column(String(500))
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    url: Mapped[str | None] = mapped_column(String(500))
 
     published: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     published_at: Mapped[datetime | None] = mapped_column(

@@ -45,7 +45,7 @@ class PostBaseSchema(BaseModel):
     title: str = Field(..., description="Заголовок поста")
     slug: str = Field(..., description="Слаг поста (для URL)")
     excerpt: Optional[str] = Field(None, description="Краткое описание")
-    cover_url: Optional[str] = Field(None, description="URL обложки")
+    url: Optional[str] = Field(None, description="URL обложки")
     published: bool = Field(True, description="Опубликован ли пост")
     published_at: Optional[datetime] = Field(None, description="Время публикации")
     created_at: datetime = Field(..., description="Дата создания")
@@ -62,7 +62,7 @@ class PostSchema(PostBaseSchema):
     """
     Детальная схема поста (включает контент HTML)
     """
-    content_html: str = Field(..., description="HTML содержимое статьи (CKEditor)")
+    content: str = Field(..., description="HTML содержимое статьи (CKEditor)")
 
     class Config:
         from_attributes = True
@@ -78,8 +78,8 @@ class PostCreateSchema(BaseModel):
     order: int = Field(0, ge=0, description="Порядок")
     title: str = Field(..., min_length=3, max_length=300, description="Заголовок поста")
     excerpt: Optional[str] = Field(None, max_length=500, description="Краткое описание")
-    content_html: str = Field(..., description="HTML содержимое статьи (CKEditor)")
-    cover_url: Optional[str] = Field(None, description="URL обложки")
+    content: str = Field(..., description="HTML содержимое статьи (CKEditor)")
+    url: Optional[str] = Field(None, description="URL обложки")
     published: bool = Field(True, description="Опубликован ли пост")
     published_at: Optional[datetime] = Field(None, description="Время публикации")
     category_slug: Optional[str] = Field(None, description="Слаг категории")
@@ -93,8 +93,8 @@ class PostUpdateSchema(BaseModel):
     order: Optional[int] = Field(None, ge=0, description="Порядок")
     title: Optional[str] = Field(None, min_length=3, max_length=300, description="Заголовок поста")
     excerpt: Optional[str] = Field(None, max_length=500, description="Краткое описание")
-    content_html: Optional[str] = Field(None, description="HTML содержимое статьи (CKEditor)")
-    cover_url: Optional[str] = Field(None, description="URL обложки")
+    content: Optional[str] = Field(None, description="HTML содержимое статьи (CKEditor)")
+    url: Optional[str] = Field(None, description="URL обложки")
     published: Optional[bool] = Field(None, description="Опубликован ли пост")
     published_at: Optional[datetime] = Field(None, description="Время публикации")
     category_slug: Optional[str] = Field(None, description="Слаг категории")
