@@ -47,8 +47,6 @@ const showDropdown = ref(false)
 
 function changeLang(lang) {
   locale.value = lang
-  console.log('Текущий язык:', locale.value)
-  console.log('Доступные сообщения:', messages.value)
 }
 
 const menu = [

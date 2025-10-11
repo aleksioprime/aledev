@@ -5,7 +5,7 @@
 Скачайте репозиторий:
 ```
 git clone https://github.com/aleksioprime/aledev.git
-cd hyperspectrus
+cd aledev
 ```
 
 Запустите сервис локально:

@@ -1,0 +1,53 @@
+x-app: &app
+  env_file:
+    - ./.env
+  restart: always
+  platform: linux/amd64
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: aledev-blog-postgres
+    <<: *app
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data/
+    environment:
+      TZ: "Europe/Moscow"
+      PGTZ: "Europe/Moscow"
+
+  app:
+    build:
+      context: ./app
+    container_name: aledev-blog-app
+    <<: *app
+    command: python src/main.py
+    volumes:
+      - ./app:/usr/src/app/
+    ports:
+      - "8503:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  adminer:
+    image: adminer
+    container_name: aledev-blog-adminer
+    <<: *app
+    ports:
+      - "8504:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+
+volumes:
+  postgres_volume:
