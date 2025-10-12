@@ -20,7 +20,7 @@ services:
       - blog_dist:/usr/share/nginx/html/blog
     depends_on:
       - frontend-mysite
-      - frontend-blog
+      # - frontend-blog
     ports:
       - "80:80"
       - "443:443"
