@@ -43,23 +43,14 @@ export function getCurrentDomain() {
     return DOMAINS.ALEDEV;
   }
 
-  // Для продакшена определяем напрямую по hostname
-  console.log(`🔍 Checking production hostname: "${hostname}"`);
-
   if (hostname.includes('aleblog.ru')) {
-    console.log('✅ Detected aleblog.ru domain');
-    if (window.location.hostname !== 'localhost') {
-      alert('Detected ALEBLOG domain!');
-    }
+    console.log('Detected aleblog.ru domain');
     cachedDomain = DOMAINS.ALEBLOG;
     return DOMAINS.ALEBLOG;
   }
 
   if (hostname.includes('aledev.ru')) {
-    console.log('✅ Detected aledev.ru domain');
-    if (window.location.hostname !== 'localhost') {
-      alert('Detected ALEDEV domain!');
-    }
+    console.log('Detected aledev.ru domain');
     cachedDomain = DOMAINS.ALEDEV;
     return DOMAINS.ALEDEV;
   }

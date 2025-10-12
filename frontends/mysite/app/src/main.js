@@ -39,16 +39,6 @@ const vuetify = createVuetify({
 	},
 })
 
-// Отладка для production - показываем алерт чтобы точно знать, что JS загрузился
-console.log('🚀 App starting...');
-console.log('🌐 URL:', window.location.href);
-console.log('🌐 Hostname:', window.location.hostname);
-
-// Временный алерт для отладки production
-if (window.location.hostname !== 'localhost') {
-  alert(`JS loaded! Domain: ${window.location.hostname}`);
-}
-
 // Создаём Vue-приложение, передавая главный компонент App
 const app = createApp(App);
 // Подключаем Vuetify для быстрого дизайна

@@ -266,6 +266,6 @@ const showSnackbar = (text, color = 'success') => {
 }
 
 onMounted(async () => {
-  await postStore.loadPosts()
+  // await postStore.loadPosts()
 })
 </script>

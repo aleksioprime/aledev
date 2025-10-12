@@ -113,10 +113,9 @@ const truncateText = (text, length) => {
 }
 
 onMounted(async () => {
-  // Для демонстрации - если нет постов, загружаем демо-данные
-  if (postStore.posts.length === 0) {
-    await postStore.loadPosts({ limit: 3, sort: 'created_at:desc' })
-  }
+  // if (postStore.posts.length === 0) {
+  //   await postStore.loadPosts({ limit: 3, sort: 'created_at:desc' })
+  // }
 })
 </script>
 
