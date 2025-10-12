@@ -1,4 +1,4 @@
-import { backendClient } from "./axios.clients";
+import { portfolioClient } from "./axios.clients";
 import { handleTokenRefresh } from "./token.service";
 import jwtService from "@/services/jwt/jwt.service";
 import logger from '@/common/helpers/logger';
@@ -7,7 +7,7 @@ import { getApiError } from "./api.error";
 
 
 export class ApiService {
-  constructor(client = backendClient) {
+  constructor(client = portfolioClient) {
     this.client = client;
     this.initRequestInterceptor();
     this.initResponseInterceptor();

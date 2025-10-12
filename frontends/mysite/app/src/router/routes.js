@@ -1,48 +1,38 @@
-import { isLoggedIn } from "@/middlewares/isLoggedIn";
+import { aledevRoutes } from "./aledevRoutes";
+import { aleblogRoutes } from "./aleblogRoutes";
+import { getCurrentDomain, DOMAINS } from "@/utils/domainUtils";
 
-export const routes = [
-  {
-    path: "/",
-    name: "home",
-    component: () => import("@/views/HomeView.vue"),
-    meta: {
-      title: '',
-    },
-  },
-  {
-    path: "/admin",
-    name: "login",
-    component: () => import("@/views/admin/Login.vue"),
-    meta: {
-      title: 'Администраторская панель',
-    },
-  },
-  {
-    path: "/admin/projects",
-    name: "projects",
-    component: () => import("@/views/admin/ProjectView.vue"),
-    meta: {
-      title: 'Проекты',
-      layout: "manage",
-      middlewares: [isLoggedIn],
-    },
-  },
-  {
-    path: "/admin/experience",
-    name: "experiences",
-    component: () => import("@/views/admin/ExperienceView.vue"),
-    meta: {
-      title: 'Опыта работы',
-      layout: "manage",
-      middlewares: [isLoggedIn],
-    },
-  },
-  {
+/**
+ * Получает маршруты для текущего домена
+ * @returns {Array} - массив маршрутов
+ */
+function getRoutesForDomain() {
+  const domain = getCurrentDomain();
+
+  let domainRoutes = [];
+
+  switch (domain) {
+    case DOMAINS.ALEBLOG:
+      domainRoutes = aleblogRoutes;
+      break;
+    case DOMAINS.ALEDEV:
+    default:
+      domainRoutes = aledevRoutes;
+      break;
+  }
+
+  // Добавляем общий маршрут 404 для всех доменов
+  const notFoundRoute = {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import("@/views/NotFound.vue"),
     meta: {
       title: 'Страница не найдена',
+      domain: domain === DOMAINS.ALEBLOG ? 'aleblog' : 'aledev'
     },
-  },
-]
+  };
+
+  return [...domainRoutes, notFoundRoute];
+}
+
+export const routes = getRoutesForDomain();
