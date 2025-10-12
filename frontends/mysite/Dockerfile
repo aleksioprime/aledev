@@ -31,3 +31,10 @@ CMD ["npm", "run", "dev", "--", "--host"]
 
 FROM builder AS prod
 RUN npm run build
+
+# Финальный production stage - копируем собранные файлы в нужное место
+WORKDIR /usr/src/app
+COPY --from=builder /usr/src/app/dist ./dist
+
+# При запуске контейнера копируем файлы в volume и завершаем работу
+CMD ["sh", "-c", "cp -r ./dist/* ./dist/ 2>/dev/null || true"]
