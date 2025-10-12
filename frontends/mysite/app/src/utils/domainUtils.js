@@ -8,8 +8,15 @@ export const DOMAINS = {
   ALEBLOG: 'aleblog.ru'
 }
 
+// Кэш для домена (чтобы избежать изменений во время сессии)
+let cachedDomain = null;
+
 // Получение текущего домена
 export function getCurrentDomain() {
+  // Если домен уже определен, возвращаем кэшированное значение
+  if (cachedDomain !== null) {
+    return cachedDomain;
+  }
   if (typeof window === 'undefined') {
     return DOMAINS.ALEDEV; // fallback для SSR
   }
@@ -23,27 +30,33 @@ export function getCurrentDomain() {
 
     if (domainParam) {
       if (domainParam === DOMAINS.ALEBLOG || domainParam === 'aleblog' || domainParam === 'blog') {
+        cachedDomain = DOMAINS.ALEBLOG;
         return DOMAINS.ALEBLOG;
       }
       if (domainParam === DOMAINS.ALEDEV || domainParam === 'aledev' || domainParam === 'dev') {
+        cachedDomain = DOMAINS.ALEDEV;
         return DOMAINS.ALEDEV;
       }
     }
 
-    return DOMAINS.ALEDEV; // по умолчанию для разработки
+    cachedDomain = DOMAINS.ALEDEV; // по умолчанию для разработки
+    return DOMAINS.ALEDEV;
   }
 
   // Для продакшена определяем напрямую по hostname
   if (hostname.includes('aleblog.ru')) {
     console.log('Detected aleblog.ru domain');
+    cachedDomain = DOMAINS.ALEBLOG;
     return DOMAINS.ALEBLOG;
   }
 
   if (hostname.includes('aledev.ru')) {
     console.log('Detected aledev.ru domain');
+    cachedDomain = DOMAINS.ALEDEV;
     return DOMAINS.ALEDEV;
   }
 
+  cachedDomain = DOMAINS.ALEDEV;
   return DOMAINS.ALEDEV;
 }
 
@@ -75,4 +88,11 @@ export function getDomainConfig() {
   };
 
   return configs[domain] || configs[DOMAINS.ALEDEV];
+}
+
+/**
+ * Очищает кэш домена (для тестирования)
+ */
+export function clearDomainCache() {
+  cachedDomain = null;
 }
