@@ -1,15 +1,14 @@
-name: Build Main App
+name: Build Blog Service
 
-run-name: "Build Main App for ${{ github.ref_name }} by ${{ github.actor }}"
+run-name: "Build Blog Service for ${{ github.ref_name }} by ${{ github.actor }}"
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'frontends/mysite/**'
-      - '.github/workflows/main-build.yml'
-      - '*'
+      - 'services/blog/**'
+      - '.github/workflows/blog-build.yml'
 
 jobs:
   test:
@@ -43,7 +42,7 @@ jobs:
 
       - name: Export ENV_VARS
         run: |
-          printf "%s\n" "${{ secrets.ENV_VARS }}" | while IFS= read -r line; do
+          printf "%s\n" "${{ secrets.ENV_BLOG_VARS }}" | while IFS= read -r line; do
             if [[ ! -z "$line" && "$line" != \#* ]]; then
               echo "$line" >> $GITHUB_ENV
             fi
@@ -51,10 +50,7 @@ jobs:
 
       - name: Build and push image
         run: |
-          docker build --target prod \
-            --build-arg VITE_LOGGING=0 \
-            --build-arg VITE_AUTH_URL=$VITE_AUTH_URL \
-            --build-arg VITE_PORTFOLIO_URL=$VITE_PORTFOLIO_URL \
-            -t aleksioprime/aledev-frontend:latest ./frontends/mysite
+          docker build \
+            -t aleksioprime/aledev-blog:latest ./services/blog/app
 
-          docker push aleksioprime/aledev-frontend:latest
+          docker push aleksioprime/aledev-blog:latest
