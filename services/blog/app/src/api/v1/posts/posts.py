@@ -42,8 +42,25 @@ async def get_all_posts(
 
 
 @router.get(
+    path='/slug/{slug}/',
+    summary='Получить пост по slug (публичный доступ)',
+    response_model=PostSchema,
+    status_code=status.HTTP_200_OK,
+)
+async def get_post_by_slug(
+    slug: str,
+    service: Annotated[PostService, Depends(get_post_service)],
+):
+    """
+    Возвращает полное содержимое поста по его slug
+    """
+    post = await service.get_by_slug(slug)
+    return post
+
+
+@router.get(
     path='/{post_id}/',
-    summary='Получить пост по его ID',
+    summary='Получить пост по его ID (админ)',
     response_model=PostSchema,
     status_code=status.HTTP_200_OK,
 )
@@ -53,7 +70,7 @@ async def get_detailed_post(
     user: Annotated[UserJWT, Depends(permission_required())],
 ):
     """
-    Возвращает полное содержимое поста
+    Возвращает полное содержимое поста по ID (для админов)
     """
     post = await service.get_by_id(post_id)
     return post

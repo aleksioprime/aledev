@@ -50,7 +50,19 @@ class PostService:
             if not post:
                 raise NotFoundException(f"Пост с ID {post_id} не найден")
 
-        return post
+        return PostSchema.model_validate(post)
+
+    async def get_by_slug(self, slug: str) -> PostSchema:
+        """
+        Выдаёт информацию о посте по его slug
+        """
+        async with self.uow:
+            post = await self.uow.post.get_by_slug(slug)
+
+            if not post:
+                raise NotFoundException(f"Пост с slug '{slug}' не найден")
+
+        return PostSchema.model_validate(post)
 
     async def create(self, body: PostCreateSchema) -> PostSchema:
         """
@@ -63,7 +75,7 @@ class PostService:
             except IntegrityError as e:
                 raise BaseException("Ошибка ограничения целостности данных в базе данных") from e
 
-        return created_post
+        return PostSchema.model_validate(created_post)
 
     async def update(self, post_id: UUID, body: PostUpdateSchema) -> PostSchema:
         """
@@ -78,7 +90,7 @@ class PostService:
             if not updated_post:
                 raise NotFoundException(f"Пост с ID {post_id} не найден")
 
-        return updated_post
+        return PostSchema.model_validate(updated_post)
 
     async def delete(self, post_id: UUID) -> None:
         """
@@ -88,7 +100,7 @@ class PostService:
             post = await self.uow.post.get_by_id(post_id)
 
             if not post:
-                raise NotFoundException(f"Проект с ID  {post_id} не найден")
+                raise NotFoundException(f"Пост с ID {post_id} не найден")
 
             await self.uow.post.delete(post_id)
 
@@ -97,4 +109,4 @@ class PostService:
         Массово обновляет порядок постов
         """
         async with self.uow:
-            await self.uow.project.reorder(items)
+            await self.uow.post.reorder(items)
