@@ -36,10 +36,9 @@ FROM nginx:1.27.1-alpine3.20-slim AS prod
 
 RUN apk add --no-cache certbot certbot-nginx
 
-RUN mkdir -p /usr/share/nginx/html/mysite \
-    && mkdir -p /var/www/certbot
+RUN mkdir -p /var/www/certbot
 
 COPY --from=prod-builder /usr/src/app/dist /usr/share/nginx/html
-COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/config/nginx.conf /etc/nginx/conf.d/default.conf
 
 CMD ["nginx", "-g", "daemon off;"]
