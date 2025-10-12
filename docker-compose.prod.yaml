@@ -31,7 +31,6 @@ services:
     restart: "no"
     volumes:
       - mysite_dist:/usr/src/app/dist
-    command: ["sh", "-c", "cp -r ./dist/* /usr/src/app/dist/ && echo 'Files copied successfully' && sleep 10"]
 
 volumes:
   mysite_dist:
