@@ -1,6 +1,7 @@
 FROM nginx:1.27.1-alpine3.20-slim
 
-RUN apt update && apt install -y certbot python3-certbot-nginx
+# Устанавливаем certbot и плагин для nginx через apk
+RUN apk add --no-cache certbot certbot-nginx
 
 RUN mkdir -p /usr/share/nginx/html/mysite \
     && mkdir -p /usr/share/nginx/html/blog \
