@@ -29,8 +29,17 @@ COPY app ./
 FROM builder AS dev
 CMD ["npm", "run", "dev", "--", "--host"]
 
-FROM builder AS prod
+FROM builder AS prod-builder
 RUN npm run build
 
-# При запуске контейнера копируем файлы в volume и завершаем работу
-CMD ["sh", "-c", "cp -r ./dist/* /usr/src/app/dist/ 2>/dev/null || echo 'Build files copied' && sleep 5"]
+FROM nginx:1.27.1-alpine3.20-slim AS prod
+
+RUN apk add --no-cache certbot certbot-nginx
+
+RUN mkdir -p /usr/share/nginx/html/mysite \
+    && mkdir -p /var/www/certbot
+
+COPY --from=prod-builder /usr/src/app/dist /usr/share/nginx/html
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+CMD ["nginx", "-g", "daemon off;"]
