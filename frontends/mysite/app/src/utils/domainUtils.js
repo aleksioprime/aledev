@@ -21,12 +21,17 @@ export function getCurrentDomain() {
 
   // Для разработки также учитываем localhost
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    // Можно определить по порту или query параметру
+    // Определяем по query параметру domain
     const urlParams = new URLSearchParams(window.location.search);
     const domain = urlParams.get('domain');
 
-    if (domain === 'blog') {
+    // Проверяем на точное соответствие доменным именам или сокращенным версиям
+    if (domain === DOMAINS.ALEBLOG || domain === 'aleblog' || domain === 'blog') {
       return DOMAINS.ALEBLOG;
+    }
+
+    if (domain === DOMAINS.ALEDEV || domain === 'aledev' || domain === 'dev') {
+      return DOMAINS.ALEDEV;
     }
 
     return DOMAINS.ALEDEV; // по умолчанию

@@ -10,16 +10,20 @@
 import { watch } from 'vue'
 
 import AppLayout from "@/layouts/AppLayout.vue";
+import { getCurrentDomain, DOMAINS, getDomainConfig } from "@/utils/domainUtils";
 
 import { useRoute } from 'vue-router'
 const route = useRoute()
 
 watch(
-  () => route.name,
+  () => [route.name, route.query],
   () => {
+    const domainConfig = getDomainConfig();
+    const baseTitle = domainConfig.title;
+
     document.title = route.meta.title
-      ? `Aleksei Semochkin — ${route.meta.title}`
-      : 'Aleksei Semochkin — Software Engineer Portfolio';
+      ? `${baseTitle} — ${route.meta.title}`
+      : baseTitle;
   },
   { immediate: true }
 )

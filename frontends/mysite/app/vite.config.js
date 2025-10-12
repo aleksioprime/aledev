@@ -34,10 +34,6 @@ const config = defineConfig({
 			}
 		},
 	},
-	define: {
-		// Передаем информацию о том, что это dev режим
-		__DEV_MODE__: true,
-	},
 	resolve: {
 		alias: {
 			'@': fileURLToPath(new URL('./src', import.meta.url)),
