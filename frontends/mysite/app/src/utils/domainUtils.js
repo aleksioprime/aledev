@@ -19,30 +19,34 @@ export function getCurrentDomain() {
 
   const hostname = window.location.hostname;
 
-  // Для разработки также учитываем localhost
+  // Для разработки используем query параметр (для тестирования)
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    // Определяем по query параметру domain
     const urlParams = new URLSearchParams(window.location.search);
-    const domain = urlParams.get('domain');
+    const domainParam = urlParams.get('domain');
 
-    // Проверяем на точное соответствие доменным именам или сокращенным версиям
-    if (domain === DOMAINS.ALEBLOG || domain === 'aleblog' || domain === 'blog') {
-      return DOMAINS.ALEBLOG;
+    if (domainParam) {
+      if (domainParam === DOMAINS.ALEBLOG || domainParam === 'aleblog' || domainParam === 'blog') {
+        return DOMAINS.ALEBLOG;
+      }
+      if (domainParam === DOMAINS.ALEDEV || domainParam === 'aledev' || domainParam === 'dev') {
+        return DOMAINS.ALEDEV;
+      }
     }
 
-    if (domain === DOMAINS.ALEDEV || domain === 'aledev' || domain === 'dev') {
-      return DOMAINS.ALEDEV;
-    }
-
-    return DOMAINS.ALEDEV; // по умолчанию
+    return DOMAINS.ALEDEV; // по умолчанию для разработки
   }
 
-  // Для продакшена проверяем точный домен
+  // Для продакшена определяем напрямую по hostname
   if (hostname.includes('aleblog.ru')) {
     return DOMAINS.ALEBLOG;
   }
 
-  return DOMAINS.ALEDEV; // по умолчанию
+  if (hostname.includes('aledev.ru')) {
+    return DOMAINS.ALEDEV;
+  }
+
+  // Fallback
+  return DOMAINS.ALEDEV;
 }
 
 /**
