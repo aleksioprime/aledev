@@ -39,6 +39,6 @@ RUN apk add --no-cache certbot certbot-nginx
 RUN mkdir -p /var/www/certbot
 
 COPY --from=prod-builder /usr/src/app/dist /usr/share/nginx/html
-COPY nginx/config/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 CMD ["nginx", "-g", "daemon off;"]
