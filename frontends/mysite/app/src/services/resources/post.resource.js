@@ -10,6 +10,15 @@ export class PostResource extends ApiService {
     return this.$get(`/api/v1/posts/`, params);
   }
 
+  getPost(identifier) {
+    // Если identifier содержит дефисы, это slug
+    if (identifier.includes('-') || !identifier.match(/^[0-9a-f-]{36}$/i)) {
+      return this.$get(`/api/v1/posts/slug/${identifier}/`);
+    }
+    // Иначе это UUID
+    return this.$get(`/api/v1/posts/${identifier}/`);
+  }
+
   createPost(data) {
     return this.$post(`/api/v1/posts/`, data);
   }
