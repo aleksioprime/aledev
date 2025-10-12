@@ -62,16 +62,7 @@ jobs:
             --build-arg VITE_LOGGING=0 \
             --build-arg VITE_AUTH_URL=$VITE_AUTH_URL \
             --build-arg VITE_PORTFOLIO_URL=$VITE_PORTFOLIO_URL \
+            --build-arg VITE_BLOG_URL=$VITE_BLOG_URL \
             -t aleksioprime/aledev-frontend-mysite:latest ./frontends/mysite
 
           docker push aleksioprime/aledev-frontend-mysite:latest
-
-      - name: Build and push BLOG image
-        run: |
-          docker build --target prod \
-            --build-arg VITE_LOGGING=0 \
-            --build-arg VITE_AUTH_URL=$VITE_AUTH_URL \
-            --build-arg VITE_BLOG_URL=$VITE_BLOG_URL \
-            -t aleksioprime/aledev-frontend-blog:latest ./frontends/blog
-
-          docker push aleksioprime/aledev-frontend-blog:latest

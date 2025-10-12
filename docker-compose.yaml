@@ -8,6 +8,7 @@ services:
         - VITE_LOGGING=1
         - VITE_AUTH_URL=http://localhost:8501
         - VITE_PORTFOLIO_URL=http://localhost:8502
+        - VITE_BLOG_URL=http://localhost:8503
     restart: always
     platform: linux/amd64
     container_name: aledev-frontend-mysite
@@ -15,23 +16,5 @@ services:
       - ./frontends/mysite/app/src:/usr/src/app/src
     ports:
       - "8085:5173"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  frontend-blog:
-    build:
-      context: ./frontends/blog
-      target: dev
-      args:
-        - VITE_LOGGING=1
-        - VITE_AUTH_URL=http://localhost:8501
-        - VITE_BLOG_URL=http://localhost:8503
-    restart: always
-    platform: linux/amd64
-    container_name: aledev-frontend-blog
-    volumes:
-      - ./frontends/blog/app/src:/usr/src/app/src
-    ports:
-      - "8086:5173"
     extra_hosts:
       - "host.docker.internal:host-gateway"
