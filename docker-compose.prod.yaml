@@ -34,12 +34,12 @@ services:
     volumes:
       - mysite_dist:/usr/src/app/dist
 
-  frontend-blog:
-    image: aleksioprime/aledev-frontend-blog:latest
-    container_name: aledev-frontend-blog
-    <<: *app
-    volumes:
-      - blog_dist:/usr/src/app/dist
+  # frontend-blog:
+  #   image: aleksioprime/aledev-frontend-blog:latest
+  #   container_name: aledev-frontend-blog
+  #   <<: *app
+  #   volumes:
+  #     - blog_dist:/usr/src/app/dist
 
 volumes:
   mysite_dist:
