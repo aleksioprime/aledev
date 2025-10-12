@@ -32,7 +32,7 @@ services:
     volumes:
       - /root/aledev/media:/usr/src/app/media
     ports:
-      - "8002:8000"
+      - "8003:8000"
     depends_on:
       postgres:
         condition: service_healthy
