@@ -8,10 +8,7 @@ export const DOMAINS = {
   ALEBLOG: 'aleblog.ru'
 }
 
-/**
- * Получает текущий домен
- * @returns {string} - текущий домен
- */
+// Получение текущего домена
 export function getCurrentDomain() {
   if (typeof window === 'undefined') {
     return DOMAINS.ALEDEV; // fallback для SSR
@@ -38,37 +35,29 @@ export function getCurrentDomain() {
 
   // Для продакшена определяем напрямую по hostname
   if (hostname.includes('aleblog.ru')) {
+    console.log('Detected aleblog.ru domain');
     return DOMAINS.ALEBLOG;
   }
 
   if (hostname.includes('aledev.ru')) {
+    console.log('Detected aledev.ru domain');
     return DOMAINS.ALEDEV;
   }
 
-  // Fallback
   return DOMAINS.ALEDEV;
 }
 
-/**
- * Проверяет, является ли текущий домен блогом
- * @returns {boolean}
- */
+// Проверяет, является ли текущий домен блогом
 export function isBlogDomain() {
   return getCurrentDomain() === DOMAINS.ALEBLOG;
 }
 
-/**
- * Проверяет, является ли текущий домен основным сайтом
- * @returns {boolean}
- */
+// Проверяет, является ли текущий домен основным (aledev)
 export function isMainDomain() {
   return getCurrentDomain() === DOMAINS.ALEDEV;
 }
 
-/**
- * Получает конфигурацию для текущего домена
- * @returns {Object} - конфигурация домена
- */
+// Получает конфигурацию для текущего домена
 export function getDomainConfig() {
   const domain = getCurrentDomain();
 
