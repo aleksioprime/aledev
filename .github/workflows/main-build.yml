@@ -49,20 +49,12 @@ jobs:
             fi
           done
 
-      - name: Build and push NGINX image
-        run: |
-          docker build \
-            -t aleksioprime/aledev-frontend-nginx:latest ./frontends/nginx
-
-          docker push aleksioprime/aledev-frontend-nginx:latest
-
-      - name: Build and push MYSITE image
+      - name: Build and push frontend image
         run: |
           docker build --target prod \
             --build-arg VITE_LOGGING=0 \
             --build-arg VITE_AUTH_URL=$VITE_AUTH_URL \
             --build-arg VITE_PORTFOLIO_URL=$VITE_PORTFOLIO_URL \
-            --build-arg VITE_BLOG_URL=$VITE_BLOG_URL \
-            -t aleksioprime/aledev-frontend:latest ./frontends/mysite
+            -t aleksioprime/aledev-frontend:latest ./frontends
 
           docker push aleksioprime/aledev-frontend:latest

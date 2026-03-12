@@ -38,13 +38,8 @@ jobs:
 
             curl -o ~/aledev/docker-compose.prod.yaml https://raw.githubusercontent.com/aleksioprime/aledev/main/docker-compose.prod.yaml
 
-            if [ ! -f ~/aledev/nginx/nginx.conf ]; then
-              echo "Файл nginx/nginx.conf не найден. Скачиваем..."
-              mkdir -p ~/aledev/nginx
-              curl -v -o ~/aledev/nginx/nginx.conf https://raw.githubusercontent.com/aleksioprime/aledev/main/frontends/nginx/config/nginx.conf
-            else
-              echo "Файл nginx/nginx.conf уже существует. Не скачиваем."
-            fi
+            mkdir -p ~/aledev/frontends/nginx
+            curl -v -o ~/aledev/frontends/nginx/nginx.conf https://raw.githubusercontent.com/aleksioprime/aledev/main/frontends/nginx/nginx.conf
 
             echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
