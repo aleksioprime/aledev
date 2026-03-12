@@ -83,7 +83,12 @@ sudo crontab -e
 
 Добавьте строку:
 ```
-0 3 * * * docker exec aledev-frontend certbot renew --quiet && docker exec aledev-frontend nginx -s reload
+0 3 * * * /usr/bin/docker exec aledev-frontend-mysite timeout 180 certbot renew --non-interactive --deploy-hook "nginx -s reload" >> /var/log/certbot-cron.log 2>&1
+```
+
+Обновление сертификатов вручную:
+```
+docker exec aledev-frontend-mysite certbot renew --non-interactive
 ```
 
 В случае необхожимости можно удалить сертификаты:
@@ -108,7 +113,7 @@ docker compose -f ~/aledev/services/hyperspectrus/docker-compose.aledev.yaml ps
 
 Редактирование NGINX:
 ```
-sudo nano ~/aledev/nginx/nginx.conf
+sudo nano ~/aledev/frontends/nginx/nginx.conf
 docker exec -it aledev-frontend nginx -s reload
 ```
 
