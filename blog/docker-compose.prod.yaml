@@ -1,19 +1,30 @@
-x-app: &app
+x-backend-app: &backend_app
   env_file:
-    - ./.env
-  restart: always
+    - ./backend/.env
+  restart: unless-stopped
   platform: linux/amd64
 
 services:
+  frontend:
+    image: aleksioprime/aledev-blog-frontend:latest
+    container_name: aledev-blog-frontend
+    restart: unless-stopped
+    platform: linux/amd64
+    ports:
+      - "8087:80"
+      - "8447:443"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   postgres:
     image: postgres:14
     container_name: aledev-blog-postgres
-    <<: *app
+    <<: *backend_app
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'",
+          "sh -c 'pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-blog}'",
         ]
       interval: 5s
       timeout: 5s
@@ -24,13 +35,13 @@ services:
       TZ: "Europe/Moscow"
       PGTZ: "Europe/Moscow"
 
-  app:
+  backend:
     image: aleksioprime/aledev-blog:latest
     container_name: aledev-blog-app
-    <<: *app
+    <<: *backend_app
     command: python src/main.py
     volumes:
-      - /root/aledev/media:/usr/src/app/media
+      - /root/aledev/blog/media:/usr/src/app/media
     ports:
       - "8003:8000"
     depends_on:

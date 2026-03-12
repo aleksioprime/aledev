@@ -2,7 +2,7 @@ import { isLoggedIn } from "@/middlewares/isLoggedIn";
 
 export const blogRoutes = [
   {
-    path: "/blog",
+    path: "/",
     name: "blog-home",
     component: () => import("@/views/blog/BlogHome.vue"),
     meta: {
@@ -10,7 +10,7 @@ export const blogRoutes = [
     },
   },
   {
-    path: "/blog/posts",
+    path: "/posts",
     name: "blog-posts",
     component: () => import("@/views/blog/BlogPosts.vue"),
     meta: {
@@ -18,7 +18,7 @@ export const blogRoutes = [
     },
   },
   {
-    path: "/blog/posts/create",
+    path: "/posts/create",
     name: "blog-post-create",
     component: () => import("@/views/blog/BlogPostCreate.vue"),
     meta: {
@@ -27,7 +27,7 @@ export const blogRoutes = [
     },
   },
   {
-    path: "/blog/posts/:id/edit",
+    path: "/posts/:id/edit",
     name: "blog-post-edit",
     component: () => import("@/views/blog/BlogPostEdit.vue"),
     meta: {
@@ -36,7 +36,7 @@ export const blogRoutes = [
     },
   },
   {
-    path: "/blog/post/:slug",
+    path: "/post/:slug",
     name: "blog-post",
     component: () => import("@/views/blog/BlogPost.vue"),
     meta: {

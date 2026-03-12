@@ -10,7 +10,7 @@ cd aledev
 
 Запустите сервис локально:
 ```
-cd services/blog
+cd blog/backend
 docker-compose -p aledev-blog up -d --build
 ```
 
@@ -79,7 +79,7 @@ docker exec -it aledev-frontend rm -rf /etc/letsencrypt/archive/blog.aledev.ru
 
 Удаление контейнеров и переменных:
 ```
-docker compose -f ~/aledev/services/blog/docker-compose.prod.yaml down - v
+docker compose -f ~/aledev/blog/backend/docker-compose.prod.yaml down - v
 docker image prune -a -f
 ```
 

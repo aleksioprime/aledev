@@ -1,0 +1,70 @@
+x-backend-app: &backend_app
+  env_file:
+    - ./backend/.env
+  restart: unless-stopped
+  platform: linux/amd64
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+      args:
+        - VITE_LOGGING=1
+        - VITE_AUTH_URL=http://localhost:8501
+        - VITE_BLOG_URL=http://localhost:8503
+    restart: unless-stopped
+    platform: linux/amd64
+    container_name: aledev-blog-frontend
+    volumes:
+      - ./frontend/app/src:/usr/src/app/src
+    ports:
+      - "8086:5173"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  postgres:
+    image: postgres:14
+    container_name: aledev-blog-postgres
+    <<: *backend_app
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-blog}'",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data/
+    environment:
+      TZ: "Europe/Moscow"
+      PGTZ: "Europe/Moscow"
+
+  backend:
+    build:
+      context: ./backend/app
+    container_name: aledev-blog-app
+    <<: *backend_app
+    command: python src/main.py
+    volumes:
+      - ./backend/app:/usr/src/app/
+    ports:
+      - "8503:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  adminer:
+    image: adminer
+    container_name: aledev-blog-adminer
+    <<: *backend_app
+    ports:
+      - "8504:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_volume:

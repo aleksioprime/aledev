@@ -13,7 +13,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'",
+          "sh -c 'pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-blog}'",
         ]
       interval: 5s
       timeout: 5s
@@ -25,29 +25,17 @@ services:
       PGTZ: "Europe/Moscow"
 
   app:
-    build:
-      context: ./app
+    image: aleksioprime/aledev-blog:latest
     container_name: aledev-blog-app
     <<: *app
     command: python src/main.py
     volumes:
-      - ./app:/usr/src/app/
+      - /root/aledev/media:/usr/src/app/media
     ports:
-      - "8503:8000"
+      - "8003:8000"
     depends_on:
       postgres:
         condition: service_healthy
-
-  adminer:
-    image: adminer
-    container_name: aledev-blog-adminer
-    <<: *app
-    ports:
-      - "8504:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
-
 
 volumes:
   postgres_volume:

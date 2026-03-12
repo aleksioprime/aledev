@@ -4,6 +4,6 @@ export const authClient = axios.create({
   baseURL: import.meta.env.VITE_AUTH_URL,
 });
 
-export const portfolioClient = axios.create({
-  baseURL: import.meta.env.VITE_PORTFOLIO_URL,
+export const blogClient = axios.create({
+  baseURL: import.meta.env.VITE_BLOG_URL,
 });

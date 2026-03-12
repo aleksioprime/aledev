@@ -13,6 +13,16 @@ cd aledev
 docker-compose -p aledev up -d --build
 ```
 
+## Blog как отдельное приложение
+
+Блог вынесен в отдельную директорию `blog/` с собственными `frontend` и `backend`.
+
+Локальный запуск:
+```
+cd blog
+docker compose up -d --build
+```
+
 # Запуск на сервере:
 
 ## Подготовка сервера
