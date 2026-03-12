@@ -63,6 +63,6 @@ jobs:
             --build-arg VITE_AUTH_URL=$VITE_AUTH_URL \
             --build-arg VITE_PORTFOLIO_URL=$VITE_PORTFOLIO_URL \
             --build-arg VITE_BLOG_URL=$VITE_BLOG_URL \
-            -t aleksioprime/aledev-frontend-mysite:latest ./frontends/mysite
+            -t aleksioprime/aledev-frontend:latest ./frontends/mysite
 
-          docker push aleksioprime/aledev-frontend-mysite:latest
+          docker push aleksioprime/aledev-frontend:latest

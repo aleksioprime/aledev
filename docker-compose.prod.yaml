@@ -6,8 +6,8 @@ x-app: &app
 
 services:
   frontend:
-    image: aleksioprime/aledev-frontend-mysite:latest
-    container_name: aledev-frontend-mysite
+    image: aleksioprime/aledev-frontend:latest
+    container_name: aledev-frontend
     <<: *app
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
