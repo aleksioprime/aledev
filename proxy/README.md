@@ -166,10 +166,8 @@ SOCKS4/4.5:
 Если прокси будет использоваться не только вами или появятся долгие соединения, снижайте `maxconn` или увеличивайте RAM/добавляйте swap.
 
 
+Пример подключения:
 ```sh
 curl -v --proxy http://89.223.68.11:3128 --proxy-user 'proxypkdsjf42m6:NWanZy=tu!TB0FGVV89Icgq9' https://api.ipify.org
-```
-
-```sh
 curl -v --proxy socks5h://89.223.68.11:1080 --proxy-user 'proxypkdsjf42m6:NWanZy=tu!TB0FGVV89Icgq9' https://api.ipify.org
 ```
