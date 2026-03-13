@@ -84,12 +84,12 @@ sudo crontab -e
 
 Добавьте строку:
 ```
-0 3 * * * /usr/bin/docker exec aledev-frontend-mysite timeout 180 certbot renew --non-interactive --deploy-hook "nginx -s reload" >> /var/log/certbot-cron.log 2>&1
+0 3 * * * /usr/bin/docker exec aledev-frontend timeout 180 certbot renew --non-interactive --deploy-hook "nginx -s reload" >> /var/log/certbot-cron.log 2>&1
 ```
 
 Обновление сертификатов вручную:
 ```
-docker exec aledev-frontend-mysite certbot renew --non-interactive
+docker exec aledev-frontend certbot renew --non-interactive
 ```
 
 В случае необхожимости можно удалить сертификаты:

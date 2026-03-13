@@ -83,7 +83,14 @@ class Settings(BaseSettings):
     default_host: str = "0.0.0.0"
     default_port: int = 8000
 
-    cors_allow_origins_str: str = Field(alias="CORS_ALLOW_ORIGINS", default="")
+    cors_allow_origins_str: str = Field(
+        alias="CORS_ALLOW_ORIGINS",
+        default="http://localhost,http://127.0.0.1,https://aledev.ru,https://www.aledev.ru",
+    )
+    cors_allow_origin_regex: str = Field(
+        alias="CORS_ALLOW_ORIGIN_REGEX",
+        default=r"^https?://([a-z0-9-]+\.)?aledev\.ru$",
+    )
 
     @property
     def cors_allow_origins(self) -> List[str]:

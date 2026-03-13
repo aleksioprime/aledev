@@ -47,6 +47,7 @@ register_exception_handlers(app)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_allow_origins,
+    allow_origin_regex=settings.cors_allow_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],  # Разрешить все методы (GET, POST и т.д.)
     allow_headers=["*"],  # Разрешить все заголовки
