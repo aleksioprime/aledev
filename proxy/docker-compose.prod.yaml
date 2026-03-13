@@ -9,6 +9,8 @@ services:
     ports:
       - "3128:3128/tcp"
       - "1080:1080/tcp"
+      - "35103:35103/tcp"
+      - "51111:51111/tcp"
     mem_limit: 128m
     cpus: 0.25
     pids_limit: 128

@@ -4,6 +4,7 @@ media
 .env
 .env.prod
 proxy/config/users.list
+proxy/config/upstreams.cfg
 .idea
 .python-version
 .mypy_cache

@@ -19,6 +19,8 @@
 
 - HTTP proxy на порту `3128`
 - SOCKS proxy на порту `1080`
+- HTTP proxy через внешний parent на порту `35103`
+- SOCKS proxy через внешний parent на порту `51111`
 - аутентификация по логину/паролю для HTTP и SOCKS5
 
 Ограничение протокола:
@@ -32,6 +34,8 @@
 - `proxy/docker-compose.prod.yaml` - серверный compose для деплоя на VPS
 - `proxy/config/users.list` - список пользователей в формате `login:CL:password`
 - `proxy/config/users.list.example` - шаблон файла пользователей
+- `proxy/config/upstreams.cfg` - дополнительные локальные порты, отправляющие трафик через внешние proxy
+- `proxy/config/upstreams.cfg.example` - шаблон upstream-конфига
 - `proxy/scripts/add-user.sh` - простой скрипт добавления пользователя
 
 ## Создание пользователей
@@ -75,6 +79,21 @@ user1:CL:password1
 user2:CL:password2
 ```
 
+## Дополнительные upstream-порты
+
+Основной `proxy/config/3proxy.cfg` включает файл `proxy/config/upstreams.cfg`.
+
+Это позволяет поднять дополнительные локальные порты на вашем VPS, которые будут отправлять трафик через внешний parent proxy. Клиенты при этом продолжают входить вашими локальными пользователями из `users.list`.
+
+Сейчас настроено:
+- локальный HTTP proxy на `35103` -> через внешний HTTP proxy `195.26.226.75:35103`
+- локальный SOCKS proxy на `51111` -> через внешний SOCKS5 proxy `195.26.226.75:51111`
+
+Важно:
+- клиент подключается к вашему серверу и использует ваш локальный логин/пароль из `users.list`
+- логин/пароль upstream-прокси используются только внутри `upstreams.cfg`
+- если хотите ограничить доступ к этим портам отдельными локальными пользователями, это можно сделать через `allow user1,user2`
+
 ## Локальный запуск
 
 ```bash
@@ -92,7 +111,9 @@ docker logs --tail=50 aledev-3proxy
 - создаёт `~/aledev/proxy/config`
 - скачивает `proxy/docker-compose.prod.yaml`
 - скачивает `proxy/config/3proxy.cfg`
+- скачивает `proxy/config/upstreams.cfg.example`
 - записывает `~/aledev/proxy/config/users.list` из GitHub secret
+- записывает `~/aledev/proxy/config/upstreams.cfg` из GitHub secret при наличии
 - перезапускает отдельный proxy stack
 
 ## Required GitHub secret
@@ -104,7 +125,14 @@ user1:CL:very_strong_password
 user2:CL:another_strong_password
 ```
 
+- `PROXY_UPSTREAMS_CFG` - содержимое файла `upstreams.cfg`, если вы не хотите хранить upstream-настройки прямо на сервере вручную
+
 Если secret пустой, workflow оставит существующий `~/aledev/proxy/config/users.list` на сервере как есть. Если файла на сервере ещё нет, деплой завершится ошибкой.
+
+Для `PROXY_UPSTREAMS_CFG` логика мягче:
+- если secret задан, он перезапишет `~/aledev/proxy/config/upstreams.cfg`
+- если secret пустой, но файл уже существует на сервере, он будет переиспользован
+- если secret пустой и файла ещё нет, будет создан шаблон из `upstreams.cfg.example`
 
 ## Подключение клиентов
 
@@ -123,6 +151,10 @@ SOCKS4/4.5:
 - port: `1080`
 - без гарантированной парольной аутентификации на уровне протокола
 
+Дополнительные порты:
+- HTTP через внешний parent: порт `35103`
+- SOCKS через внешний parent: порт `51111`
+
 ## Замечания по ресурсу сервера
 
 Для вашего VPS это разумная стартовая конфигурация:
@@ -134,9 +166,9 @@ SOCKS4/4.5:
 
 
 ```sh
-curl -v --proxy http://127.0.0.1:3128 --proxy-user 'proxypkdsjf42m6:NWanZy=tu!TB0FGVV89Icgq9' https://api.ipify.org
+curl -v --proxy http://89.223.68.11:3128 --proxy-user 'proxypkdsjf42m6:NWanZy=tu!TB0FGVV89Icgq9' https://api.ipify.org
 ```
 
 ```sh
-curl -v --proxy socks5h://127.0.0.1:1080 --proxy-user 'proxypkdsjf42m6:NWanZy=tu!TB0FGVV89Icgq9' https://api.ipify.org
+curl -v --proxy socks5h://89.223.68.11:1080 --proxy-user 'proxypkdsjf42m6:NWanZy=tu!TB0FGVV89Icgq9' https://api.ipify.org
 ```
