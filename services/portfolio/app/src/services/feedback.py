@@ -1,7 +1,6 @@
 import logging
 
-import aiosmtplib
-from email.message import EmailMessage
+import httpx
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 logger = logging.getLogger(__name__)
@@ -17,32 +16,57 @@ class FeedbackService:
 
     async def send_feedback(self, name: str, email: str, message: str):
         try:
-            msg = EmailMessage()
-            msg["Subject"] = f"Обратная связь от {name}"
-            msg["From"] = self.settings.smtp_user
-            msg["To"] = self.settings.feedback_receiver
+            if not self.settings.resend_api_key:
+                logger.error("[FeedbackService] RESEND_API_KEY не задан")
+                return
+            if not self.settings.feedback_receiver:
+                logger.error("[FeedbackService] FEEDBACK_RECEIVER не задан")
+                return
 
+            subject = f"Обратная связь от {name}"
             text = (
                 f"Имя: {name}\n"
                 f"Email: {email}\n\n"
                 f"Сообщение:\n{message}"
             )
-            msg.set_content(text)
 
             template = self.jinja_env.get_template("feedback_email.html")
             html = template.render(name=name, email=email, message=message)
 
-            msg.add_alternative(html, subtype="html")
+            payload = {
+                "from": self.settings.feedback_sender,
+                "to": [self.settings.feedback_receiver],
+                "subject": subject,
+                "html": html,
+                "text": text,
+                "reply_to": email,
+            }
+            headers = {
+                "Authorization": f"Bearer {self.settings.resend_api_key}",
+                "Content-Type": "application/json",
+            }
 
-            await aiosmtplib.send(
-                msg,
-                hostname=self.settings.smtp_host,
-                port=self.settings.smtp_port,
-                username=self.settings.smtp_user,
-                password=self.settings.smtp_password,
-                use_tls=True,
+            async with httpx.AsyncClient(timeout=10) as client:
+                response = await client.post(
+                    f"{self.settings.resend_api_base_url}/emails",
+                    json=payload,
+                    headers=headers,
+                )
+                response.raise_for_status()
+                response_data = response.json()
+
+            logger.info(
+                "Feedback email sent via Resend from %s, id=%s",
+                email,
+                response_data.get("id"),
             )
-            logger.info(f"Feedback email sent from {email}")
 
+        except httpx.HTTPStatusError as e:
+            logger.error(
+                "[FeedbackService] Resend вернул ошибку: status=%s body=%s",
+                e.response.status_code,
+                e.response.text,
+                exc_info=True,
+            )
         except Exception as e:
             logger.error(f"[FeedbackService] Ошибка при отправке письма: {e}", exc_info=True)

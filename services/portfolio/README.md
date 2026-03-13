@@ -49,6 +49,13 @@ docker compose version
 
 Для сервиса создаётся переменная `ENV_PORTFOLIO_VARS`, куда записываются все переменные из `.env.example`
 
+Для отправки формы обратной связи через Resend обязательно заполните:
+```
+RESEND_API_KEY=<your_resend_api_key>
+FEEDBACK_SENDER=no-reply@aledev.ru
+FEEDBACK_RECEIVER=<куда_получать_письма>
+```
+
 ## Добавление бесплатного SSL-сертификата
 
 В контейнер фронтенда добавлен CertBot, с помощью которого происходит регистрация сертификата

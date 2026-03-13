@@ -61,10 +61,9 @@ class MediaSettings(BaseSettings):
 
 
 class EmailSettings(BaseSettings):
-    smtp_host: str = Field(alias="SMTP_HOST", default="smtp.yandex.ru")
-    smtp_port: int = Field(alias="SMTP_PORT", default=465)
-    smtp_user: str = Field(alias="SMTP_USER", default="your@yandex.ru")
-    smtp_password: str = Field(alias="SMTP_PASSWORD", default="password")
+    resend_api_key: str = Field(alias="RESEND_API_KEY", default="")
+    resend_api_base_url: str = Field(alias="RESEND_API_BASE_URL", default="https://api.resend.com")
+    feedback_sender: str = Field(alias="FEEDBACK_SENDER", default="no-reply@aledev.ru")
     feedback_receiver: str = Field(alias="FEEDBACK_RECEIVER", default="admin@yourdomain.com")
     templates_path: str = Field(
         alias="EMAIL_TEMPLATES_PATH",
