@@ -113,6 +113,7 @@ docker logs --tail=50 aledev-3proxy
 - скачивает `proxy/config/3proxy.cfg`
 - скачивает `proxy/config/upstreams.cfg.example`
 - записывает `~/aledev/proxy/config/users.list` из GitHub secret
+- гарантированно создаёт пустой `~/aledev/proxy/config/upstreams.cfg`, если его ещё нет
 - записывает `~/aledev/proxy/config/upstreams.cfg` из GitHub secret при наличии
 - перезапускает отдельный proxy stack
 
@@ -131,8 +132,8 @@ user2:CL:another_strong_password
 
 Для `PROXY_UPSTREAMS_CFG` логика мягче:
 - если secret задан, он перезапишет `~/aledev/proxy/config/upstreams.cfg`
-- если secret пустой, но файл уже существует на сервере, он будет переиспользован
-- если secret пустой и файла ещё нет, будет создан шаблон из `upstreams.cfg.example`
+- если secret пустой, существующий файл будет переиспользован
+- если secret пустой и файла ещё нет, workflow создаст пустой `upstreams.cfg`
 
 ## Подключение клиентов
 

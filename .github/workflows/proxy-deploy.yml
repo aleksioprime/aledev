@@ -30,6 +30,11 @@ jobs:
             curl -sS -o ~/aledev/proxy/config/3proxy.cfg https://raw.githubusercontent.com/aleksioprime/aledev/main/proxy/config/3proxy.cfg
             curl -sS -o ~/aledev/proxy/config/upstreams.cfg.example https://raw.githubusercontent.com/aleksioprime/aledev/main/proxy/config/upstreams.cfg.example
 
+            if [ ! -f ~/aledev/proxy/config/upstreams.cfg ]; then
+              : > ~/aledev/proxy/config/upstreams.cfg
+              chmod 600 ~/aledev/proxy/config/upstreams.cfg
+            fi
+
             if [ -n "${{ secrets.PROXY_USERS_LIST }}" ]; then
               echo "${{ secrets.PROXY_USERS_LIST }}" > ~/aledev/proxy/config/users.list
               chmod 600 ~/aledev/proxy/config/users.list
@@ -42,9 +47,6 @@ jobs:
 
             if [ -n "${{ secrets.PROXY_UPSTREAMS_CFG }}" ]; then
               echo "${{ secrets.PROXY_UPSTREAMS_CFG }}" > ~/aledev/proxy/config/upstreams.cfg
-              chmod 600 ~/aledev/proxy/config/upstreams.cfg
-            elif [ ! -f ~/aledev/proxy/config/upstreams.cfg ]; then
-              cp ~/aledev/proxy/config/upstreams.cfg.example ~/aledev/proxy/config/upstreams.cfg
               chmod 600 ~/aledev/proxy/config/upstreams.cfg
             else
               echo "Secret PROXY_UPSTREAMS_CFG is empty. Existing ~/aledev/proxy/config/upstreams.cfg will be reused."
