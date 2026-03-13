@@ -1,0 +1,50 @@
+name: Deploy Tunnel Gateway
+
+run-name: "Deploy Tunnel Gateway for ${{ github.ref_name }} by ${{ github.actor }}"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy on server
+        run: |
+          ssh -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+
+            mkdir -p ~/aledev/tunnel
+            mkdir -p ~/aledev/tunnel/config
+            mkdir -p ~/aledev/tunnel/keys
+            mkdir -p ~/aledev/tunnel/sshd_config.d
+
+            curl -sS -o ~/aledev/tunnel/docker-compose.prod.yaml https://raw.githubusercontent.com/aleksioprime/aledev/main/tunnel/docker-compose.prod.yaml
+            curl -sS -o ~/aledev/tunnel/sshd_config.d/50-reverse-tunnel.conf https://raw.githubusercontent.com/aleksioprime/aledev/main/tunnel/sshd_config.d/50-reverse-tunnel.conf
+
+            if [ -n "${{ secrets.TUNNEL_HOME_PUBLIC_KEY }}" ]; then
+              echo "${{ secrets.TUNNEL_HOME_PUBLIC_KEY }}" > ~/aledev/tunnel/keys/home_server.pub
+              chmod 644 ~/aledev/tunnel/keys/home_server.pub
+            else
+              echo "WARNING: secret TUNNEL_HOME_PUBLIC_KEY is empty, tunnel login will fail."
+            fi
+
+            cd ~/aledev/tunnel
+            docker compose -f docker-compose.prod.yaml down
+            docker compose -f docker-compose.prod.yaml pull
+            docker compose -f docker-compose.prod.yaml up -d --remove-orphans
+
+            docker image prune -a -f
+            echo "Tunnel gateway deployed!"
+
+          EOF

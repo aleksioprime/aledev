@@ -1,0 +1,31 @@
+services:
+  tunnel-gw:
+    image: lscr.io/linuxserver/openssh-server:latest
+    container_name: aledev-tunnel-gw
+    restart: unless-stopped
+    platform: linux/amd64
+    environment:
+      TZ: "Europe/Moscow"
+      PUID: "0"
+      PGID: "0"
+      USER_NAME: "tunnel"
+      PASSWORD_ACCESS: "false"
+      SUDO_ACCESS: "false"
+      PUBLIC_KEY_FILE: "/config/keys/home_server.pub"
+    volumes:
+      - /root/aledev/tunnel/config:/config
+      - /root/aledev/tunnel/keys:/config/keys:ro
+      - /root/aledev/tunnel/sshd_config.d:/config/sshd/sshd_config.d:ro
+    ports:
+      - "46222:2222"
+      - "9005:9005"
+      - "9011:9011"
+      - "9021:9021"
+      - "9050:9050"
+      - "9058:9058"
+      - "9080:9080"
+      - "9088:9088"
+      - "9443:9443"
+      - "9180:9180"
+      - "9822:9822"
+      - "9022:9022"
