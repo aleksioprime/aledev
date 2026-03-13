@@ -29,7 +29,14 @@ autossh -f -M 0 -N \
   -R 0.0.0.0:9050:localhost:5000 \
   -R 0.0.0.0:9058:localhost:5080 \
   -R 0.0.0.0:9080:localhost:30865 \
+  -R 0.0.0.0:9022:localhost:22 \
   tunnel@89.223.68.11 -p 46222
+```
+
+Then connect to your home server through VPS:
+
+```bash
+ssh -p 9022 <home_user>@<VPS_IP>
 ```
 
 ## Deploy

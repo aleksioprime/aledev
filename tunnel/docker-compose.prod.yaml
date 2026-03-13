@@ -18,6 +18,7 @@ services:
       - /root/aledev/tunnel/sshd_config.d:/config/sshd/sshd_config.d:ro
     ports:
       - "46222:2222"
+      - "49222:9022"
     networks:
       - shared
 
