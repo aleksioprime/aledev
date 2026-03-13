@@ -1,0 +1,50 @@
+name: Deploy Proxy Stack
+
+run-name: "Deploy Proxy Stack for ${{ github.ref_name }} by ${{ github.actor }}"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy on server
+        run: |
+          ssh -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+
+            mkdir -p ~/aledev/proxy/config
+
+            curl -sS -o ~/aledev/proxy/docker-compose.prod.yaml https://raw.githubusercontent.com/aleksioprime/aledev/main/proxy/docker-compose.prod.yaml
+            curl -sS -o ~/aledev/proxy/config/3proxy.cfg https://raw.githubusercontent.com/aleksioprime/aledev/main/proxy/config/3proxy.cfg
+
+            if [ -n "${{ secrets.PROXY_USERS_LIST }}" ]; then
+              echo "${{ secrets.PROXY_USERS_LIST }}" > ~/aledev/proxy/config/users.list
+              chmod 600 ~/aledev/proxy/config/users.list
+            elif [ ! -f ~/aledev/proxy/config/users.list ]; then
+              echo "ERROR: secret PROXY_USERS_LIST is empty and ~/aledev/proxy/config/users.list does not exist"
+              exit 1
+            else
+              echo "Secret PROXY_USERS_LIST is empty. Existing ~/aledev/proxy/config/users.list will be reused."
+            fi
+
+            cd ~/aledev/proxy
+            docker compose -f docker-compose.prod.yaml down
+            docker compose -f docker-compose.prod.yaml pull
+            docker compose -f docker-compose.prod.yaml up -d --remove-orphans
+
+            docker image prune -a -f
+            echo "Proxy stack deployed!"
+
+          EOF

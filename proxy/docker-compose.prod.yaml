@@ -1,0 +1,24 @@
+services:
+  proxy:
+    image: ghcr.io/tarampampam/3proxy:1
+    container_name: aledev-3proxy
+    restart: unless-stopped
+    platform: linux/amd64
+    volumes:
+      - /root/aledev/proxy/config/3proxy.cfg:/etc/3proxy/3proxy.cfg:ro
+      - /root/aledev/proxy/config/users.list:/etc/3proxy/users.list:ro
+    ports:
+      - "3128:3128/tcp"
+      - "1080:1080/tcp"
+    mem_limit: 128m
+    cpus: 0.25
+    pids_limit: 128
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

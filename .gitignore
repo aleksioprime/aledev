@@ -3,6 +3,7 @@ media
 
 .env
 .env.prod
+proxy/config/users.list
 .idea
 .python-version
 .mypy_cache
