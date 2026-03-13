@@ -4,6 +4,8 @@
 
 Основные сервисы (`docker-compose.prod.yaml`, frontend/auth/portfolio, tunnel) этим стеком не меняются.
 
+Стек использует официальный docker-образ `3proxy/3proxy`, потому что он рассчитан на внешний `3proxy.cfg`. Вариант с `ghcr.io/tarampampam/3proxy` лучше подходит для конфигурации через env, а не для нашего файлового конфига.
+
 ## Нужен ли `3proxy.cfg`
 
 Технически можно жить и без явного `3proxy.cfg`, если использовать docker-образ с генерацией конфига из env.
@@ -129,3 +131,12 @@ SOCKS4/4.5:
 - `maxconn 256` в `proxy/config/3proxy.cfg`
 
 Если прокси будет использоваться не только вами или появятся долгие соединения, снижайте `maxconn` или увеличивайте RAM/добавляйте swap.
+
+
+```sh
+curl -v --proxy http://127.0.0.1:3128 --proxy-user 'proxypkdsjf42m6:NWanZy=tu!TB0FGVV89Icgq9' https://api.ipify.org
+```
+
+```sh
+curl -v --proxy socks5h://127.0.0.1:1080 --proxy-user 'proxypkdsjf42m6:NWanZy=tu!TB0FGVV89Icgq9' https://api.ipify.org
+```

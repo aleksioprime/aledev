@@ -1,12 +1,11 @@
 services:
   proxy:
-    image: ghcr.io/tarampampam/3proxy:1
+    image: 3proxy/3proxy:latest
     container_name: aledev-3proxy
     restart: unless-stopped
     platform: linux/amd64
     volumes:
-      - /root/aledev/proxy/config/3proxy.cfg:/etc/3proxy/3proxy.cfg:ro
-      - /root/aledev/proxy/config/users.list:/etc/3proxy/users.list:ro
+      - /root/aledev/proxy/config:/etc/3proxy:ro
     ports:
       - "3128:3128/tcp"
       - "1080:1080/tcp"
