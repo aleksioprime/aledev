@@ -29,6 +29,9 @@
     <div class="bg-neutral-100/10 border !border-neutral-700 rounded-2xl shadow pa-6">
       <Transition name="fade" mode="out-in">
         <form v-if="!success" @submit.prevent="submitForm" class="flex flex-col" key="form">
+          <input v-model="form.website" type="text" name="website" tabindex="-1" autocomplete="off" class="hidden"
+            aria-hidden="true" />
+
           <input v-model="form.name" type="text" autocomplete="name" :placeholder="$t('contacts.name')" :class="[
             'rounded-lg bg-neutral-900/70 border px-4 py-2 focus:outline-none transition placeholder-neutral-400 text-neutral-100',
             showErrors && errors.name ? '!border-red-500 focus:!border-red-500' : '!border-neutral-700 focus:!border-cyan-400'
@@ -43,6 +46,13 @@
             'rounded-lg bg-neutral-900 border px-4 py-2 mt-3 focus:outline-none transition placeholder-neutral-400 text-neutral-100 resize-none',
             showErrors && errors.message ? '!border-red-500 focus:!border-red-500' : '!border-neutral-700 focus:!border-cyan-400'
           ]" />
+
+          <div class="mt-4">
+            <div ref="turnstileContainer" class="turnstile-widget"></div>
+            <div v-if="captchaError" class="mt-2 text-xs text-red-500 text-center">
+              {{ captchaError }}
+            </div>
+          </div>
 
           <button type="submit"
             class="mt-5 w-full rounded-lg !bg-cyan-400 hover:!bg-cyan-500 text-neutral-950 font-semibold py-2 transition">
@@ -64,25 +74,33 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue"
+import { nextTick, onMounted, onUnmounted, ref, watch } from "vue"
+import { useI18n } from "vue-i18n"
 import rules from "@/common/helpers/rules"
 
 import { useFeedbackStore } from "@/stores/feedback";
 const feedbackStore = useFeedbackStore();
+const { t } = useI18n();
 
 const sectionId = "contacts"
+const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
 const contacts = ref({
   email: "alesemochkin@gmail.com",
   telegram: "@aleksioprime"
 })
 
-const form = ref({ name: "", email: "", message: "" });
+const form = ref({ name: "", email: "", message: "", website: "" });
 const errors = ref({ name: null, email: null, message: null });
 
 const success = ref(false)
 const error = ref("")
+const captchaError = ref("")
 const showErrors = ref(false)
+const turnstileToken = ref("")
+const turnstileWidgetId = ref(null)
+const turnstileContainer = ref(null)
+const formStartedAt = ref(Date.now())
 
 const validators = {
   name: [rules.required, rules.minLength(2)],
@@ -126,20 +144,97 @@ function validateForm() {
   return isValid;
 }
 
+function waitForTurnstile(triesLeft = 50) {
+  return new Promise((resolve, reject) => {
+    const check = () => {
+      if (window.turnstile) {
+        resolve();
+        return;
+      }
+      if (triesLeft <= 0) {
+        reject(new Error("Turnstile load timeout"));
+        return;
+      }
+      triesLeft -= 1;
+      setTimeout(check, 100);
+    };
+    check();
+  });
+}
+
+async function initTurnstile() {
+  if (!turnstileSiteKey) {
+    captchaError.value = t("contacts.captchaMisconfigured");
+    return;
+  }
+
+  if (!document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')) {
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+
+  try {
+    await waitForTurnstile();
+    await nextTick();
+    if (!turnstileContainer.value || !window.turnstile) return;
+
+    if (turnstileWidgetId.value !== null) {
+      window.turnstile.remove(turnstileWidgetId.value);
+      turnstileWidgetId.value = null;
+    }
+
+    turnstileWidgetId.value = window.turnstile.render(turnstileContainer.value, {
+      sitekey: turnstileSiteKey,
+      callback: (token) => {
+        turnstileToken.value = token;
+        captchaError.value = "";
+      },
+      "expired-callback": () => {
+        turnstileToken.value = "";
+      },
+      "error-callback": () => {
+        turnstileToken.value = "";
+        captchaError.value = t("contacts.captchaLoadFailed");
+      },
+    });
+  } catch {
+    captchaError.value = t("contacts.captchaLoadFailed");
+  }
+}
+
+function resetTurnstile() {
+  turnstileToken.value = "";
+  if (turnstileWidgetId.value !== null && window.turnstile) {
+    window.turnstile.reset(turnstileWidgetId.value);
+  }
+}
+
 async function submitForm() {
   error.value = ""
+  captchaError.value = ""
   showErrors.value = true
 
   if (!validateForm()) return;
+  if (!turnstileToken.value) {
+    captchaError.value = t("contacts.captchaRequired");
+    return;
+  }
 
   const result = await feedbackStore.sendFeedback({
     name: form.value.name,
     email: form.value.email,
     message: form.value.message,
+    website: form.value.website,
+    form_started_at: formStartedAt.value,
+    captcha_token: turnstileToken.value,
   })
 
   if (!result) {
-    error.value = $t('contacts.error')
+    error.value = t("contacts.error")
+    resetTurnstile()
     return
   }
 
@@ -147,11 +242,23 @@ async function submitForm() {
 
   setTimeout(() => {
     success.value = false
-    form.value = { name: "", email: "", message: "" }
+    form.value = { name: "", email: "", message: "", website: "" }
+    formStartedAt.value = Date.now()
+    resetTurnstile()
     showErrors.value = false
     for (const field in errors.value) errors.value[field] = null
   }, 4000)
 }
+
+onMounted(async () => {
+  await initTurnstile();
+});
+
+onUnmounted(() => {
+  if (turnstileWidgetId.value !== null && window.turnstile) {
+    window.turnstile.remove(turnstileWidgetId.value);
+  }
+});
 
 </script>
 
@@ -169,5 +276,11 @@ async function submitForm() {
 .fade-enter-to,
 .fade-leave-from {
   opacity: 1;
+}
+
+.turnstile-widget {
+  min-height: 66px;
+  display: flex;
+  justify-content: center;
 }
 </style>

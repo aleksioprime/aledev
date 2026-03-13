@@ -3,4 +3,4 @@ from src.core.config import settings
 
 
 def get_feedback_service() -> FeedbackService:
-    return FeedbackService(settings.email)
+    return FeedbackService(settings.email, settings.feedback_protection)

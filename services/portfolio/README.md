@@ -54,6 +54,7 @@ docker compose version
 RESEND_API_KEY=<your_resend_api_key>
 FEEDBACK_SENDER=no-reply@aledev.ru
 FEEDBACK_RECEIVER=<куда_получать_письма>
+TURNSTILE_SECRET_KEY=<your_turnstile_secret_key>
 ```
 
 ## Добавление бесплатного SSL-сертификата

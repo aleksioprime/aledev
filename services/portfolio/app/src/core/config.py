@@ -70,6 +70,14 @@ class EmailSettings(BaseSettings):
         default=os.path.join(os.path.dirname(__file__), "../templates")
     )
 
+class FeedbackProtectionSettings(BaseSettings):
+    turnstile_secret_key: str = Field(alias="TURNSTILE_SECRET_KEY", default="")
+    turnstile_verify_url: str = Field(
+        alias="TURNSTILE_VERIFY_URL",
+        default="https://challenges.cloudflare.com/turnstile/v0/siteverify",
+    )
+    min_form_fill_seconds: int = Field(alias="FEEDBACK_MIN_FORM_FILL_SECONDS", default=2)
+
 
 class Settings(BaseSettings):
     project_name: str = Field(alias="PROJECT_NAME", default="AledevPortfolio")
@@ -81,6 +89,7 @@ class Settings(BaseSettings):
     db: DBSettings = DBSettings()
     media: MediaSettings = MediaSettings()
     email: EmailSettings = EmailSettings()
+    feedback_protection: FeedbackProtectionSettings = FeedbackProtectionSettings()
 
     default_host: str = "0.0.0.0"
     default_port: int = 8000
