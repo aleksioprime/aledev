@@ -9,7 +9,7 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/main-build.yml'
-      - '*'
+      - 'docker-compose.prod.yaml'
 
 jobs:
   test:
