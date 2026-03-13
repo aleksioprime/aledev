@@ -13,16 +13,6 @@ cd aledev
 docker-compose -p aledev up -d --build
 ```
 
-## Blog как отдельное приложение
-
-Блог вынесен в отдельную директорию `blog/` с собственными `frontend` и `backend`.
-
-Локальный запуск:
-```
-cd blog
-docker compose up -d --build
-```
-
 # Запуск на сервере:
 
 ## Подготовка сервера
@@ -43,7 +33,7 @@ sudo apt update && sudo apt install -y docker.io
 ```
 DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
 mkdir -p $DOCKER_CONFIG/cli-plugins
-curl -SL https://github.com/docker/compose/releases/download/v2.32.4/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
+curl -SL https://github.com/docker/compose/releases/download/v2.40.0/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
 chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
 ```
 
@@ -65,8 +55,9 @@ DOCKER_HUB_ACCESS_TOKEN=<access-токен, который был выдан в 
 Для деплоя приложения из репозитория на сервер используется:
 ```
 SERVER_HOST=<IP-адрес сервера>
-SERVER_SSH_KEY=<Приватный ключ для подключения к серверу по SSH>
 SERVER_USER=<Имя пользователя сервера>
+SSH_KEY=<Приватный ключ для подключения к серверу по SSH>
+SSH_PORT=<Порт подключения по SSH>
 ```
 
 Для сервиса создаётся переменная `ENV_VARS`, куда записываются все переменные из `.env.example`
