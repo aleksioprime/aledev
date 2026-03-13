@@ -35,9 +35,17 @@ services:
       - /root/aledev/media:/usr/src/app/media
     ports:
       - "8002:8000"
+    networks:
+      - default
+      - shared
     depends_on:
       postgres:
         condition: service_healthy
 
 volumes:
   postgres_volume:
+
+networks:
+  shared:
+    external: true
+    name: aledev-shared
