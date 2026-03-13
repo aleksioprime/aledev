@@ -41,6 +41,8 @@ services:
     container_name: aledev-auth-app
     <<: *app
     command: python src/main.py
+    environment:
+      UVICORN_RELOAD: "0"
     volumes:
       - /root/aledev/media:/usr/src/app/media
     ports:

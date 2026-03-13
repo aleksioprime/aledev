@@ -60,6 +60,8 @@ app.include_router(router, prefix="/api/v1")
 
 # Точка входа в приложение
 if __name__ == "__main__":
+    reload_enabled = os.getenv("UVICORN_RELOAD", "0") == "1"
+
     # Запуск Uvicorn-сервера
     uvicorn.run(
         "main:app",  # Указание приложения (main.py:app)
@@ -67,5 +69,7 @@ if __name__ == "__main__":
         port=settings.default_port,  # Порт из настроек
         log_config=LOGGING,  # Конфигурация логирования
         log_level=logging.INFO,  # Уровень логирования
-        reload=True,  # Автоматическая перезагрузка при изменении файлов
+        reload=reload_enabled,
+        timeout_keep_alive=5,
+        limit_concurrency=200,
     )

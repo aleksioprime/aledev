@@ -123,7 +123,7 @@ docker compose -f ~/aledev/services/hyperspectrus/docker-compose.aledev.yaml ps
 
 Редактирование NGINX:
 ```
-sudo nano ~/aledev/frontends/nginx/nginx.conf
+sudo nano ~/aledev/nginx/nginx.conf
 docker exec -it aledev-frontend nginx -s reload
 ```
 

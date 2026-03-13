@@ -30,6 +30,8 @@ services:
     container_name: aledev-portfolio-app
     <<: *app
     command: python src/main.py
+    environment:
+      UVICORN_RELOAD: "1"
     volumes:
       - ./app:/usr/src/app/
     ports:

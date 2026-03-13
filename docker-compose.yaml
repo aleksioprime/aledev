@@ -2,7 +2,7 @@ services:
 
   frontend-mysite:
     build:
-      context: ./frontends
+      context: ./frontend
       target: dev
       args:
         - VITE_LOGGING=1
@@ -12,7 +12,7 @@ services:
     platform: linux/amd64
     container_name: aledev-frontend-mysite
     volumes:
-      - ./frontends/app/src:/usr/src/app/src
+      - ./frontend/app/src:/usr/src/app/src
     ports:
       - "8085:5173"
     extra_hosts:
