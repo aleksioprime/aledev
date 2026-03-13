@@ -212,6 +212,14 @@ function resetTurnstile() {
   }
 }
 
+function destroyTurnstile() {
+  if (turnstileWidgetId.value !== null && window.turnstile) {
+    window.turnstile.remove(turnstileWidgetId.value);
+    turnstileWidgetId.value = null;
+  }
+  turnstileToken.value = "";
+}
+
 async function submitForm() {
   error.value = ""
   captchaError.value = ""
@@ -244,20 +252,29 @@ async function submitForm() {
     success.value = false
     form.value = { name: "", email: "", message: "", website: "" }
     formStartedAt.value = Date.now()
-    resetTurnstile()
+    captchaError.value = ""
     showErrors.value = false
     for (const field in errors.value) errors.value[field] = null
   }, 4000)
 }
+
+watch(
+  () => success.value,
+  async (isSuccess) => {
+    if (isSuccess) {
+      destroyTurnstile();
+      return;
+    }
+    await initTurnstile();
+  }
+);
 
 onMounted(async () => {
   await initTurnstile();
 });
 
 onUnmounted(() => {
-  if (turnstileWidgetId.value !== null && window.turnstile) {
-    window.turnstile.remove(turnstileWidgetId.value);
-  }
+  destroyTurnstile();
 });
 
 </script>

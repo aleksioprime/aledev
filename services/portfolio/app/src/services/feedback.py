@@ -82,7 +82,7 @@ class FeedbackService:
                 logger.error("[FeedbackService] FEEDBACK_RECEIVER не задан")
                 return
 
-            subject = f"Сообщение с aledev.ru от {email}"
+            subject = f"Сообщение с aledev.ru"
             text = (
                 f"Имя: {name}\n"
                 f"Email: {email}\n\n"
