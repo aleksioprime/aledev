@@ -18,14 +18,10 @@ services:
       - /root/aledev/tunnel/sshd_config.d:/config/sshd/sshd_config.d:ro
     ports:
       - "46222:2222"
-      - "9005:9005"
-      - "9011:9011"
-      - "9021:9021"
-      - "9050:9050"
-      - "9058:9058"
-      - "9080:9080"
-      - "9088:9088"
-      - "9443:9443"
-      - "9180:9180"
-      - "9822:9822"
-      - "9022:9022"
+    networks:
+      - shared
+
+networks:
+  shared:
+    external: true
+    name: aledev-shared

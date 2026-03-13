@@ -12,9 +12,9 @@ Main services (`docker-compose.prod.yaml`, frontend/auth/portfolio) are not chan
 
 ## Home server autossh command
 
-Use the VPS SSH tunnel gateway port `2223`.
+Use the VPS SSH tunnel gateway port `46222`.
 
-Important: keep `-R 0.0.0.0:...` because this stack publishes container ports to host ports and your current frontend nginx proxies to those host ports.
+Important: keep `-R 0.0.0.0:...` because frontend nginx reaches these ports over Docker network (`aledev-tunnel-gw:<port>`).
 
 ```bash
 autossh -f -M 0 -N \

@@ -39,6 +39,8 @@ jobs:
               echo "WARNING: secret TUNNEL_HOME_PUBLIC_KEY is empty, tunnel login will fail."
             fi
 
+            docker network inspect aledev-shared >/dev/null 2>&1 || docker network create aledev-shared
+
             cd ~/aledev/tunnel
             docker compose -f docker-compose.prod.yaml down
             docker compose -f docker-compose.prod.yaml pull
