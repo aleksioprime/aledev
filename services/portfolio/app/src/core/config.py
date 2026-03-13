@@ -63,6 +63,7 @@ class MediaSettings(BaseSettings):
 class EmailSettings(BaseSettings):
     resend_api_key: str = Field(alias="RESEND_API_KEY", default="")
     resend_api_base_url: str = Field(alias="RESEND_API_BASE_URL", default="https://api.resend.com")
+    feedback_sender_name: str = Field(alias="FEEDBACK_SENDER_NAME", default="AleDev")
     feedback_sender: str = Field(alias="FEEDBACK_SENDER", default="no-reply@aledev.ru")
     feedback_receiver: str = Field(alias="FEEDBACK_RECEIVER", default="admin@yourdomain.com")
     templates_path: str = Field(

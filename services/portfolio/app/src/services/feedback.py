@@ -93,7 +93,7 @@ class FeedbackService:
             html = template.render(name=name, email=email, message=message)
 
             payload = {
-                "from": self.settings.feedback_sender,
+                "from": f"{self.settings.feedback_sender_name} <{self.settings.feedback_sender}>",
                 "to": [self.settings.feedback_receiver],
                 "subject": subject,
                 "html": html,
