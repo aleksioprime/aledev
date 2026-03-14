@@ -33,8 +33,6 @@ services:
       UVICORN_RELOAD: "0"
     volumes:
       - /root/aledev/media:/usr/src/app/media
-    ports:
-      - "8002:8000"
     networks:
       - default
       - shared
