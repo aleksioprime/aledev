@@ -1,7 +1,11 @@
 <template>
   <section :id="sectionId" class="!pt-12 pb-4 text-center flex flex-col items-center animate-fade-in">
-    <img :src="avatar" alt="avatar"
-      class="w-28 h-28 rounded-full mb-5 shadow-lg border-2 border-neutral-800 object-cover" />
+    <button type="button"
+      class="mb-5 rounded-full cursor-zoom-in transition-transform duration-200 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
+      aria-label="Open profile photo" @click="openPreview">
+      <img :src="avatar" alt="avatar"
+        class="w-28 h-28 rounded-full shadow-lg border-2 border-neutral-800 object-cover" />
+    </button>
     <h1 class="text-3xl md:text-5xl font-extrabold mb-2 tracking-tight">{{ t('hero.name') }}</h1>
     <h2 class="text-xl md:text-2xl text-cyan-400 mb-3 font-semibold">{{ t('hero.title') }}</h2>
     <p class="max-w-xl text-neutral-400 mb-6">{{ t('hero.about') }}</p>
@@ -23,9 +27,24 @@
       </a>
     </div>
   </section>
+  <Teleport to="body">
+    <div v-if="isPreviewOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm"
+      @click="closePreview">
+      <button type="button"
+        class="absolute right-4 top-4 text-white/80 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+        aria-label="Close profile photo preview" @click="closePreview">
+        <span class="text-4xl leading-none">&times;</span>
+      </button>
+      <img :src="avatar" alt="avatar preview"
+        class="max-h-[60vh] max-w-[min(92vw,720px)] rounded-3xl border border-white/10 object-contain shadow-2xl"
+        @click.stop />
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
+import { onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import avatar from "@/assets/img/avatar.png"
 
@@ -38,11 +57,32 @@ const socials = [
 ]
 
 const { t } = useI18n()
+const isPreviewOpen = ref(false)
+
+function openPreview() {
+  isPreviewOpen.value = true
+  window.addEventListener("keydown", handleEscape)
+}
+
+function closePreview() {
+  isPreviewOpen.value = false
+  window.removeEventListener("keydown", handleEscape)
+}
+
+function handleEscape(event) {
+  if (event.key === "Escape") {
+    closePreview()
+  }
+}
 
 function scrollToSection(anchor) {
   const el = document.getElementById(anchor)
   if (el) el.scrollIntoView({ behavior: "smooth" })
 }
+
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", handleEscape)
+})
 </script>
 
 <style scoped>
