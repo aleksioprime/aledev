@@ -6,8 +6,9 @@ services:
       target: dev
       args:
         - VITE_LOGGING=1
-        - VITE_AUTH_URL=http://localhost:8501
-        - VITE_PORTFOLIO_URL=http://localhost:8502
+        - VITE_AUTH_URL=${VITE_AUTH_URL}
+        - VITE_PORTFOLIO_URL=${VITE_PORTFOLIO_URL}
+        - VITE_TURNSTILE_SITE_KEY=${VITE_TURNSTILE_SITE_KEY}
     restart: unless-stopped
     platform: linux/amd64
     container_name: aledev-frontend-mysite

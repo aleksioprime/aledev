@@ -27,7 +27,7 @@
 
     <!-- Только форма, с отдельным более светлым div -->
     <div class="bg-neutral-100/10 border !border-neutral-700 rounded-2xl shadow pa-6">
-      <Transition name="fade" mode="out-in">
+      <Transition name="fade" mode="out-in" @after-enter="handleTransitionAfterEnter">
         <form v-if="!success" @submit.prevent="submitForm" class="flex flex-col" key="form">
           <input v-model="form.website" type="text" name="website" tabindex="-1" autocomplete="off" class="hidden"
             aria-hidden="true" />
@@ -49,6 +49,17 @@
 
           <div class="mt-4">
             <div ref="turnstileContainer" class="turnstile-widget"></div>
+            <div v-if="captchaError" class="mt-3 flex justify-center">
+              <button type="button"
+                class="inline-flex items-center gap-2 rounded-full border !border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase text-cyan-300 transition hover:!border-cyan-300 hover:bg-cyan-400/15 hover:text-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-400/50"
+                @click="refreshTurnstile">
+                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-2.64-6.36" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 3v6h-6" />
+                </svg>
+                {{ $t('contacts.refreshCaptcha') }}
+              </button>
+            </div>
             <div v-if="captchaError" class="mt-2 text-xs text-red-500 text-center">
               {{ captchaError }}
             </div>
@@ -212,6 +223,12 @@ function resetTurnstile() {
   }
 }
 
+async function refreshTurnstile() {
+  captchaError.value = "";
+  destroyTurnstile();
+  await initTurnstile();
+}
+
 function destroyTurnstile() {
   if (turnstileWidgetId.value !== null && window.turnstile) {
     window.turnstile.remove(turnstileWidgetId.value);
@@ -247,6 +264,7 @@ async function submitForm() {
   }
 
   success.value = true
+  destroyTurnstile()
 
   setTimeout(() => {
     success.value = false
@@ -258,16 +276,10 @@ async function submitForm() {
   }, 4000)
 }
 
-watch(
-  () => success.value,
-  async (isSuccess) => {
-    if (isSuccess) {
-      destroyTurnstile();
-      return;
-    }
-    await initTurnstile();
-  }
-);
+async function handleTransitionAfterEnter() {
+  if (success.value) return;
+  await initTurnstile();
+}
 
 onMounted(async () => {
   await initTurnstile();

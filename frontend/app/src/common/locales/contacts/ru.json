@@ -10,6 +10,7 @@
   "captchaRequired": "Подтвердите, что вы не робот",
   "captchaLoadFailed": "Не удалось загрузить CAPTCHA. Обновите страницу",
   "captchaMisconfigured": "CAPTCHA не настроена на сервере",
+  "refreshCaptcha": "Обновить",
   "thankYou": "Спасибо! Ваше сообщение отправлено",
   "errorSend": "Ошибка отправки. Попробуйте ещё раз"
 }
