@@ -1,6 +1,6 @@
 # Reverse SSH Tunnels (separate stack)
 
-`tunnel/docker-compose.prod.yaml` starts one container `aledev-tunnel-gw` in a separate compose stack.
+`tunnel/docker-compose.prod.yaml` starts one container `aledev-tunnel` in a separate compose stack.
 
 Main services (`docker-compose.prod.yaml`, frontend/auth/portfolio) are not changed by this stack.
 
@@ -14,7 +14,7 @@ Main services (`docker-compose.prod.yaml`, frontend/auth/portfolio) are not chan
 
 Use the VPS SSH tunnel gateway port `46222`.
 
-Important: keep `-R 0.0.0.0:...` because frontend nginx reaches these ports over Docker network (`aledev-tunnel-gw:<port>`).
+Important: keep `-R 0.0.0.0:...` because frontend nginx reaches these ports over Docker network (`aledev-tunnel:<port>`).
 
 ```bash
 autossh -f -M 0 -N \

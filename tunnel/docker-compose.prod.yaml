@@ -1,7 +1,7 @@
 services:
-  tunnel-gw:
+  tunnel:
     image: lscr.io/linuxserver/openssh-server:latest
-    container_name: aledev-tunnel-gw
+    container_name: aledev-tunnel
     restart: unless-stopped
     platform: linux/amd64
     environment:
@@ -19,6 +19,7 @@ services:
     ports:
       - "46222:2222"
       - "49222:9022"
+      - "48222:9822"
     networks:
       - shared
 
