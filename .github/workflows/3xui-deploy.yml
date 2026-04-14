@@ -1,0 +1,40 @@
+name: Deploy 3xUI Panel
+
+run-name: "Deploy 3xUI Panel for ${{ github.ref_name }} by ${{ github.actor }}"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy on server
+        run: |
+          ssh -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+
+            mkdir -p ~/aledev/3xui/db
+            mkdir -p ~/aledev/3xui/cert
+
+            curl -sS -o ~/aledev/3xui/docker-compose.prod.yaml https://raw.githubusercontent.com/aleksioprime/aledev/main/3xui/docker-compose.prod.yaml
+
+            cd ~/aledev/3xui
+            docker compose -f docker-compose.prod.yaml down
+            docker compose -f docker-compose.prod.yaml pull
+            docker compose -f docker-compose.prod.yaml up -d --remove-orphans
+
+            docker image prune -a -f
+            echo "3xUI panel deployed!"
+
+          EOF

@@ -1,0 +1,13 @@
+services:
+  3xui:
+    image: ghcr.io/mhsanaei/3x-ui:latest
+    container_name: aledev-3xui
+    volumes:
+      - /root/aledev/3xui/db/:/etc/x-ui/
+      - /root/aledev/3xui/cert/:/root/cert/
+    environment:
+      XRAY_VMESS_AEAD_FORCED: "false"
+      XUI_ENABLE_FAIL2BAN: "true"
+    tty: true
+    network_mode: host
+    restart: unless-stopped
