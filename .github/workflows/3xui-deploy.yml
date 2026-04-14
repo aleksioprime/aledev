@@ -25,7 +25,6 @@ jobs:
           ssh -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
 
             mkdir -p ~/aledev/3xui/db
-            mkdir -p ~/aledev/3xui/cert
 
             curl -sS -o ~/aledev/3xui/docker-compose.prod.yaml https://raw.githubusercontent.com/aleksioprime/aledev/main/3xui/docker-compose.prod.yaml
 
