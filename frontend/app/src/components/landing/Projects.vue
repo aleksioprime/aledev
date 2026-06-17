@@ -1,30 +1,23 @@
 <template>
   <section :id="sectionId" class="container mx-auto pt-16">
-    <div class="mb-8 flex items-center justify-between gap-4">
-      <h2 class="text-2xl md:text-3xl font-bold">
+    <div class="mb-8 text-center">
+      <h2 class="text-2xl font-bold md:text-3xl">
         {{ $t('projects.sectionTitle') }}
       </h2>
-
-      <div class="hidden sm:flex items-center gap-2">
-        <button type="button" class="carousel-control" :aria-label="$t('projects.previous')" @click="scrollCarousel(-1)">
-          <span class="mdi mdi-chevron-left"></span>
-        </button>
-        <button type="button" class="carousel-control" :aria-label="$t('projects.next')" @click="scrollCarousel(1)">
-          <span class="mdi mdi-chevron-right"></span>
-        </button>
-      </div>
     </div>
 
-    <div class="relative">
-      <div ref="carouselRef" class="projects-carousel">
+    <div class="projects-carousel-wrap relative">
+      <button type="button" class="carousel-control carousel-control--prev" :aria-label="$t('projects.previous')"
+        @click="scrollCarousel(-1)">
+        <span class="mdi mdi-chevron-left"></span>
+      </button>
+
+      <div ref="carouselRef" class="projects-carousel" @wheel="handleCarouselWheel">
         <button v-for="proj in projects" :key="proj.id || getProjectTitle(proj)" type="button" class="project-card group"
           :aria-label="`${$t('projects.openDetails')}: ${getProjectTitle(proj)}`" @click="openProject(proj)">
-          <div class="mb-5 flex items-start justify-between gap-4">
-            <h3 class="text-xl font-semibold leading-tight">
-              {{ getProjectTitle(proj) }}
-            </h3>
-            <span class="mdi mdi-arrow-top-right text-cyan-300 transition group-hover:translate-x-1 group-hover:-translate-y-1"></span>
-          </div>
+          <h3 class="mb-5 text-xl font-semibold leading-tight">
+            {{ getProjectTitle(proj) }}
+          </h3>
 
           <div v-if="proj.stack" class="mb-4 flex flex-wrap gap-2">
             <span v-for="item in getStackItems(proj.stack)" :key="item" class="stack-chip">
@@ -36,12 +29,17 @@
             {{ getProjectSummary(proj) }}
           </p>
 
-          <span class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-cyan-300">
+          <span class="mt-6 inline-flex items-center gap-2 text-sm font-semibold leading-none text-cyan-300">
             {{ $t('projects.details') }}
-            <span class="mdi mdi-chevron-right text-base"></span>
+            <span class="mdi mdi-chevron-right text-base leading-none"></span>
           </span>
         </button>
       </div>
+
+      <button type="button" class="carousel-control carousel-control--next" :aria-label="$t('projects.next')"
+        @click="scrollCarousel(1)">
+        <span class="mdi mdi-chevron-right"></span>
+      </button>
 
       <div class="pointer-events-none absolute inset-y-0 left-0 hidden w-12 bg-gradient-to-r from-neutral-950 to-transparent md:block"></div>
       <div class="pointer-events-none absolute inset-y-0 right-0 hidden w-12 bg-gradient-to-l from-neutral-950 to-transparent md:block"></div>
@@ -165,6 +163,21 @@ function scrollCarousel(direction) {
   carousel.scrollBy({ left: direction * distance, behavior: "smooth" });
 }
 
+function handleCarouselWheel(event) {
+  const carousel = carouselRef.value;
+  if (!carousel || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+
+  const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
+  const nextScrollLeft = carousel.scrollLeft + event.deltaY;
+  const canScrollLeft = event.deltaY < 0 && carousel.scrollLeft > 0;
+  const canScrollRight = event.deltaY > 0 && carousel.scrollLeft < maxScrollLeft;
+
+  if (!canScrollLeft && !canScrollRight) return;
+
+  event.preventDefault();
+  carousel.scrollLeft = Math.max(0, Math.min(maxScrollLeft, nextScrollLeft));
+}
+
 function openProject(project) {
   selectedProject.value = project;
   document.body.style.overflow = "hidden";
@@ -283,6 +296,21 @@ onUnmounted(() => {
   transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
 }
 
+.carousel-control {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  transform: translateY(-50%);
+}
+
+.carousel-control--prev {
+  left: -1.25rem;
+}
+
+.carousel-control--next {
+  right: -1.25rem;
+}
+
 .carousel-control:hover,
 .modal-close:hover {
   border-color: rgb(34 211 238);
@@ -328,8 +356,26 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  .projects-carousel-wrap {
+    margin-bottom: 3rem;
+  }
+
   .projects-carousel {
     grid-auto-columns: minmax(82vw, 1fr);
+  }
+
+  .carousel-control {
+    top: auto;
+    bottom: -3.5rem;
+    transform: none;
+  }
+
+  .carousel-control--prev {
+    left: calc(50% - 3rem);
+  }
+
+  .carousel-control--next {
+    right: calc(50% - 3rem);
   }
 }
 </style>
