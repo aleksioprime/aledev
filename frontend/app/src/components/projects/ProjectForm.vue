@@ -27,6 +27,8 @@
     </div>
     <div v-for="(t, idx) in form.translations" :key="t.lang" v-show="currentLang === t.lang">
       <v-text-field v-model="t.title" :label="`Название (${LANGS[t.lang]})`" :rules="[rules.required]" required />
+      <v-textarea v-model="t.short_description" :label="`Краткая информация (${LANGS[t.lang]})`" auto-grow rows="2"
+        counter="500" />
       <v-textarea v-model="t.description" :label="`Описание (${LANGS[t.lang]})`" auto-grow />
       <v-btn v-if="form.translations.length > 1" variant="text" color="red" @click="removeTranslation(idx)" size="small"
         class="mt-0 mb-4">
@@ -50,7 +52,7 @@ const emit = defineEmits(["update:modelValue"]);
 const useOrder = ref(false);
 
 // Базовое состояние формы
-const blankTranslation = lang => ({ lang, title: "", description: "" });
+const blankTranslation = lang => ({ lang, title: "", short_description: "", description: "" });
 const form = reactive({
   stack: "",
   link: "",

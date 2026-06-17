@@ -240,8 +240,8 @@ const openEditDialog = (project = null) => {
         demo_url: "",
         is_favorite: false,
         translations: [
-          { lang: "ru", title: "", description: "" },
-          { lang: "en", title: "", description: "" }
+          { lang: "ru", title: "", short_description: "", description: "" },
+          { lang: "en", title: "", short_description: "", description: "" }
         ]
       }
   };
@@ -253,8 +253,8 @@ function getFormPayload(form) {
   const {
     id, created_at, updated_at, ...data
   } = form;
-  data.translations = (data.translations || []).map(({ lang, title, description }) => ({
-    lang, title, description
+  data.translations = (data.translations || []).map(({ lang, title, short_description, description }) => ({
+    lang, title, short_description, description
   }));
   return data;
 }

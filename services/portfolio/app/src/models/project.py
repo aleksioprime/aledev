@@ -56,6 +56,7 @@ class ProjectTranslation(Base):
     project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("projects.id"), index=True)
     lang: Mapped[LangEnum] = mapped_column(SqlEnum(LangEnum), nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
+    short_description: Mapped[str | None] = mapped_column(String(500))
     description: Mapped[str | None] = mapped_column(Text)
 
     project: Mapped["Project"] = relationship(

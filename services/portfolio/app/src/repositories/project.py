@@ -151,6 +151,7 @@ class ProjectRepository(BaseProjectRepository, BaseSQLRepository):
                         project_id=project_id,
                         lang=tr.lang,
                         title=tr.title,
+                        short_description=tr.short_description,
                         description=tr.description
                     )
                     for tr in body.translations

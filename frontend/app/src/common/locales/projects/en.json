@@ -2,6 +2,13 @@
   "sectionTitle": "Projects",
   "github": "Github",
   "demo": "Demo",
+  "details": "Details",
+  "openDetails": "Open project details",
+  "previous": "Previous projects",
+  "next": "Next projects",
+  "close": "Close",
+  "stack": "Stack",
+  "links": "Links",
   "showMore": "Show more",
   "loading": "Loading..."
 }

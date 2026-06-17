@@ -24,6 +24,7 @@ class ProjectTranslationSchema(BaseModel):
     """
     lang: LangEnum = Field(..., description="Язык перевода, например 'ru' или 'en'")
     title: str = Field(..., description="Название проекта на данном языке")
+    short_description: str | None = Field(None, description="Краткое описание проекта на данном языке")
     description: str | None = Field(None, description="Описание проекта на данном языке")
 
     class Config:
@@ -76,6 +77,7 @@ class ProjectTranslationCreateSchema(BaseModel):
     """
     lang: LangEnum = Field(..., description="Язык перевода, например 'ru' или 'en'")
     title: str = Field(..., description="Название проекта на данном языке")
+    short_description: str | None = Field(None, description="Краткое описание проекта на данном языке")
     description: str | None = Field(None, description="Описание проекта на данном языке")
 
 
@@ -84,6 +86,7 @@ class ProjectTranslationUpdateSchema(BaseModel):
     Схема для обновления перевода данных проекта
     """
     title: str | None = Field(None, description="Название проекта на данном языке")
+    short_description: str | None = Field(None, description="Краткое описание проекта на данном языке")
     description: str | None = Field(None, description="Описание проекта на данном языке")
 
 
