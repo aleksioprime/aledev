@@ -1,5 +1,10 @@
+import asyncio
 import logging
+import smtplib
+import ssl
 import time
+from email.message import EmailMessage
+from email.utils import formataddr, formatdate, make_msgid
 
 import httpx
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -73,58 +78,59 @@ class FeedbackService:
 
         return True
 
+    def _build_message(self, name: str, email: str, message: str) -> EmailMessage:
+        text = (
+            f"Имя: {name}\n"
+            f"Email: {email}\n\n"
+            f"Сообщение:\n{message}"
+        )
+        template = self.jinja_env.get_template("feedback_email.html")
+        html = template.render(name=name, email=email, message=message)
+
+        msg = EmailMessage()
+        safe_name = " ".join(name.split())  # защита от переносов строк в заголовке
+        msg["Subject"] = f"Сообщение с aledev.ru от {safe_name}"
+        msg["From"] = formataddr((self.settings.feedback_sender_name, self.settings.sender))
+        msg["To"] = self.settings.receiver
+        msg["Reply-To"] = email
+        msg["Date"] = formatdate(localtime=True)
+        msg["Message-ID"] = make_msgid(domain=self.settings.sender.split("@")[-1] or None)
+        msg.set_content(text)
+        msg.add_alternative(html, subtype="html")
+        return msg
+
+    def _send_smtp(self, msg: EmailMessage) -> None:
+        s = self.settings
+        if s.smtp_use_ssl:
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL(s.smtp_host, s.smtp_port, timeout=s.smtp_timeout, context=context) as server:
+                server.login(s.smtp_user, s.smtp_password)
+                server.send_message(msg)
+        else:
+            with smtplib.SMTP(s.smtp_host, s.smtp_port, timeout=s.smtp_timeout) as server:
+                server.starttls(context=ssl.create_default_context())
+                server.login(s.smtp_user, s.smtp_password)
+                server.send_message(msg)
+
     async def send_feedback(self, name: str, email: str, message: str):
         try:
-            if not self.settings.resend_api_key:
-                logger.error("[FeedbackService] RESEND_API_KEY не задан")
+            if not self.settings.smtp_user or not self.settings.smtp_password:
+                logger.error("[FeedbackService] SMTP_USER / SMTP_PASSWORD не заданы")
                 return
-            if not self.settings.feedback_receiver:
+            if not self.settings.receiver:
                 logger.error("[FeedbackService] FEEDBACK_RECEIVER не задан")
                 return
 
-            subject = f"Сообщение с aledev.ru"
-            text = (
-                f"Имя: {name}\n"
-                f"Email: {email}\n\n"
-                f"Сообщение:\n{message}"
-            )
+            msg = self._build_message(name, email, message)
+            # smtplib блокирующий — выполняем в отдельном потоке
+            await asyncio.to_thread(self._send_smtp, msg)
 
-            template = self.jinja_env.get_template("feedback_email.html")
-            html = template.render(name=name, email=email, message=message)
+            logger.info("Feedback email sent via %s from %s", self.settings.smtp_host, email)
 
-            payload = {
-                "from": f"{self.settings.feedback_sender_name} <{self.settings.feedback_sender}>",
-                "to": [self.settings.feedback_receiver],
-                "subject": subject,
-                "html": html,
-                "text": text,
-                "reply_to": email,
-            }
-            headers = {
-                "Authorization": f"Bearer {self.settings.resend_api_key}",
-                "Content-Type": "application/json",
-            }
-
-            async with httpx.AsyncClient(timeout=10) as client:
-                response = await client.post(
-                    f"{self.settings.resend_api_base_url}/emails",
-                    json=payload,
-                    headers=headers,
-                )
-                response.raise_for_status()
-                response_data = response.json()
-
-            logger.info(
-                "Feedback email sent via Resend from %s, id=%s",
-                email,
-                response_data.get("id"),
-            )
-
-        except httpx.HTTPStatusError as e:
+        except smtplib.SMTPAuthenticationError as e:
             logger.error(
-                "[FeedbackService] Resend вернул ошибку: status=%s body=%s",
-                e.response.status_code,
-                e.response.text,
+                "[FeedbackService] Ошибка авторизации SMTP (проверьте пароль приложения Яндекса): %s",
+                e,
                 exc_info=True,
             )
         except Exception as e:

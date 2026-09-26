@@ -1,84 +1,87 @@
 <template>
-  <section :id="sectionId" class="container mx-auto py-12 px-4 max-w-lg">
-    <h2 class="text-2xl md:text-3xl font-bold mb-10 text-center tracking-tight">
-      {{ $t('contacts.sectionTitle') }}
-    </h2>
+  <section :id="sectionId" class="section">
+    <div class="shell contact">
+      <div class="contact__intro">
+        <header class="section-head">
+          <span v-reveal class="section-kicker">04 — {{ $t('contacts.kicker') }}</span>
+          <h2 v-reveal="{ delay: 80 }" class="section-title">
+            {{ $t('contacts.titleStart') }} <span class="text-gradient">{{ $t('contacts.titleAccent') }}</span>
+          </h2>
+          <p v-reveal="{ delay: 160 }" class="section-lead">{{ $t('contacts.lead') }}</p>
+        </header>
 
-    <!-- Контакты отдельным блоком -->
-    <div class="flex justify-center gap-8 mb-10">
-      <a :href="`mailto:${contacts.email}`"
-        class="group flex flex-col items-center text-neutral-300 hover:text-cyan-400 transition">
-        <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <rect x="3" y="5" width="18" height="14" rx="3" />
-          <path d="M3 7l9 6 9-6" />
-        </svg>
-        <span class="text-xs font-medium">{{ contacts.email }}</span>
-      </a>
-      <a :href="`https://t.me/${contacts.telegram.replace('@', '')}`" target="_blank"
-        class="group flex flex-col items-center text-neutral-300 hover:text-cyan-400 transition">
-        <svg class="w-7 h-7 mb-1" fill="currentColor" viewBox="0 0 24 36" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M29.919 6.163l-4.225 19.925c-0.319 1.406-1.15 1.756-2.331 1.094l-6.438-4.744-3.106 2.988c-0.344 0.344-0.631 0.631-1.294 0.631l0.463-6.556 11.931-10.781c0.519-0.462-0.113-0.719-0.806-0.256l-14.75 9.288-6.35-1.988c-1.381-0.431-1.406-1.381 0.288-2.044l24.837-9.569c1.15-0.431 2.156 0.256 1.781 2.013z">
-          </path>
-        </svg>
-        <span class="text-xs font-medium">{{ contacts.telegram }}</span>
-      </a>
-    </div>
+        <ul class="channels">
+          <li v-for="(ch, i) in channels" :key="ch.key" v-reveal="{ variant: 'left', delay: 200 + i * 90 }">
+            <a :href="ch.href" :target="ch.key === 'email' ? undefined : '_blank'" rel="noopener noreferrer"
+              class="channel">
+              <span class="channel__icon">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="ch.icon" /></svg>
+              </span>
+              <span class="channel__text">
+                <span class="channel__label font-mono">{{ $t(`contacts.${ch.key}`) }}</span>
+                <span class="channel__value">{{ ch.label }}</span>
+              </span>
+              <span class="channel__arrow mdi mdi-arrow-top-right"></span>
+            </a>
+          </li>
+        </ul>
+      </div>
 
-    <!-- Только форма, с отдельным более светлым div -->
-    <div class="bg-neutral-100/10 border !border-neutral-700 rounded-2xl shadow pa-6">
-      <Transition name="fade" mode="out-in" @after-enter="handleTransitionAfterEnter">
-        <form v-if="!success" @submit.prevent="submitForm" class="flex flex-col" key="form">
-          <input v-model="form.website" type="text" name="website" tabindex="-1" autocomplete="off" class="hidden"
-            aria-hidden="true" />
+      <div v-reveal="{ variant: 'scale', delay: 120 }" class="form-card glass">
+        <Transition name="swap" mode="out-in" @after-enter="handleTransitionAfterEnter">
+          <form v-if="!success" key="form" class="form" novalidate @submit.prevent="submitForm">
+            <input v-model="form.website" type="text" name="website" tabindex="-1" autocomplete="off" class="hp"
+              aria-hidden="true" />
 
-          <input v-model="form.name" type="text" autocomplete="name" :placeholder="$t('contacts.name')" :class="[
-            'rounded-lg bg-neutral-900/70 border px-4 py-2 focus:outline-none transition placeholder-neutral-400 text-neutral-100',
-            showErrors && errors.name ? '!border-red-500 focus:!border-red-500' : '!border-neutral-700 focus:!border-cyan-400'
-          ]" />
+            <label class="field" :class="{ 'has-error': showErrors && errors.name, 'is-filled': form.name }">
+              <input v-model="form.name" type="text" autocomplete="name" placeholder=" " />
+              <span class="field__label">{{ $t('contacts.name') }}</span>
+              <span v-if="showErrors && errors.name" class="field__error">{{ errors.name }}</span>
+            </label>
 
-          <input v-model="form.email" type="email" autocomplete="email" :placeholder="$t('contacts.email')" :class="[
-            'rounded-lg bg-neutral-800 border px-4 py-2 mt-3 focus:outline-none transition placeholder-neutral-400 text-neutral-100',
-            showErrors && errors.email ? '!border-red-500 focus:!border-red-500' : '!border-neutral-700 focus:!border-cyan-400'
-          ]" />
+            <label class="field" :class="{ 'has-error': showErrors && errors.email, 'is-filled': form.email }">
+              <input v-model="form.email" type="email" autocomplete="email" placeholder=" " />
+              <span class="field__label">{{ $t('contacts.email') }}</span>
+              <span v-if="showErrors && errors.email" class="field__error">{{ errors.email }}</span>
+            </label>
 
-          <textarea v-model="form.message" rows="4" :placeholder="$t('contacts.message')" :class="[
-            'rounded-lg bg-neutral-900 border px-4 py-2 mt-3 focus:outline-none transition placeholder-neutral-400 text-neutral-100 resize-none',
-            showErrors && errors.message ? '!border-red-500 focus:!border-red-500' : '!border-neutral-700 focus:!border-cyan-400'
-          ]" />
+            <label class="field field--area" :class="{ 'has-error': showErrors && errors.message, 'is-filled': form.message }">
+              <textarea v-model="form.message" rows="5" placeholder=" " maxlength="2000"></textarea>
+              <span class="field__label">{{ $t('contacts.message') }}</span>
+              <span class="field__counter font-mono">{{ form.message.length }}/2000</span>
+              <span v-if="showErrors && errors.message" class="field__error">{{ errors.message }}</span>
+            </label>
 
-          <div class="mt-4">
-            <div ref="turnstileContainer" class="turnstile-widget"></div>
-            <div v-if="captchaError" class="mt-3 flex justify-center">
-              <button type="button"
-                class="inline-flex items-center gap-2 rounded-full border !border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase text-cyan-300 transition hover:!border-cyan-300 hover:bg-cyan-400/15 hover:text-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-400/50"
-                @click="refreshTurnstile">
-                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-2.64-6.36" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 3v6h-6" />
-                </svg>
-                {{ $t('contacts.refreshCaptcha') }}
-              </button>
+            <div class="captcha">
+              <div ref="turnstileContainer" class="turnstile-widget"></div>
+              <div v-if="captchaError" class="captcha__error">
+                <span>{{ captchaError }}</span>
+                <button type="button" class="captcha__refresh" @click="refreshTurnstile">
+                  <span class="mdi mdi-refresh"></span>
+                  {{ $t('contacts.refreshCaptcha') }}
+                </button>
+              </div>
             </div>
-            <div v-if="captchaError" class="mt-2 text-xs text-red-500 text-center">
-              {{ captchaError }}
-            </div>
+
+            <button v-magnetic="0.15" type="submit" class="btn btn-primary submit" :disabled="sending">
+              <span v-if="sending" class="submit__spinner"></span>
+              <template v-else>
+                {{ $t('contacts.send') }}
+                <span class="mdi mdi-send"></span>
+              </template>
+            </button>
+
+            <p v-if="error" class="form__error">{{ error }}</p>
+          </form>
+
+          <div v-else key="thanks" class="thanks">
+            <svg class="thanks__check" viewBox="0 0 52 52" aria-hidden="true">
+              <circle cx="26" cy="26" r="24" fill="none" />
+              <path fill="none" d="M15 27l7 7 15-15" />
+            </svg>
+            <p class="thanks__text">{{ $t('contacts.success') }}</p>
           </div>
-
-          <button type="submit"
-            class="mt-5 w-full rounded-lg !bg-cyan-400 hover:!bg-cyan-500 text-neutral-950 font-semibold py-2 transition">
-            {{ $t('contacts.send') }}
-          </button>
-        </form>
-
-        <div v-else class="mt-3 text-center !text-cyan-400 text-lg min-h-[120px] flex items-center justify-center"
-          key="thanks">
-          {{ $t('contacts.success') }}
-        </div>
-      </Transition>
-
-      <div v-if="error" class="mt-3 text-center text-red-500 text-sm">
-        {{ error }}
+        </Transition>
       </div>
     </div>
   </section>
@@ -88,6 +91,7 @@
 import { nextTick, onMounted, onUnmounted, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import rules from "@/common/helpers/rules"
+import { contacts as contactInfo, socialIcons } from "@/common/constants/socials"
 
 import { useFeedbackStore } from "@/stores/feedback";
 const feedbackStore = useFeedbackStore();
@@ -96,10 +100,12 @@ const { t } = useI18n();
 const sectionId = "contacts"
 const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
-const contacts = ref({
-  email: "alesemochkin@gmail.com",
-  telegram: "@aleksioprime"
-})
+const channels = [
+  { key: "email", label: contactInfo.email, href: `mailto:${contactInfo.email}`, icon: socialIcons.email },
+  { key: "telegram", label: `@${contactInfo.telegram}`, href: `https://t.me/${contactInfo.telegram}`, icon: socialIcons.telegram },
+  { key: "github", label: contactInfo.github, href: `https://github.com/${contactInfo.github}`, icon: socialIcons.github },
+]
+const sending = ref(false)
 
 const form = ref({ name: "", email: "", message: "", website: "" });
 const errors = ref({ name: null, email: null, message: null });
@@ -248,6 +254,7 @@ async function submitForm() {
     return;
   }
 
+  sending.value = true
   const result = await feedbackStore.sendFeedback({
     name: form.value.name,
     email: form.value.email,
@@ -256,6 +263,7 @@ async function submitForm() {
     form_started_at: formStartedAt.value,
     captcha_token: turnstileToken.value,
   })
+  sending.value = false
 
   if (!result) {
     error.value = t("contacts.error")
@@ -292,24 +300,309 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.4s;
+.contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2.5rem, 6vw, 5rem);
+  align-items: start;
 }
 
-.fade-enter-from,
-.fade-leave-to {
+.channels {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.channel {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.15rem 0.25rem;
+  border-bottom: 1px solid var(--line);
+  transition: padding 0.5s var(--ease-out), background-color 0.3s ease;
+}
+
+.channel:hover {
+  padding-left: 1rem;
+  background: linear-gradient(90deg, rgb(34 211 238 / 0.06), transparent);
+}
+
+.channel__icon {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  flex-shrink: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  color: var(--accent);
+}
+
+.channel__icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.channel__text {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.channel__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.channel__value {
+  overflow: hidden;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-weight: 600;
+  text-overflow: ellipsis;
+}
+
+.channel__arrow {
+  font-size: 1.3rem;
+  color: var(--muted);
+  transition: transform 0.5s var(--ease-out), color 0.3s ease;
+}
+
+.channel:hover .channel__arrow {
+  color: var(--accent);
+  transform: rotate(45deg);
+}
+
+/* --- Форма --- */
+.form-card {
+  position: relative;
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  overflow: hidden;
+}
+
+.form-card::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -30%;
+  width: 70%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(167 139 250 / 0.18), transparent 65%);
+  pointer-events: none;
+}
+
+.form {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
   opacity: 0;
 }
 
-.fade-enter-to,
-.fade-leave-from {
-  opacity: 1;
+.field {
+  position: relative;
+  display: block;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 1.45rem 1rem 0.6rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.9rem;
+  background: rgb(6 7 11 / 0.6);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  resize: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--accent);
+  background: rgb(6 7 11 / 0.85);
+  box-shadow: 0 0 0 4px rgb(34 211 238 / 0.12);
+}
+
+.field__label {
+  position: absolute;
+  top: 1.05rem;
+  left: 1rem;
+  color: var(--muted);
+  pointer-events: none;
+  transform-origin: 0 0;
+  transition: transform 0.35s var(--ease-out), color 0.3s ease;
+}
+
+.field input:focus + .field__label,
+.field textarea:focus + .field__label,
+.field input:not(:placeholder-shown) + .field__label,
+.field textarea:not(:placeholder-shown) + .field__label {
+  color: var(--accent);
+  transform: translateY(-0.6rem) scale(0.75);
+}
+
+.field__counter {
+  position: absolute;
+  right: 0.9rem;
+  bottom: 0.7rem;
+  font-size: 0.7rem;
+  color: rgb(255 255 255 / 0.3);
+}
+
+.field.has-error input,
+.field.has-error textarea {
+  border-color: #f87171;
+  animation: shake 0.4s ease;
+}
+
+.field__error {
+  display: block;
+  margin-top: 0.35rem;
+  padding-left: 0.25rem;
+  font-size: 0.8rem;
+  color: #f87171;
+}
+
+@keyframes shake {
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+
+.captcha {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
 }
 
 .turnstile-widget {
-  min-height: 66px;
   display: flex;
   justify-content: center;
+  min-height: 66px;
+}
+
+.captcha__error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  color: #f87171;
+}
+
+.captcha__refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid rgb(34 211 238 / 0.4);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.submit {
+  width: 100%;
+  min-height: 3.2rem;
+}
+
+.submit:disabled {
+  cursor: progress;
+  opacity: 0.8;
+}
+
+.submit__spinner {
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 2px solid #05060a;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.form__error {
+  text-align: center;
+  font-size: 0.88rem;
+  color: #f87171;
+}
+
+/* --- Успешная отправка --- */
+.thanks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  min-height: 22rem;
+  text-align: center;
+}
+
+.thanks__check {
+  width: 5rem;
+  height: 5rem;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.thanks__check circle {
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+  animation: draw 0.8s var(--ease-out) forwards;
+}
+
+.thanks__check path {
+  stroke-dasharray: 36;
+  stroke-dashoffset: 36;
+  animation: draw 0.5s var(--ease-out) 0.6s forwards;
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+.thanks__text {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.swap-enter-active,
+.swap-leave-active {
+  transition: opacity 0.4s ease, transform 0.5s var(--ease-out);
+}
+
+.swap-enter-from,
+.swap-leave-to {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+@media (max-width: 900px) {
+  .contact {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

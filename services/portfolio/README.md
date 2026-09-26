@@ -49,14 +49,31 @@ docker compose version
 
 Для сервиса создаётся переменная `ENV_PORTFOLIO_VARS`, куда записываются все переменные из `.env.example`
 
-Для отправки формы обратной связи через Resend обязательно заполните:
+### Обратная связь через Яндекс Почту
+
+Письма с формы на сайте отправляются по SMTP через `smtp.yandex.ru:465` (SSL).
+
+1. В настройках ящика Яндекса включите «Почтовые программы → С сервера imap.yandex.ru по протоколу IMAP»
+   (без этого SMTP-авторизация не пройдёт): https://mail.yandex.ru/#setup/client
+2. Создайте пароль приложения: https://id.yandex.ru/security/app-passwords → «Почта».
+   Обычный пароль от аккаунта не подойдёт.
+3. Заполните в `ENV_PORTFOLIO_VARS`:
 ```
-RESEND_API_KEY=<your_resend_api_key>
+SMTP_HOST=smtp.yandex.ru
+SMTP_PORT=465
+SMTP_USE_SSL=true
+SMTP_USER=<логин>@yandex.ru
+SMTP_PASSWORD=<пароль_приложения>
 FEEDBACK_SENDER_NAME=AleDev
-FEEDBACK_SENDER=no-reply@aledev.ru
-FEEDBACK_RECEIVER=<куда_получать_письма>
+FEEDBACK_SENDER=            # пусто = SMTP_USER (Яндекс не даёт слать от чужого адреса)
+FEEDBACK_RECEIVER=          # пусто = SMTP_USER
 TURNSTILE_SECRET_KEY=<your_turnstile_secret_key>
 ```
+
+Если почта домена `aledev.ru` подключена к Яндекс 360, можно использовать ящик вида `no-reply@aledev.ru`
+в `SMTP_USER` — тогда письма будут уходить с адреса домена.
+
+В письме выставляется `Reply-To` с адресом посетителя, поэтому на сообщение можно ответить прямо из почты.
 
 ## Добавление бесплатного SSL-сертификата
 

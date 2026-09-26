@@ -1,4 +1,9 @@
-# Домашний проект
+# aledev.ru — портфолио
+
+Сайт-портфолио: фронтенд (Vue 3 + Vite), сервис портфолио (FastAPI) и сервис авторизации для админ-панели.
+
+> Сторонние инфраструктурные стеки (3x-ui, 3proxy, reverse SSH-туннель, поддомены через туннель)
+> перенесены в ветку [`archive/infra`](https://github.com/aleksioprime/aledev/tree/archive/infra).
 
 ## Запуск для разработчика
 
@@ -92,11 +97,11 @@ sudo crontab -e
 docker exec aledev-frontend certbot renew --non-interactive
 ```
 
-В случае необхожимости можно удалить сертификаты:
+В случае необходимости можно удалить сертификаты (пример для aledev.ru):
 ```
-docker exec -it aledev-frontend rm -rf /etc/letsencrypt/renewal/hyperspectrus.ru.conf
-docker exec -it aledev-frontend rm -rf /etc/letsencrypt/live/hyperspectrus.ru
-docker exec -it aledev-frontend rm -rf /etc/letsencrypt/archive/hyperspectrus.ru
+docker exec -it aledev-frontend rm -rf /etc/letsencrypt/renewal/aledev.ru.conf
+docker exec -it aledev-frontend rm -rf /etc/letsencrypt/live/aledev.ru
+docker exec -it aledev-frontend rm -rf /etc/letsencrypt/archive/aledev.ru
 ```
 
 Проверьте логи на сервере
@@ -109,7 +114,7 @@ docker compose -f ~/aledev/docker-compose.prod.yaml ps
 
 docker compose -f ~/aledev/services/auth/docker-compose.prod.yaml ps
 
-docker compose -f ~/aledev/services/hyperspectrus/docker-compose.aledev.yaml ps
+docker compose -f ~/aledev/services/portfolio/docker-compose.prod.yaml ps
 ```
 
 Редактирование NGINX:
@@ -129,6 +134,3 @@ docker stats
 python3 -c "import secrets; print(''.join(secrets.choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_') for _ in range(86)))"
 ```
 
-```
-docker exec -it aledev-frontend certbot --nginx -d hyperspectrus.aledev.ru -d www.hyperspectrus.aledev.ru
-```

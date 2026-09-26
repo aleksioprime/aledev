@@ -1,9 +1,10 @@
 {
     "brand": "",
     "menu": {
+        "about": "Обо мне",
         "projects": "Проекты",
         "experience": "Опыт",
         "contacts": "Контакты",
-        "cv": "CV"
+        "cv": "Резюме"
     }
 }

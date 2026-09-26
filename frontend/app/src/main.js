@@ -17,6 +17,9 @@ import { createVuetify } from 'vuetify'
 import * as vuetifyComponents from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
+// Импортируем директивы анимаций (v-reveal, v-magnetic, v-tilt)
+import directivesPlugin from '@/directives'
+
 // Импортируем стили приложения
 import '@/assets/styles/main.css'
 
@@ -49,5 +52,7 @@ app.use(createPinia());
 app.use(router);
 // Подключаем i18n для мультиязычности
 app.use(i18n);
+// Подключаем директивы анимаций лендинга
+app.use(directivesPlugin);
 // Монтируем приложение в элемент с id="app"
 app.mount("#app");

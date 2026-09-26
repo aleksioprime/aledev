@@ -61,15 +61,34 @@ class MediaSettings(BaseSettings):
 
 
 class EmailSettings(BaseSettings):
-    resend_api_key: str = Field(alias="RESEND_API_KEY", default="")
-    resend_api_base_url: str = Field(alias="RESEND_API_BASE_URL", default="https://api.resend.com")
+    """
+    Отправка писем обратной связи через SMTP Яндекс Почты.
+    Пароль — это «пароль приложения» (id.yandex.ru → Безопасность → Пароли приложений),
+    а в настройках ящика должен быть разрешён доступ почтовых программ по IMAP/SMTP.
+    """
+    smtp_host: str = Field(alias="SMTP_HOST", default="smtp.yandex.ru")
+    smtp_port: int = Field(alias="SMTP_PORT", default=465)
+    smtp_user: str = Field(alias="SMTP_USER", default="")
+    smtp_password: str = Field(alias="SMTP_PASSWORD", default="")
+    smtp_use_ssl: bool = Field(alias="SMTP_USE_SSL", default=True)
+    smtp_timeout: int = Field(alias="SMTP_TIMEOUT", default=15)
     feedback_sender_name: str = Field(alias="FEEDBACK_SENDER_NAME", default="AleDev")
-    feedback_sender: str = Field(alias="FEEDBACK_SENDER", default="no-reply@aledev.ru")
-    feedback_receiver: str = Field(alias="FEEDBACK_RECEIVER", default="admin@yourdomain.com")
+    # Яндекс разрешает отправку только от имени своего ящика — по умолчанию берём SMTP_USER
+    feedback_sender: str = Field(alias="FEEDBACK_SENDER", default="")
+    feedback_receiver: str = Field(alias="FEEDBACK_RECEIVER", default="")
     templates_path: str = Field(
         alias="EMAIL_TEMPLATES_PATH",
         default=os.path.join(os.path.dirname(__file__), "../templates")
     )
+
+    @property
+    def sender(self) -> str:
+        return self.feedback_sender or self.smtp_user
+
+    @property
+    def receiver(self) -> str:
+        return self.feedback_receiver or self.smtp_user
+
 
 class FeedbackProtectionSettings(BaseSettings):
     turnstile_secret_key: str = Field(alias="TURNSTILE_SECRET_KEY", default="")

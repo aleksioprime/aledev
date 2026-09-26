@@ -12,5 +12,10 @@
   "captchaMisconfigured": "CAPTCHA is not configured on the server",
   "refreshCaptcha": "Refresh CAPTCHA",
   "thankYou": "Thank you! Your message has been sent",
-  "errorSend": "Sending failed. Please try again"
+  "errorSend": "Sending failed. Please try again",
+  "kicker": "Contacts",
+  "titleStart": "Let's",
+  "titleAccent": "talk",
+  "lead": "Have a project, an idea or a question? Use the form — the message goes straight to my inbox. Or pick any channel you like.",
+  "github": "GitHub"
 }

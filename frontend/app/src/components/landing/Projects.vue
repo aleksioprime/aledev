@@ -1,106 +1,103 @@
 <template>
-  <section :id="sectionId" class="container mx-auto pt-16">
-    <div class="mb-8 text-center">
-      <h2 class="text-2xl font-bold md:text-3xl">
-        {{ $t('projects.sectionTitle') }}
-      </h2>
-    </div>
+  <section :id="sectionId" class="section">
+    <div class="shell">
+      <header class="section-head projects-head">
+        <div>
+          <span v-reveal class="section-kicker">02 — {{ $t('projects.kicker') }}</span>
+          <h2 v-reveal="{ delay: 80 }" class="section-title">{{ $t('projects.sectionTitle') }}</h2>
+        </div>
+        <p v-reveal="{ delay: 160 }" class="section-lead">{{ $t('projects.lead') }}</p>
+      </header>
 
-    <div class="projects-carousel-wrap relative">
-      <button type="button" class="carousel-control carousel-control--prev" :aria-label="$t('projects.previous')"
-        @click="scrollCarousel(-1)">
-        <span class="mdi mdi-chevron-left"></span>
-      </button>
+      <div class="grid">
+        <div v-for="(proj, i) in projects" :key="proj.id || getProjectTitle(proj)" v-reveal="{ delay: (i % limit) * 80 }"
+          class="grid__cell" :class="{ 'grid__cell--wide': i === 0 }">
+          <button v-tilt="5" type="button" class="card"
+            :aria-label="`${$t('projects.openDetails')}: ${getProjectTitle(proj)}`" @click="openProject(proj)">
+            <ProjectCover :seed="String(proj.id)" :title="getProjectTitle(proj)" class="card__cover" />
 
-      <div ref="carouselRef" class="projects-carousel" @wheel="handleCarouselWheel">
-        <button v-for="proj in projects" :key="proj.id || getProjectTitle(proj)" type="button" class="project-card group"
-          :aria-label="`${$t('projects.openDetails')}: ${getProjectTitle(proj)}`" @click="openProject(proj)">
-          <h3 class="mb-5 text-xl font-semibold leading-tight">
-            {{ getProjectTitle(proj) }}
-          </h3>
+            <div class="card__body">
+              <span class="card__index font-mono">{{ String(i + 1).padStart(2, '0') }}</span>
+              <h3 class="card__title">{{ getProjectTitle(proj) }}</h3>
+              <p class="card__summary">{{ getProjectSummary(proj) }}</p>
 
-          <div v-if="proj.stack" class="mb-4 flex flex-wrap gap-2">
-            <span v-for="item in getStackItems(proj.stack)" :key="item" class="stack-chip">
-              {{ item }}
-            </span>
+              <div v-if="proj.stack" class="card__stack">
+                <span v-for="item in getStackItems(proj.stack).slice(0, 5)" :key="item" class="chip">{{ item }}</span>
+              </div>
+
+              <span class="card__more">
+                {{ $t('projects.details') }}
+                <span class="card__arrow mdi mdi-arrow-top-right"></span>
+              </span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Скелетоны при первой загрузке -->
+        <template v-if="loading && !projects.length">
+          <div v-for="n in 3" :key="`s-${n}`" class="grid__cell" :class="{ 'grid__cell--wide': n === 1 }">
+            <div class="card card--skeleton"></div>
           </div>
-
-          <p class="line-clamp-4 text-left text-sm leading-6 text-neutral-300">
-            {{ getProjectSummary(proj) }}
-          </p>
-
-          <span class="mt-6 inline-flex items-center gap-2 text-sm font-semibold leading-none text-cyan-300">
-            {{ $t('projects.details') }}
-            <span class="mdi mdi-chevron-right text-base leading-none"></span>
-          </span>
-        </button>
+        </template>
       </div>
 
-      <button type="button" class="carousel-control carousel-control--next" :aria-label="$t('projects.next')"
-        @click="scrollCarousel(1)">
-        <span class="mdi mdi-chevron-right"></span>
-      </button>
+      <p v-if="!loading && !projects.length" class="empty font-mono">{{ $t('projects.empty') }}</p>
 
-      <div class="pointer-events-none absolute inset-y-0 left-0 hidden w-12 bg-gradient-to-r from-neutral-950 to-transparent md:block"></div>
-      <div class="pointer-events-none absolute inset-y-0 right-0 hidden w-12 bg-gradient-to-l from-neutral-950 to-transparent md:block"></div>
-    </div>
-
-    <div class="mt-8 flex justify-center">
-      <button v-if="hasNextPage && !loading" type="button" @click="fetchProjects()"
-        class="rounded-xl !bg-cyan-700 px-6 py-2 font-bold text-white transition hover:!bg-cyan-800">
-        {{ $t('projects.showMore') }}
-      </button>
-      <span v-if="loading" class="h-4 w-4 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent"></span>
+      <div class="more">
+        <button v-if="hasNextPage && !loading && projects.length" v-magnetic type="button" class="btn btn-ghost"
+          @click="fetchProjects()">
+          {{ $t('projects.showMore') }}
+          <span class="mdi mdi-plus"></span>
+        </button>
+        <span v-if="loading && projects.length" class="spinner" :aria-label="$t('projects.loading')"></span>
+      </div>
     </div>
 
     <Teleport to="body">
-      <div v-if="selectedProject" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-        @click.self="closeProject">
-        <article class="project-modal">
-          <div class="mb-5 flex items-start justify-between gap-4">
-            <div>
-              <p v-if="selectedProject.stack" class="mb-2 text-sm font-semibold uppercase tracking-wide text-cyan-300">
-                {{ $t('projects.stack') }}
-              </p>
-              <h3 class="text-2xl font-bold leading-tight md:text-3xl">
-                {{ getProjectTitle(selectedProject) }}
-              </h3>
-            </div>
-            <button type="button" class="modal-close" :aria-label="$t('projects.close')" @click="closeProject">
+      <Transition name="modal">
+        <div v-if="selectedProject" class="overlay" @click.self="closeProject">
+          <article class="modal" role="dialog" aria-modal="true" :aria-label="getProjectTitle(selectedProject)">
+            <ProjectCover :seed="String(selectedProject.id)" :title="getProjectTitle(selectedProject)"
+              class="modal__cover" />
+
+            <button type="button" class="modal__close" :aria-label="$t('projects.close')" @click="closeProject">
               <span class="mdi mdi-close"></span>
             </button>
-          </div>
 
-          <div v-if="selectedProject.stack" class="mb-6 flex flex-wrap gap-2">
-            <span v-for="item in getStackItems(selectedProject.stack)" :key="item" class="stack-chip">
-              {{ item }}
-            </span>
-          </div>
+            <div class="modal__body">
+              <h3 class="modal__title font-display">{{ getProjectTitle(selectedProject) }}</h3>
 
-          <p class="whitespace-pre-line text-base leading-7 text-neutral-200">
-            {{ getProjectDescription(selectedProject) }}
-          </p>
+              <div v-if="selectedProject.stack" class="modal__stack">
+                <span class="modal__label font-mono">{{ $t('projects.stack') }}</span>
+                <div class="card__stack">
+                  <span v-for="item in getStackItems(selectedProject.stack)" :key="item" class="chip">{{ item }}</span>
+                </div>
+              </div>
 
-          <div v-if="selectedProject.github_url || selectedProject.demo_url || selectedProject.link"
-            class="mt-8 flex flex-wrap gap-3">
-            <a v-if="selectedProject.github_url" :href="selectedProject.github_url" target="_blank" rel="noopener noreferrer"
-              class="project-link">
-              <span class="mdi mdi-github"></span>
-              {{ $t('projects.github') }}
-            </a>
-            <a v-if="selectedProject.demo_url" :href="selectedProject.demo_url" target="_blank" rel="noopener noreferrer"
-              class="project-link">
-              <span class="mdi mdi-open-in-new"></span>
-              {{ $t('projects.demo') }}
-            </a>
-            <a v-if="selectedProject.link" :href="selectedProject.link" target="_blank" rel="noopener noreferrer"
-              class="project-link">
-              <span class="mdi mdi-link-variant"></span>
-              {{ $t('projects.links') }}
-            </a>
-          </div>
-        </article>
-      </div>
+              <p class="modal__text">{{ getProjectDescription(selectedProject) }}</p>
+
+              <div v-if="selectedProject.github_url || selectedProject.demo_url || selectedProject.link"
+                class="modal__links">
+                <a v-if="selectedProject.demo_url" :href="selectedProject.demo_url" target="_blank"
+                  rel="noopener noreferrer" class="btn btn-primary">
+                  <span class="mdi mdi-open-in-new"></span>
+                  {{ $t('projects.demo') }}
+                </a>
+                <a v-if="selectedProject.github_url" :href="selectedProject.github_url" target="_blank"
+                  rel="noopener noreferrer" class="btn btn-ghost">
+                  <span class="mdi mdi-github"></span>
+                  {{ $t('projects.github') }}
+                </a>
+                <a v-if="selectedProject.link" :href="selectedProject.link" target="_blank" rel="noopener noreferrer"
+                  class="btn btn-ghost">
+                  <span class="mdi mdi-link-variant"></span>
+                  {{ $t('projects.links') }}
+                </a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </Transition>
     </Teleport>
   </section>
 </template>
@@ -110,11 +107,11 @@ import { onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useProjectStore } from "@/stores/project";
+import ProjectCover from "@/components/landing/effects/ProjectCover.vue";
 
 const projectStore = useProjectStore();
 const { locale } = useI18n();
 const projects = ref([]);
-const carouselRef = ref(null);
 const selectedProject = ref(null);
 
 const sectionId = "projects";
@@ -154,30 +151,6 @@ function getStackItems(stack) {
   return stack.split(",").map(item => item.trim()).filter(Boolean);
 }
 
-function scrollCarousel(direction) {
-  const carousel = carouselRef.value;
-  if (!carousel) return;
-
-  const card = carousel.querySelector(".project-card");
-  const distance = card ? card.clientWidth + 24 : carousel.clientWidth * 0.8;
-  carousel.scrollBy({ left: direction * distance, behavior: "smooth" });
-}
-
-function handleCarouselWheel(event) {
-  const carousel = carouselRef.value;
-  if (!carousel || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
-
-  const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
-  const nextScrollLeft = carousel.scrollLeft + event.deltaY;
-  const canScrollLeft = event.deltaY < 0 && carousel.scrollLeft > 0;
-  const canScrollRight = event.deltaY > 0 && carousel.scrollLeft < maxScrollLeft;
-
-  if (!canScrollLeft && !canScrollRight) return;
-
-  event.preventDefault();
-  carousel.scrollLeft = Math.max(0, Math.min(maxScrollLeft, nextScrollLeft));
-}
-
 function openProject(project) {
   selectedProject.value = project;
   document.body.style.overflow = "hidden";
@@ -205,7 +178,7 @@ const fetchProjects = async (reset = false) => {
   }
 
   const params = {
-    offset: page.value,
+    offset: (page.value - 1) * limit,
     limit,
     is_favorite: true,
   };
@@ -236,146 +209,338 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.projects-carousel {
+.projects-head {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem 3rem;
+}
+
+.projects-head > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.grid {
   display: grid;
-  grid-auto-columns: minmax(280px, 34%);
-  grid-auto-flow: column;
-  gap: 1.5rem;
-  margin-inline: -1rem;
-  overflow-x: auto;
-  padding: 0.25rem 1rem 1rem;
-  scroll-padding-inline: 1rem;
-  scroll-snap-type: x mandatory;
-  scrollbar-color: rgb(34 211 238 / 0.7) rgb(38 38 38);
-  scrollbar-width: thin;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
 }
 
-.projects-carousel::-webkit-scrollbar {
-  height: 0.6rem;
+.grid__cell--wide {
+  grid-column: span 2;
 }
 
-.projects-carousel::-webkit-scrollbar-track {
-  background: rgb(38 38 38);
-  border-radius: 999px;
-}
-
-.projects-carousel::-webkit-scrollbar-thumb {
-  background: linear-gradient(90deg, rgb(34 211 238), rgb(45 212 191));
-  border-radius: 999px;
-}
-
-.project-card {
-  min-height: 21rem;
-  scroll-snap-align: start;
-  border: 1px solid rgb(64 64 64);
-  border-radius: 1rem;
-  background: linear-gradient(145deg, rgb(38 38 38), rgb(23 23 23));
-  box-shadow: 0 20px 60px rgb(0 0 0 / 0.18);
-  padding: 1.5rem;
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 1.5rem;
+  background: var(--bg-2);
   text-align: left;
-  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  transition: transform 0.5s var(--ease-out), border-color 0.4s ease, box-shadow 0.5s ease;
+  transform-style: preserve-3d;
 }
 
-.project-card:hover {
-  border-color: rgb(34 211 238 / 0.65);
-  box-shadow: 0 24px 70px rgb(8 145 178 / 0.16);
-  transform: translateY(-4px);
-}
-
-.carousel-control,
-.modal-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 1px solid rgb(64 64 64);
-  border-radius: 999px;
-  background: rgb(38 38 38);
-  color: white;
-  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
-}
-
-.carousel-control {
+/* Подсветка, следующая за курсором */
+.card::before {
+  content: "";
   position: absolute;
-  top: 50%;
+  inset: 0;
   z-index: 2;
-  transform: translateY(-50%);
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgb(34 211 238 / 0.9), rgb(167 139 250 / 0.4) 35%, transparent 60%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
 }
 
-.carousel-control--prev {
-  left: -1.25rem;
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgb(34 211 238 / 0.07), transparent 40%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
 }
 
-.carousel-control--next {
-  right: -1.25rem;
+.card:hover {
+  box-shadow: 0 30px 80px -30px rgb(34 211 238 / 0.35);
 }
 
-.carousel-control:hover,
-.modal-close:hover {
-  border-color: rgb(34 211 238);
-  background: rgb(8 145 178 / 0.2);
-  color: rgb(103 232 249);
+.card:hover::before,
+.card:hover::after {
+  opacity: 1;
 }
 
-.stack-chip {
-  border: 1px solid rgb(34 211 238 / 0.3);
-  border-radius: 999px;
-  background: rgb(8 145 178 / 0.12);
-  padding: 0.25rem 0.65rem;
+.card:hover :deep(.cover__svg),
+.card:hover :deep(.cover__img) {
+  transform: scale(1.08);
+}
+
+.card:hover :deep(.cover__mono) {
+  transform: translateY(-6px);
+}
+
+.card__cover {
+  flex-shrink: 0;
+}
+
+.grid__cell--wide .card {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+}
+
+.grid__cell--wide .card__cover {
+  aspect-ratio: auto;
+  min-height: 100%;
+}
+
+.card__body {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 1.5rem 1.5rem 1.4rem;
+}
+
+.card__index {
+  margin-bottom: 0.9rem;
   font-size: 0.75rem;
-  line-height: 1rem;
-  color: rgb(165 243 252);
+  color: var(--accent);
 }
 
-.project-modal {
-  max-height: min(82vh, 760px);
-  width: min(100%, 760px);
-  overflow-y: auto;
-  border: 1px solid rgb(64 64 64);
-  border-radius: 1rem;
-  background: rgb(23 23 23);
-  box-shadow: 0 24px 90px rgb(0 0 0 / 0.45);
-  padding: clamp(1.25rem, 4vw, 2rem);
+.card__title {
+  margin-bottom: 0.7rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
-.project-link {
+.card__summary {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  font-size: 0.93rem;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.card__stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1.1rem;
+}
+
+.card__more {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  border-radius: 999px;
-  background: rgb(8 145 178);
-  padding: 0.65rem 1rem;
+  gap: 0.35rem;
+  margin-top: auto;
+  padding-top: 1.4rem;
+  font-size: 0.88rem;
   font-weight: 700;
-  color: white;
-  transition: background-color 180ms ease;
 }
 
-.project-link:hover {
-  background: rgb(14 116 144);
+.card__arrow {
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  transition: transform 0.5s var(--ease-out), background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-@media (max-width: 768px) {
-  .projects-carousel-wrap {
-    margin-bottom: 3rem;
+.card:hover .card__arrow {
+  transform: rotate(45deg);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #05060a;
+}
+
+.card--skeleton {
+  min-height: 24rem;
+  background: linear-gradient(100deg, var(--bg-2) 30%, rgb(255 255 255 / 0.05) 50%, var(--bg-2) 70%);
+  background-size: 300% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+
+.empty {
+  padding: 3rem 0;
+  text-align: center;
+  color: var(--muted);
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.spinner {
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 2px solid var(--accent);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Модальное окно --- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 0.7);
+  backdrop-filter: blur(12px);
+}
+
+.modal {
+  position: relative;
+  width: min(100%, 820px);
+  max-height: min(88vh, 900px);
+  overflow-y: auto;
+  border: 1px solid var(--line-strong);
+  border-radius: 1.75rem;
+  background: var(--bg-2);
+  box-shadow: 0 40px 120px -20px rgb(0 0 0 / 0.8);
+}
+
+.modal__cover {
+  aspect-ratio: 21 / 8;
+}
+
+.modal__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: rgb(10 12 18 / 0.7);
+  backdrop-filter: blur(8px);
+  font-size: 1.2rem;
+  transition: transform 0.4s var(--ease-out), border-color 0.3s ease;
+}
+
+.modal__close:hover {
+  transform: rotate(90deg);
+  border-color: var(--accent);
+}
+
+.modal__body {
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.modal__title {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.modal__stack {
+  margin-top: 1.5rem;
+}
+
+.modal__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.modal__stack .card__stack {
+  margin-top: 0.6rem;
+}
+
+.modal__text {
+  margin-top: 1.5rem;
+  white-space: pre-line;
+  line-height: 1.8;
+  color: #c9d0dc;
+}
+
+.modal__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.35s ease;
+}
+
+.modal-enter-active .modal,
+.modal-leave-active .modal {
+  transition: transform 0.55s var(--ease-out), opacity 0.4s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-from .modal,
+.modal-leave-to .modal {
+  opacity: 0;
+  transform: translateY(40px) scale(0.96);
+}
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .projects-carousel {
-    grid-auto-columns: minmax(82vw, 1fr);
+  .grid__cell--wide .card {
+    display: flex;
   }
 
-  .carousel-control {
-    top: auto;
-    bottom: -3.5rem;
-    transform: none;
+  .grid__cell--wide .card__cover {
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
   }
 
-  .carousel-control--prev {
-    left: calc(50% - 3rem);
-  }
-
-  .carousel-control--next {
-    right: calc(50% - 3rem);
+  .grid__cell--wide {
+    grid-column: auto;
   }
 }
 </style>
