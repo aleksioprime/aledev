@@ -1,7 +1,7 @@
 // Ссылки на соцсети и контакты — единое место для Hero, Contacts и Footer.
 // Иконки — path для viewBox 0 0 24 24 (Simple Icons / MDI).
 export const contacts = {
-  email: 'alesemochkin@gmail.com',
+  email: 'alesemochkin@yandex.ru',
   telegram: 'aleksioprime',
   github: 'aleksioprime',
 }

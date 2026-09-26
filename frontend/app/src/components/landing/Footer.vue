@@ -6,7 +6,7 @@
           {{ t('footer.cta') }}
         </p>
         <a v-magnetic href="#contacts" class="footer__action" @click.prevent="scrollTo('contacts')">
-          <span class="mdi mdi-arrow-top-right"></span>
+          <Icon :path="mdiArrowTopRight" />
           <span class="footer__action-text">{{ t('footer.write') }}</span>
         </a>
       </div>
@@ -20,7 +20,7 @@
         </ul>
         <button type="button" class="footer__top-btn" @click="scrollTo('hero')">
           {{ t('footer.backToTop') }}
-          <span class="mdi mdi-arrow-up"></span>
+          <Icon :path="mdiArrowUp" />
         </button>
       </div>
     </div>
@@ -30,6 +30,8 @@
 </template>
 
 <script setup>
+import Icon from '@/components/ui/Icon.vue'
+import { mdiArrowTopRight, mdiArrowUp } from '@mdi/js'
 import { useI18n } from 'vue-i18n'
 import { socials } from '@/common/constants/socials'
 
@@ -85,7 +87,7 @@ function scrollTo(anchor) {
   transition: transform 0.5s var(--ease-out), background-position 0.6s ease;
 }
 
-.footer__action .mdi {
+.footer__action .icon {
   position: absolute;
   top: 1.6rem;
   font-size: 1.6rem;
@@ -96,7 +98,7 @@ function scrollTo(anchor) {
   background-position: 100% 0;
 }
 
-.footer__action:hover .mdi {
+.footer__action:hover .icon {
   transform: rotate(45deg);
 }
 
@@ -128,6 +130,9 @@ function scrollTo(anchor) {
 .footer__socials a,
 .footer__top-btn {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
   transition: color 0.3s ease;
 }
 
@@ -136,7 +141,7 @@ function scrollTo(anchor) {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -2px;
+  bottom: 0.45rem;
   height: 1px;
   background: var(--accent);
   transform: scaleX(0);

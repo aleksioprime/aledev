@@ -49,31 +49,36 @@ docker compose version
 
 Для сервиса создаётся переменная `ENV_PORTFOLIO_VARS`, куда записываются все переменные из `.env.example`
 
-### Обратная связь через Яндекс Почту
+### Обратная связь
 
-Письма с формы на сайте отправляются по SMTP через `smtp.yandex.ru:465` (SSL).
+Форма на сайте принимает два типа обращений: **заказ** (тип работ, бюджет, сроки) и **вопрос**.
 
-1. В настройках ящика Яндекса включите «Почтовые программы → С сервера imap.yandex.ru по протоколу IMAP»
+Как это работает:
+1. `POST /api/v1/feedback/` проверяет капчу Turnstile и сразу сохраняет обращение в БД
+   (таблица `feedback_messages`) — оно не потеряется, даже если почта недоступна.
+2. Письмо отправляется фоновой задачей после ответа клиенту: сначала через SMTP Яндекса,
+   при ошибке — через Resend (если задан `RESEND_API_KEY`).
+3. Воркер в процессе приложения раз в `EMAIL_RETRY_INTERVAL_SECONDS` досылает неотправленные письма
+   (до `EMAIL_MAX_ATTEMPTS` попыток с растущей паузой).
+4. В админке (`/admin/feedback`) видны все обращения: фильтры, поиск, статус обработки, заметки,
+   статус доставки письма и кнопка повторной отправки.
+
+Настройка Яндекс Почты:
+1. В настройках ящика включите «Почтовые программы → С сервера imap.yandex.ru по протоколу IMAP»
    (без этого SMTP-авторизация не пройдёт): https://mail.yandex.ru/#setup/client
 2. Создайте пароль приложения: https://id.yandex.ru/security/app-passwords → «Почта».
-   Обычный пароль от аккаунта не подойдёт.
-3. Заполните в `ENV_PORTFOLIO_VARS`:
+3. Добавьте в `ENV_PORTFOLIO_VARS`:
 ```
-SMTP_HOST=smtp.yandex.ru
-SMTP_PORT=465
-SMTP_USE_SSL=true
-SMTP_USER=<логин>@yandex.ru
+SMTP_USER=alesemochkin@yandex.ru
 SMTP_PASSWORD=<пароль_приложения>
-FEEDBACK_SENDER_NAME=AleDev
-FEEDBACK_SENDER=            # пусто = SMTP_USER (Яндекс не даёт слать от чужого адреса)
-FEEDBACK_RECEIVER=          # пусто = SMTP_USER
+FEEDBACK_RECEIVER=alesemochkin@yandex.ru
 TURNSTILE_SECRET_KEY=<your_turnstile_secret_key>
+# запасной канал (необязательно)
+RESEND_API_KEY=<your_resend_api_key>
+RESEND_SENDER=no-reply@aledev.ru
 ```
 
-Если почта домена `aledev.ru` подключена к Яндекс 360, можно использовать ящик вида `no-reply@aledev.ru`
-в `SMTP_USER` — тогда письма будут уходить с адреса домена.
-
-В письме выставляется `Reply-To` с адресом посетителя, поэтому на сообщение можно ответить прямо из почты.
+В письме выставляется `Reply-To` с адресом посетителя — ответить можно прямо из почты.
 
 ## Добавление бесплатного SSL-сертификата
 

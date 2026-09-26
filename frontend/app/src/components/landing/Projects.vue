@@ -27,7 +27,7 @@
 
               <span class="card__more">
                 {{ $t('projects.details') }}
-                <span class="card__arrow mdi mdi-arrow-top-right"></span>
+                <span class="card__arrow"><Icon :path="mdiArrowTopRight" /></span>
               </span>
             </div>
           </button>
@@ -47,7 +47,7 @@
         <button v-if="hasNextPage && !loading && projects.length" v-magnetic type="button" class="btn btn-ghost"
           @click="fetchProjects()">
           {{ $t('projects.showMore') }}
-          <span class="mdi mdi-plus"></span>
+          <Icon :path="mdiPlus" />
         </button>
         <span v-if="loading && projects.length" class="spinner" :aria-label="$t('projects.loading')"></span>
       </div>
@@ -61,7 +61,7 @@
               class="modal__cover" />
 
             <button type="button" class="modal__close" :aria-label="$t('projects.close')" @click="closeProject">
-              <span class="mdi mdi-close"></span>
+              <Icon :path="mdiClose" />
             </button>
 
             <div class="modal__body">
@@ -80,17 +80,17 @@
                 class="modal__links">
                 <a v-if="selectedProject.demo_url" :href="selectedProject.demo_url" target="_blank"
                   rel="noopener noreferrer" class="btn btn-primary">
-                  <span class="mdi mdi-open-in-new"></span>
+                  <Icon :path="mdiOpenInNew" />
                   {{ $t('projects.demo') }}
                 </a>
                 <a v-if="selectedProject.github_url" :href="selectedProject.github_url" target="_blank"
                   rel="noopener noreferrer" class="btn btn-ghost">
-                  <span class="mdi mdi-github"></span>
+                  <Icon :path="mdiGithub" />
                   {{ $t('projects.github') }}
                 </a>
                 <a v-if="selectedProject.link" :href="selectedProject.link" target="_blank" rel="noopener noreferrer"
                   class="btn btn-ghost">
-                  <span class="mdi mdi-link-variant"></span>
+                  <Icon :path="mdiLinkVariant" />
                   {{ $t('projects.links') }}
                 </a>
               </div>
@@ -103,6 +103,8 @@
 </template>
 
 <script setup>
+import Icon from '@/components/ui/Icon.vue'
+import { mdiArrowTopRight, mdiClose, mdiGithub, mdiLinkVariant, mdiOpenInNew, mdiPlus } from '@mdi/js'
 import { onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -178,7 +180,7 @@ const fetchProjects = async (reset = false) => {
   }
 
   const params = {
-    offset: (page.value - 1) * limit,
+    offset: page.value,
     limit,
     is_favorite: true,
   };

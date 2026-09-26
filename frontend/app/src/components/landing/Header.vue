@@ -23,7 +23,7 @@
 
         <a :href="cv" target="_blank" rel="noopener" class="nav__cv">
           {{ t('header.menu.cv') }}
-          <span class="mdi mdi-arrow-top-right"></span>
+          <Icon :path="mdiArrowTopRight" />
         </a>
 
         <button type="button" class="burger" :class="{ 'is-open': mobileOpen }" :aria-expanded="mobileOpen"
@@ -50,6 +50,8 @@
 </template>
 
 <script setup>
+import Icon from '@/components/ui/Icon.vue'
+import { mdiArrowTopRight } from '@mdi/js'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -247,7 +249,7 @@ onBeforeUnmount(() => {
   position: relative;
   z-index: 1;
   width: 2.6rem;
-  padding: 0.3rem 0;
+  padding: 0.5rem 0;
   font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 700;

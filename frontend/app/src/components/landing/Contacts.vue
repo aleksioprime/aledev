@@ -21,7 +21,7 @@
                 <span class="channel__label font-mono">{{ $t(`contacts.${ch.key}`) }}</span>
                 <span class="channel__value">{{ ch.label }}</span>
               </span>
-              <span class="channel__arrow mdi mdi-arrow-top-right"></span>
+              <Icon :path="mdiArrowTopRight" class="channel__arrow" />
             </a>
           </li>
         </ul>
@@ -33,22 +33,72 @@
             <input v-model="form.website" type="text" name="website" tabindex="-1" autocomplete="off" class="hp"
               aria-hidden="true" />
 
-            <label class="field" :class="{ 'has-error': showErrors && errors.name, 'is-filled': form.name }">
-              <input v-model="form.name" type="text" autocomplete="name" placeholder=" " />
-              <span class="field__label">{{ $t('contacts.name') }}</span>
-              <span v-if="showErrors && errors.name" class="field__error">{{ errors.name }}</span>
+            <div class="kind" role="radiogroup" :aria-label="$t('contacts.kindLabel')">
+              <button v-for="k in kinds" :key="k.value" type="button" role="radio" class="kind__btn"
+                :class="{ 'is-active': form.kind === k.value }" :aria-checked="form.kind === k.value"
+                @click="form.kind = k.value">
+                <Icon :path="k.icon" />
+                {{ $t(`contacts.kinds.${k.value}`) }}
+              </button>
+              <span class="kind__thumb" :class="{ 'is-right': form.kind === 'question' }"></span>
+            </div>
+            <p class="kind__hint">{{ $t(`contacts.kindHints.${form.kind}`) }}</p>
+
+            <div class="row-2">
+              <label class="field" :class="{ 'has-error': showErrors && errors.name }">
+                <input v-model="form.name" type="text" autocomplete="name" placeholder=" " maxlength="100" />
+                <span class="field__label">{{ $t('contacts.name') }}</span>
+                <span v-if="showErrors && errors.name" class="field__error">{{ errors.name }}</span>
+              </label>
+
+              <label class="field" :class="{ 'has-error': showErrors && errors.email }">
+                <input v-model="form.email" type="email" autocomplete="email" inputmode="email" placeholder=" "
+                  maxlength="255" />
+                <span class="field__label">{{ $t('contacts.email') }}</span>
+                <span v-if="showErrors && errors.email" class="field__error">{{ errors.email }}</span>
+              </label>
+            </div>
+
+            <label class="field">
+              <input v-model="form.contact" type="text" autocomplete="tel" placeholder=" " maxlength="255" />
+              <span class="field__label">{{ $t('contacts.contactField') }}</span>
             </label>
 
-            <label class="field" :class="{ 'has-error': showErrors && errors.email, 'is-filled': form.email }">
-              <input v-model="form.email" type="email" autocomplete="email" placeholder=" " />
-              <span class="field__label">{{ $t('contacts.email') }}</span>
-              <span v-if="showErrors && errors.email" class="field__error">{{ errors.email }}</span>
-            </label>
+            <Transition name="expand">
+              <div v-if="form.kind === 'order'" class="order">
+                <div class="order__inner">
+                <fieldset class="options">
+                  <legend class="options__legend">{{ $t('contacts.serviceLabel') }}</legend>
+                  <button v-for="key in FEEDBACK_SERVICES" :key="key" type="button" class="option"
+                    :class="{ 'is-active': form.service === key }" :aria-pressed="form.service === key"
+                    @click="form.service = form.service === key ? null : key">
+                    {{ $t(`contacts.services.${key}`) }}
+                  </button>
+                </fieldset>
 
-            <label class="field field--area" :class="{ 'has-error': showErrors && errors.message, 'is-filled': form.message }">
-              <textarea v-model="form.message" rows="5" placeholder=" " maxlength="2000"></textarea>
-              <span class="field__label">{{ $t('contacts.message') }}</span>
-              <span class="field__counter font-mono">{{ form.message.length }}/2000</span>
+                <fieldset class="options">
+                  <legend class="options__legend">{{ $t('contacts.budgetLabel') }}</legend>
+                  <button v-for="key in FEEDBACK_BUDGETS" :key="key" type="button" class="option"
+                    :class="{ 'is-active': form.budget === key }" :aria-pressed="form.budget === key"
+                    @click="form.budget = form.budget === key ? null : key">
+                    {{ $t(`contacts.budgets.${key}`) }}
+                  </button>
+                </fieldset>
+
+                <label class="field">
+                  <input v-model="form.deadline" type="text" placeholder=" " maxlength="100" />
+                  <span class="field__label">{{ $t('contacts.deadline') }}</span>
+                </label>
+                </div>
+              </div>
+            </Transition>
+
+            <label class="field field--area" :class="{ 'has-error': showErrors && errors.message }">
+              <span class="field__box">
+                <textarea v-model="form.message" rows="5" placeholder=" " :maxlength="MESSAGE_MAX"></textarea>
+                <span class="field__label">{{ $t(`contacts.messageLabels.${form.kind}`) }}</span>
+                <span class="field__counter font-mono">{{ form.message.length }}/{{ MESSAGE_MAX }}</span>
+              </span>
               <span v-if="showErrors && errors.message" class="field__error">{{ errors.message }}</span>
             </label>
 
@@ -57,7 +107,7 @@
               <div v-if="captchaError" class="captcha__error">
                 <span>{{ captchaError }}</span>
                 <button type="button" class="captcha__refresh" @click="refreshTurnstile">
-                  <span class="mdi mdi-refresh"></span>
+                  <Icon :path="mdiRefresh" />
                   {{ $t('contacts.refreshCaptcha') }}
                 </button>
               </div>
@@ -67,11 +117,12 @@
               <span v-if="sending" class="submit__spinner"></span>
               <template v-else>
                 {{ $t('contacts.send') }}
-                <span class="mdi mdi-send"></span>
+                <Icon :path="mdiSend" />
               </template>
             </button>
 
             <p v-if="error" class="form__error">{{ error }}</p>
+            <p class="form__note">{{ $t('contacts.note') }}</p>
           </form>
 
           <div v-else key="thanks" class="thanks">
@@ -79,7 +130,8 @@
               <circle cx="26" cy="26" r="24" fill="none" />
               <path fill="none" d="M15 27l7 7 15-15" />
             </svg>
-            <p class="thanks__text">{{ $t('contacts.success') }}</p>
+            <p class="thanks__text">{{ $t(`contacts.successByKind.${sentKind}`) }}</p>
+            <button type="button" class="btn btn-ghost" @click="resetForm">{{ $t('contacts.sendAnother') }}</button>
           </div>
         </Transition>
       </div>
@@ -88,14 +140,16 @@
 </template>
 
 <script setup>
+import Icon from '@/components/ui/Icon.vue'
+import { mdiArrowTopRight, mdiBriefcaseOutline, mdiChatQuestionOutline, mdiRefresh, mdiSend } from '@mdi/js'
 import { nextTick, onMounted, onUnmounted, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
-import rules from "@/common/helpers/rules"
+import { FEEDBACK_SERVICES, FEEDBACK_BUDGETS } from "@/common/constants/feedback"
 import { contacts as contactInfo, socialIcons } from "@/common/constants/socials"
 
 import { useFeedbackStore } from "@/stores/feedback";
 const feedbackStore = useFeedbackStore();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const sectionId = "contacts"
 const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
@@ -107,7 +161,16 @@ const channels = [
 ]
 const sending = ref(false)
 
-const form = ref({ name: "", email: "", message: "", website: "" });
+const MESSAGE_MAX = 4000
+const kinds = [
+  { value: "order", icon: mdiBriefcaseOutline },
+  { value: "question", icon: mdiChatQuestionOutline },
+]
+const emptyForm = (kind = "order") => ({
+  kind, name: "", email: "", contact: "", service: null, budget: null, deadline: "", message: "", website: "",
+})
+const form = ref(emptyForm());
+const sentKind = ref("order")
 const errors = ref({ name: null, email: null, message: null });
 
 const success = ref(false)
@@ -119,10 +182,13 @@ const turnstileWidgetId = ref(null)
 const turnstileContainer = ref(null)
 const formStartedAt = ref(Date.now())
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+const required = (v) => !!(v && v.trim()) || t("contacts.errors.required")
+const minLength = (n) => (v) => (v || "").trim().length >= n || t("contacts.errors.minLength", { n })
 const validators = {
-  name: [rules.required, rules.minLength(2)],
-  email: [rules.required, rules.email],
-  message: [rules.required, rules.minLength(10)],
+  name: [required, minLength(2)],
+  email: [required, (v) => EMAIL_RE.test((v || "").trim()) || t("contacts.errors.email")],
+  message: [required, minLength(10)],
 };
 
 for (const field in validators) {
@@ -255,11 +321,19 @@ async function submitForm() {
   }
 
   sending.value = true
+  const f = form.value
+  const isOrder = f.kind === "order"
   const result = await feedbackStore.sendFeedback({
-    name: form.value.name,
-    email: form.value.email,
-    message: form.value.message,
-    website: form.value.website,
+    kind: f.kind,
+    name: f.name.trim(),
+    email: f.email.trim(),
+    contact: f.contact.trim() || null,
+    service: isOrder ? f.service : null,
+    budget: isOrder ? f.budget : null,
+    deadline: isOrder ? f.deadline.trim() || null : null,
+    message: f.message.trim(),
+    lang: locale.value,
+    website: f.website,
     form_started_at: formStartedAt.value,
     captcha_token: turnstileToken.value,
   })
@@ -271,17 +345,19 @@ async function submitForm() {
     return
   }
 
+  sentKind.value = form.value.kind
   success.value = true
   destroyTurnstile()
+}
 
-  setTimeout(() => {
-    success.value = false
-    form.value = { name: "", email: "", message: "", website: "" }
-    formStartedAt.value = Date.now()
-    captchaError.value = ""
-    showErrors.value = false
-    for (const field in errors.value) errors.value[field] = null
-  }, 4000)
+function resetForm() {
+  form.value = emptyForm(sentKind.value)
+  formStartedAt.value = Date.now()
+  captchaError.value = ""
+  error.value = ""
+  showErrors.value = false
+  for (const field in errors.value) errors.value[field] = null
+  success.value = false
 }
 
 async function handleTransitionAfterEnter() {
@@ -404,6 +480,143 @@ onUnmounted(() => {
   gap: 1rem;
 }
 
+/* --- Переключатель «Заказ / Вопрос» --- */
+.kind {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 4px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgb(6 7 11 / 0.6);
+}
+
+.kind__btn {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--muted);
+  transition: color 0.3s ease;
+}
+
+.kind__btn.is-active {
+  color: #05060a;
+}
+
+.kind__thumb {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  border-radius: 999px;
+  background: var(--grad);
+  box-shadow: 0 8px 30px -8px rgb(34 211 238 / 0.6);
+  transition: transform 0.5s var(--ease-out);
+}
+
+.kind__thumb.is-right {
+  transform: translateX(100%);
+}
+
+.kind__hint {
+  margin-top: -0.35rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--muted);
+  text-align: center;
+}
+
+.row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.order {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+
+.order__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 0;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.options__legend {
+  width: 100%;
+  margin-bottom: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.option {
+  min-height: 2.25rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--text);
+  transition: border-color 0.25s ease, background-color 0.25s ease, color 0.25s ease, transform 0.3s var(--ease-out);
+}
+
+.option:hover {
+  border-color: rgb(34 211 238 / 0.6);
+}
+
+.option.is-active {
+  border-color: var(--accent);
+  background: rgb(34 211 238 / 0.14);
+  color: #a5f3fc;
+  transform: translateY(-1px);
+}
+
+.expand-enter-active,
+.expand-leave-active {
+  transition: opacity 0.35s ease, grid-template-rows 0.45s var(--ease-out), margin 0.45s var(--ease-out);
+}
+
+.expand-enter-active .order__inner,
+.expand-leave-active .order__inner {
+  overflow: hidden;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  grid-template-rows: 0fr;
+  margin-block: -0.5rem;
+}
+
+.form__note {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgb(255 255 255 / 0.4);
+  text-align: center;
+}
+
 .hp {
   position: absolute;
   left: -9999px;
@@ -419,6 +632,7 @@ onUnmounted(() => {
 
 .field input,
 .field textarea {
+  display: block;
   width: 100%;
   padding: 1.45rem 1rem 0.6rem;
   border: 1px solid var(--line-strong);
@@ -438,10 +652,19 @@ onUnmounted(() => {
   box-shadow: 0 0 0 4px rgb(34 211 238 / 0.12);
 }
 
+.field__box {
+  position: relative;
+  display: block;
+}
+
 .field__label {
   position: absolute;
   top: 1.05rem;
   left: 1rem;
+  max-width: calc(100% - 2rem);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   color: var(--muted);
   pointer-events: none;
   transform-origin: 0 0;
@@ -509,6 +732,7 @@ onUnmounted(() => {
 
 .captcha__refresh {
   display: inline-flex;
+  min-height: 2.25rem;
   align-items: center;
   gap: 0.3rem;
   padding: 0.3rem 0.8rem;
@@ -603,6 +827,28 @@ onUnmounted(() => {
 @media (max-width: 900px) {
   .contact {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .row-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .kind__btn {
+    gap: 0.3rem;
+    padding-inline: 0.4rem;
+    font-size: 0.82rem;
+  }
+
+  .kind__btn .icon {
+    display: none;
+  }
+
+  /* 16px+ в полях — iOS не будет зумить страницу при фокусе */
+  .field input,
+  .field textarea {
+    font-size: 16px;
   }
 }
 </style>

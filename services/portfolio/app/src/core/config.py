@@ -68,10 +68,19 @@ class EmailSettings(BaseSettings):
     """
     smtp_host: str = Field(alias="SMTP_HOST", default="smtp.yandex.ru")
     smtp_port: int = Field(alias="SMTP_PORT", default=465)
-    smtp_user: str = Field(alias="SMTP_USER", default="")
+    smtp_user: str = Field(alias="SMTP_USER", default="alesemochkin@yandex.ru")
     smtp_password: str = Field(alias="SMTP_PASSWORD", default="")
     smtp_use_ssl: bool = Field(alias="SMTP_USE_SSL", default=True)
     smtp_timeout: int = Field(alias="SMTP_TIMEOUT", default=15)
+
+    # Resend — запасной канал: используется, если SMTP Яндекса недоступен
+    resend_api_key: str = Field(alias="RESEND_API_KEY", default="")
+    resend_api_base_url: str = Field(alias="RESEND_API_BASE_URL", default="https://api.resend.com")
+    resend_sender: str = Field(alias="RESEND_SENDER", default="no-reply@aledev.ru")
+
+    # Очередь отправки: сколько попыток и как часто воркер проверяет неотправленные письма
+    email_max_attempts: int = Field(alias="EMAIL_MAX_ATTEMPTS", default=5)
+    email_retry_interval: int = Field(alias="EMAIL_RETRY_INTERVAL_SECONDS", default=60)
     feedback_sender_name: str = Field(alias="FEEDBACK_SENDER_NAME", default="AleDev")
     # Яндекс разрешает отправку только от имени своего ящика — по умолчанию берём SMTP_USER
     feedback_sender: str = Field(alias="FEEDBACK_SENDER", default="")

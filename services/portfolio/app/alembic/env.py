@@ -11,6 +11,7 @@ from src.core.config import settings
 from src.db.postgres import Base
 from src.models.project import Project, Article, ArticleTOC
 from src.models.experience import Experience
+from src.models.feedback import Feedback
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

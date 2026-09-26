@@ -1,20 +1,41 @@
 import asyncio
 import logging
-import smtplib
-import ssl
 import time
+from datetime import datetime, timezone
 from email.message import EmailMessage
 from email.utils import formataddr, formatdate, make_msgid
+from uuid import UUID
 
 import httpx
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from src.constants.base import (
+    EmailStatus,
+    FeedbackKind,
+    FEEDBACK_SERVICES,
+    FEEDBACK_BUDGETS,
+)
+from src.exceptions.base import NotFoundException
+from src.models.feedback import Feedback
+from src.repositories.uow import UnitOfWork
+from src.schemas.feedback import (
+    FeedbackCreateSchema,
+    FeedbackQueryParams,
+    FeedbackSchema,
+    FeedbackStatsSchema,
+    FeedbackUpdateSchema,
+)
+from src.schemas.pagination import PaginatedResponse
+from src.services.mailer import Mailer, MailError
+
 logger = logging.getLogger(__name__)
 
 class FeedbackService:
-    def __init__(self, settings, protection_settings):
+    def __init__(self, settings, protection_settings, uow_factory=UnitOfWork):
         self.settings = settings
         self.protection_settings = protection_settings
+        self.uow_factory = uow_factory
+        self.mailer = Mailer(settings)
 
         self.jinja_env = Environment(
             loader=FileSystemLoader(self.settings.templates_path),
@@ -78,60 +99,193 @@ class FeedbackService:
 
         return True
 
-    def _build_message(self, name: str, email: str, message: str) -> EmailMessage:
-        text = (
-            f"Имя: {name}\n"
-            f"Email: {email}\n\n"
-            f"Сообщение:\n{message}"
+    # ------------------------------------------------------------------
+    #  Сохранение обращения
+    # ------------------------------------------------------------------
+
+    async def create(self, body: FeedbackCreateSchema, ip: str | None, user_agent: str | None) -> UUID:
+        """ Сохраняет обращение в БД; письмо отправляется отдельной задачей """
+        uow = self.uow_factory()
+        async with uow:
+            feedback = await uow.feedback.create(
+                kind=body.kind,
+                name=body.name,
+                email=str(body.email),
+                contact=body.contact,
+                service=body.service,
+                budget=body.budget,
+                deadline=body.deadline,
+                message=body.message,
+                lang=body.lang,
+                email_status=EmailStatus.pending,
+                ip=ip,
+                user_agent=(user_agent or "")[:512] or None,
+            )
+            feedback_id = feedback.id
+        logger.info("[FeedbackService] Сохранено обращение %s (%s) от %s", feedback_id, body.kind.value, body.email)
+        return feedback_id
+
+    # ------------------------------------------------------------------
+    #  Отправка уведомления на почту (фоновая задача + воркер повторов)
+    # ------------------------------------------------------------------
+
+    async def notify(self, feedback_id: UUID) -> bool:
+        """ Отправляет письмо по обращению. Возвращает True при успехе. """
+        uow = self.uow_factory()
+        async with uow:
+            feedback = await uow.feedback.claim_for_email(feedback_id)
+            if feedback is None:
+                return False  # уже отправлено или отправляется другим процессом
+            data = self._email_context(feedback)
+
+        text, html = self._render(data)
+        msg = self._build_message(data, text, html)
+
+        values: dict
+        try:
+            result = await self.mailer.send(msg, text, html)
+            values = {
+                "email_status": EmailStatus.sent,
+                "email_provider": result.provider,
+                "email_error": "; ".join(result.errors) or None,
+                "emailed_at": datetime.now(timezone.utc),
+            }
+            logger.info("[FeedbackService] Письмо по %s отправлено через %s", feedback_id, result.provider)
+        except MailError as e:
+            values = {"email_status": EmailStatus.failed, "email_error": str(e)[:2000]}
+            logger.error("[FeedbackService] Письмо по %s не отправлено: %s", feedback_id, e)
+        except Exception as e:  # noqa: BLE001
+            values = {"email_status": EmailStatus.failed, "email_error": f"{type(e).__name__}: {e}"[:2000]}
+            logger.error("[FeedbackService] Ошибка при отправке письма по %s", feedback_id, exc_info=True)
+
+        uow = self.uow_factory()
+        async with uow:
+            await uow.feedback.update(feedback_id, **values)
+        return values["email_status"] == EmailStatus.sent
+
+    async def process_queue(self) -> int:
+        """ Один проход воркера: досылает неотправленные письма """
+        uow = self.uow_factory()
+        async with uow:
+            ids = await uow.feedback.get_retry_ids(self.settings.email_max_attempts)
+            for feedback_id in ids:
+                await uow.feedback.release_stuck(feedback_id)
+        sent = 0
+        for feedback_id in ids:
+            if await self.notify(feedback_id):
+                sent += 1
+        return sent
+
+    async def run_worker(self, stop: asyncio.Event) -> None:
+        """ Фоновый цикл, запускается в lifespan приложения """
+        interval = max(10, self.settings.email_retry_interval)
+        logger.info("[FeedbackService] Воркер писем запущен (каждые %s с)", interval)
+        while not stop.is_set():
+            try:
+                await self.process_queue()
+            except Exception:  # noqa: BLE001 — воркер не должен падать
+                logger.error("[FeedbackService] Ошибка воркера писем", exc_info=True)
+            try:
+                await asyncio.wait_for(stop.wait(), timeout=interval)
+            except asyncio.TimeoutError:
+                pass
+
+    # ------------------------------------------------------------------
+    #  Админка
+    # ------------------------------------------------------------------
+
+    async def get_all(self, params: FeedbackQueryParams) -> PaginatedResponse[FeedbackSchema]:
+        uow = self.uow_factory()
+        async with uow:
+            items, total = await uow.feedback.get_all(params)
+        return PaginatedResponse[FeedbackSchema](
+            items=[FeedbackSchema.model_validate(i) for i in items],
+            total=total,
+            limit=params.limit,
+            offset=params.offset,
+            has_next=params.offset + params.limit < total,
+            has_previous=params.offset > 0,
         )
-        template = self.jinja_env.get_template("feedback_email.html")
-        html = template.render(name=name, email=email, message=message)
+
+    async def stats(self) -> FeedbackStatsSchema:
+        uow = self.uow_factory()
+        async with uow:
+            return FeedbackStatsSchema(**await uow.feedback.stats())
+
+    async def update(self, feedback_id: UUID, body: FeedbackUpdateSchema) -> FeedbackSchema:
+        uow = self.uow_factory()
+        async with uow:
+            feedback = await uow.feedback.update(feedback_id, **body.model_dump(exclude_unset=True))
+            if not feedback:
+                raise NotFoundException("Обращение не найдено")
+            return FeedbackSchema.model_validate(feedback)
+
+    async def delete(self, feedback_id: UUID) -> None:
+        uow = self.uow_factory()
+        async with uow:
+            if not await uow.feedback.delete(feedback_id):
+                raise NotFoundException("Обращение не найдено")
+
+    async def requeue(self, feedback_id: UUID) -> FeedbackSchema:
+        """ Повторная отправка письма вручную из админки """
+        uow = self.uow_factory()
+        async with uow:
+            feedback = await uow.feedback.update(
+                feedback_id, email_status=EmailStatus.pending, email_attempts=0, email_error=None
+            )
+            if not feedback:
+                raise NotFoundException("Обращение не найдено")
+        await self.notify(feedback_id)
+        uow = self.uow_factory()
+        async with uow:
+            return FeedbackSchema.model_validate(await uow.feedback.get_by_id(feedback_id))
+
+    # ------------------------------------------------------------------
+    #  Письмо
+    # ------------------------------------------------------------------
+
+    def _email_context(self, feedback: Feedback) -> dict:
+        is_order = feedback.kind == FeedbackKind.order
+        return {
+            "id": str(feedback.id),
+            "is_order": is_order,
+            "kind_label": "Заказ" if is_order else "Вопрос",
+            "name": feedback.name,
+            "email": feedback.email,
+            "contact": feedback.contact,
+            "service": FEEDBACK_SERVICES.get(feedback.service) if feedback.service else None,
+            "budget": FEEDBACK_BUDGETS.get(feedback.budget) if feedback.budget else None,
+            "deadline": feedback.deadline,
+            "message": feedback.message,
+            "lang": feedback.lang,
+            "created_at": feedback.created_at.astimezone().strftime("%d.%m.%Y %H:%M"),
+        }
+
+    def _render(self, data: dict) -> tuple[str, str]:
+        lines = [f"Тип: {data['kind_label']}", f"Имя: {data['name']}", f"Email: {data['email']}"]
+        if data["contact"]:
+            lines.append(f"Контакт: {data['contact']}")
+        if data["service"]:
+            lines.append(f"Что нужно: {data['service']}")
+        if data["budget"]:
+            lines.append(f"Бюджет: {data['budget']}")
+        if data["deadline"]:
+            lines.append(f"Сроки: {data['deadline']}")
+        text = "\n".join(lines) + f"\n\nСообщение:\n{data['message']}\n\nID: {data['id']}"
+        html = self.jinja_env.get_template("feedback_email.html").render(**data)
+        return text, html
+
+    def _build_message(self, data: dict, text: str, html: str) -> EmailMessage:
+        safe_name = " ".join(data["name"].split())  # защита от переносов строк в заголовке
+        prefix = "🟢 Заказ" if data["is_order"] else "💬 Вопрос"
 
         msg = EmailMessage()
-        safe_name = " ".join(name.split())  # защита от переносов строк в заголовке
-        msg["Subject"] = f"Сообщение с aledev.ru от {safe_name}"
+        msg["Subject"] = f"{prefix} с aledev.ru — {safe_name}"
         msg["From"] = formataddr((self.settings.feedback_sender_name, self.settings.sender))
         msg["To"] = self.settings.receiver
-        msg["Reply-To"] = email
+        msg["Reply-To"] = data["email"]
         msg["Date"] = formatdate(localtime=True)
         msg["Message-ID"] = make_msgid(domain=self.settings.sender.split("@")[-1] or None)
         msg.set_content(text)
         msg.add_alternative(html, subtype="html")
         return msg
-
-    def _send_smtp(self, msg: EmailMessage) -> None:
-        s = self.settings
-        if s.smtp_use_ssl:
-            context = ssl.create_default_context()
-            with smtplib.SMTP_SSL(s.smtp_host, s.smtp_port, timeout=s.smtp_timeout, context=context) as server:
-                server.login(s.smtp_user, s.smtp_password)
-                server.send_message(msg)
-        else:
-            with smtplib.SMTP(s.smtp_host, s.smtp_port, timeout=s.smtp_timeout) as server:
-                server.starttls(context=ssl.create_default_context())
-                server.login(s.smtp_user, s.smtp_password)
-                server.send_message(msg)
-
-    async def send_feedback(self, name: str, email: str, message: str):
-        try:
-            if not self.settings.smtp_user or not self.settings.smtp_password:
-                logger.error("[FeedbackService] SMTP_USER / SMTP_PASSWORD не заданы")
-                return
-            if not self.settings.receiver:
-                logger.error("[FeedbackService] FEEDBACK_RECEIVER не задан")
-                return
-
-            msg = self._build_message(name, email, message)
-            # smtplib блокирующий — выполняем в отдельном потоке
-            await asyncio.to_thread(self._send_smtp, msg)
-
-            logger.info("Feedback email sent via %s from %s", self.settings.smtp_host, email)
-
-        except smtplib.SMTPAuthenticationError as e:
-            logger.error(
-                "[FeedbackService] Ошибка авторизации SMTP (проверьте пароль приложения Яндекса): %s",
-                e,
-                exc_info=True,
-            )
-        except Exception as e:
-            logger.error(f"[FeedbackService] Ошибка при отправке письма: {e}", exc_info=True)

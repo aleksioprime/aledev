@@ -1,3 +1,4 @@
+import asyncio
 import uvicorn
 import os
 import logging
@@ -12,6 +13,7 @@ from src.core.config import settings
 from src.core.logger import LOGGING
 from src.api.v1 import router
 from src.exceptions.handlers import register_exception_handlers
+from src.dependencies.feedback import get_feedback_service
 
 logger = logging.getLogger(__name__)
 
@@ -20,8 +22,18 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """
     Управление жизненным циклом приложения FastAPI.
+    Запускает фоновый воркер, который досылает неотправленные письма обратной связи.
     """
-    yield
+    stop = asyncio.Event()
+    worker = asyncio.create_task(get_feedback_service().run_worker(stop))
+    try:
+        yield
+    finally:
+        stop.set()
+        try:
+            await asyncio.wait_for(worker, timeout=10)
+        except (asyncio.TimeoutError, asyncio.CancelledError):
+            worker.cancel()
 
 
 # Инициализация FastAPI-приложения

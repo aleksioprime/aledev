@@ -69,6 +69,14 @@ body {
   animation: grain 8s steps(10) infinite;
 }
 
+/* На телефонах зерно статичное: анимация полноэкранного слоя заметно греет GPU */
+@media (hover: none), (pointer: coarse) {
+  .landing::after {
+    animation: none;
+    inset: 0;
+  }
+}
+
 @keyframes grain {
   0%, 100% { transform: translate(0, 0); }
   10% { transform: translate(-5%, -10%); }
@@ -160,7 +168,6 @@ body {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: linear-gradient(160deg, rgb(255 255 255 / 0.05), rgb(255 255 255 / 0.015));
-  backdrop-filter: blur(14px);
 }
 
 /* Кнопки */

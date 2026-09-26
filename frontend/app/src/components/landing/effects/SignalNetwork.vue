@@ -26,13 +26,18 @@ let lastSpawn = 0
 const mouse = { x: -9999, y: -9999, active: false }
 let io = null
 let reducedMotion = false
+let lowPower = false
+let lastWidth = 0
+let lastFrame = 0
 
 function rand(min, max) {
   return Math.random() * (max - min) + min
 }
 
 function createNodes() {
-  const count = Math.round(Math.min(90, Math.max(28, (width * height) / 16000)))
+  // на телефонах узлов меньше: рёбра считаются попарно, O(n²)
+  const max = lowPower ? 38 : 90
+  const count = Math.round(Math.min(max, Math.max(24, (width * height) / (lowPower ? 14000 : 16000))))
   nodes = Array.from({ length: count }, () => ({
     x: rand(0, width),
     y: rand(0, height),
@@ -48,13 +53,18 @@ function resize() {
   const canvas = canvasRef.value
   if (!canvas) return
   const rect = canvas.getBoundingClientRect()
-  dpr = Math.min(window.devicePixelRatio || 1, 2)
+  dpr = Math.min(window.devicePixelRatio || 1, lowPower ? 1.5 : 2)
   width = rect.width
   height = rect.height
   canvas.width = Math.round(width * dpr)
   canvas.height = Math.round(height * dpr)
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-  createNodes()
+  // На мобильных resize срабатывает при скрытии адресной строки (меняется только высота) —
+  // в этом случае сохраняем узлы, чтобы сеть не «перескакивала»
+  if (width !== lastWidth || !nodes.length) {
+    lastWidth = width
+    createNodes()
+  }
   if (reducedMotion) draw(0)
 }
 
@@ -184,7 +194,10 @@ function draw(time) {
 }
 
 function loop(time) {
-  if (visible && !document.hidden) {
+  // на слабых устройствах рисуем ~30 кадров в секунду
+  const minDelta = lowPower ? 32 : 0
+  if (visible && !document.hidden && time - lastFrame >= minDelta) {
+    lastFrame = time
     step(time)
     draw(time)
   }
@@ -213,7 +226,8 @@ function onClick(e) {
 onMounted(() => {
   const canvas = canvasRef.value
   ctx = canvas.getContext('2d')
-  reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  lowPower = window.matchMedia('(pointer: coarse)').matches || (navigator.hardwareConcurrency || 8) <= 4
+  reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches || !!navigator.connection?.saveData
   resize()
   window.addEventListener('resize', resize)
 

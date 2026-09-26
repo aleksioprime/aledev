@@ -11,11 +11,8 @@ import { createPinia } from 'pinia'
 // Импорт модуля навигации Vue Router
 import router from "@/router";
 
-// Импортируем стили, компоненты и директивы Vuetify
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as vuetifyComponents from 'vuetify/components'
-import * as directives from 'vuetify/directives'
+// Vuetify подключается лениво — только для админ-панели
+import { installVuetify } from '@/plugins/vuetify'
 
 // Импортируем директивы анимаций (v-reveal, v-magnetic, v-tilt)
 import directivesPlugin from '@/directives'
@@ -23,31 +20,12 @@ import directivesPlugin from '@/directives'
 // Импортируем стили приложения
 import '@/assets/styles/main.css'
 
-// Импортируем иконки Material Design Icons
-import '@mdi/font/css/materialdesignicons.css'
-// Импортируем алиасы и набор иконок MDI для Vuetify
-import { aliases, mdi } from 'vuetify/iconsets/mdi'
-
-// Создаём экземпляр Vuetify с нужными настройками
-const vuetify = createVuetify({
-	components: vuetifyComponents,
-	directives,
-	// Настройка иконок для приложения
-	icons: {
-		defaultSet: 'mdi',
-		aliases,
-		sets: {
-			mdi,
-		},
-	},
-})
-
 // Создаём Vue-приложение, передавая главный компонент App
 const app = createApp(App);
-// Подключаем Vuetify для быстрого дизайна
-app.use(vuetify);
 // Подключаем Pinia для общего хранилища
 app.use(createPinia());
+// Перед переходом на страницы с Vuetify-разметкой (админка) загружаем Vuetify
+router.beforeEach((to) => (to.meta.layout === 'landing' ? true : installVuetify(app).then(() => true)));
 // Подключем Vue Router для навигации
 app.use(router);
 // Подключаем i18n для мультиязычности

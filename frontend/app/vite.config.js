@@ -7,11 +7,6 @@ import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import { dirname, resolve } from 'path'
 
 
-console.log(
-	'Путь к локалям:',
-	resolve(dirname(fileURLToPath(import.meta.url)), './src/common/locales/**')
-)
-
 // https://vite.dev/config/
 const config = defineConfig({
 	plugins: [
@@ -23,6 +18,10 @@ const config = defineConfig({
 				dirname(fileURLToPath(import.meta.url)),
 				'./src/common/locales/**'
 			),
+			// сообщения компилируются при сборке — компилятор vue-i18n в бандл не попадает
+			runtimeOnly: true,
+			compositionOnly: true,
+			fullInstall: false,
 		}),
 	],
 	server: {

@@ -28,10 +28,10 @@
         <div class="hero__cta">
           <a v-magnetic href="#contacts" class="btn btn-primary" @click.prevent="scrollToSection('contacts')">
             {{ t('hero.contact') }}
-            <span class="mdi mdi-arrow-right"></span>
+            <Icon :path="mdiArrowRight" />
           </a>
           <a v-magnetic :href="cv" target="_blank" rel="noopener" class="btn btn-ghost">
-            <span class="mdi mdi-file-download-outline"></span>
+            <Icon :path="mdiFileDownloadOutline" />
             {{ t('hero.download_cv') }}
           </a>
         </div>
@@ -48,7 +48,7 @@
       <div class="hero__visual">
         <button type="button" class="avatar" :aria-label="t('hero.openPhoto')" @click="openPreview">
           <span class="avatar__ring"></span>
-          <img :src="avatar" :alt="t('hero.name')" class="avatar__img" />
+          <img :src="avatar" :alt="t('hero.name')" class="avatar__img" width="640" height="640" fetchpriority="high" decoding="async" />
         </button>
         <div class="orbit" aria-hidden="true">
           <span v-for="(tag, i) in orbitTags" :key="tag" class="orbit__tag"
@@ -69,7 +69,7 @@
     <Transition name="zoom">
       <div v-if="isPreviewOpen" class="preview" @click="closePreview">
         <button type="button" class="preview__close" :aria-label="t('hero.closePhoto')" @click="closePreview">
-          <span class="mdi mdi-close"></span>
+          <Icon :path="mdiClose" />
         </button>
         <img :src="avatar" :alt="t('hero.name')" class="preview__img" @click.stop />
       </div>
@@ -78,9 +78,11 @@
 </template>
 
 <script setup>
+import Icon from '@/components/ui/Icon.vue'
+import { mdiArrowRight, mdiClose, mdiFileDownloadOutline } from '@mdi/js'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import avatar from '@/assets/img/avatar.png'
+import avatar from '@/assets/img/avatar.webp'
 import SignalNetwork from '@/components/landing/effects/SignalNetwork.vue'
 import { socials } from '@/common/constants/socials'
 

@@ -36,7 +36,7 @@
       <div v-if="hasNextPage && experiences.length" class="exp__more">
         <button v-magnetic type="button" class="btn btn-ghost" :disabled="loading" @click="fetchExperiences()">
           {{ $t('experience.showMore') }}
-          <span class="mdi mdi-chevron-down"></span>
+          <Icon :path="mdiChevronDown" />
         </button>
       </div>
     </div>
@@ -44,6 +44,8 @@
 </template>
 
 <script setup>
+import Icon from '@/components/ui/Icon.vue'
+import { mdiChevronDown } from '@mdi/js'
 import { onBeforeUnmount, onMounted, ref } from "vue";
 
 import { formatDate } from '@/common/helpers/dateFormat'
@@ -76,7 +78,7 @@ const fetchExperiences = async (reset = false) => {
   }
 
   const params = {
-    offset: (page.value - 1) * limit,
+    offset: page.value,
     limit,
   };
 

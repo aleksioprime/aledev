@@ -4,13 +4,15 @@
     <h1 class="glitch font-display" data-text="404">404</h1>
     <p class="notfound__text">Страница не найдена · Page not found</p>
     <router-link v-magnetic to="/" class="btn btn-primary">
-      <span class="mdi mdi-arrow-left"></span>
+      <Icon :path="mdiArrowLeft" />
       На главную
     </router-link>
   </section>
 </template>
 
 <script setup>
+import Icon from '@/components/ui/Icon.vue'
+import { mdiArrowLeft } from '@mdi/js'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 

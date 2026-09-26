@@ -38,7 +38,7 @@
     <div class="focus shell">
       <div v-for="(item, i) in focusAreas" :key="item.key" v-reveal="{ delay: i * 90 }">
         <article v-tilt="6" class="focus__card glass">
-          <span class="focus__icon mdi" :class="item.icon"></span>
+          <span class="focus__icon"><Icon :path="item.icon" /></span>
           <h3 class="focus__title">{{ t(`about.focus.${item.key}.title`) }}</h3>
           <p class="focus__text">{{ t(`about.focus.${item.key}.text`) }}</p>
           <span class="focus__num font-mono">0{{ i + 1 }}</span>
@@ -49,6 +49,8 @@
 </template>
 
 <script setup>
+import Icon from '@/components/ui/Icon.vue'
+import { mdiChip, mdiSchoolOutline, mdiServerNetwork, mdiVuejs } from '@mdi/js'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import CountUp from '@/components/landing/effects/CountUp.vue'
@@ -67,10 +69,10 @@ const years = ref(0)
 const photoRef = ref(null)
 
 const focusAreas = [
-  { key: 'backend', icon: 'mdi-server-network' },
-  { key: 'frontend', icon: 'mdi-vuejs' },
-  { key: 'iot', icon: 'mdi-chip' },
-  { key: 'teaching', icon: 'mdi-school-outline' },
+  { key: 'backend', icon: mdiServerNetwork },
+  { key: 'frontend', icon: mdiVuejs },
+  { key: 'iot', icon: mdiChip },
+  { key: 'teaching', icon: mdiSchoolOutline },
 ]
 
 // Все цифры берутся из реальных данных: API проектов, опыта и списка навыков
@@ -82,8 +84,8 @@ const stats = computed(() => [
 
 async function loadStats() {
   const [projects, experience] = await Promise.all([
-    projectStore.loadProjects({ params: { offset: 0, limit: 1 } }),
-    experienceStore.loadExperiences({ params: { offset: 0, limit: 100 } }),
+    projectStore.loadProjects({ params: { offset: 1, limit: 1 } }),
+    experienceStore.loadExperiences({ params: { offset: 1, limit: 100 } }),
   ])
   if (projects) projectsTotal.value = projects.total
   if (experience?.items?.length) {
@@ -107,7 +109,9 @@ function onScroll() {
 
 onMounted(() => {
   loadStats()
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const coarse = window.matchMedia('(pointer: coarse)').matches
+  if (!reduced && !coarse) {
     window.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
   }
@@ -205,7 +209,7 @@ onBeforeUnmount(() => {
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
   gap: 1rem;
   margin-top: 2.5rem;
 }
@@ -319,6 +323,14 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 540px) {
+  .stat {
+    padding: 0.9rem 0.75rem 0.8rem;
+  }
+
+  .stat__label {
+    font-size: 0.75rem;
+  }
+
   .focus {
     grid-template-columns: 1fr;
   }

@@ -7,6 +7,7 @@ export const mainRoutes = [
     component: () => import("@/views/HomeView.vue"),
     meta: {
       title: "",
+      layout: "landing",
     },
   },
   {
@@ -33,6 +34,16 @@ export const mainRoutes = [
     component: () => import("@/views/admin/ExperienceView.vue"),
     meta: {
       title: "Опыта работы",
+      layout: "manage",
+      middlewares: [isLoggedIn],
+    },
+  },
+  {
+    path: "/admin/feedback",
+    name: "feedback",
+    component: () => import("@/views/admin/FeedbackView.vue"),
+    meta: {
+      title: "Обращения",
       layout: "manage",
       middlewares: [isLoggedIn],
     },
