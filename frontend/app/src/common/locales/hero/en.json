@@ -1,17 +1,17 @@
 {
-    "name": "Aleksei Semochkin",
-    "title": "Software Engineer / Fullstack & IoT Developer",
-    "roles": [
-        "Software Engineer",
-        "Fullstack Developer",
-        "Backend & Microservices",
-        "IoT & ML Solutions",
-        "Engineering Mentor"
-    ],
-    "about": "Fullstack developer focused on backend. I design educational and science-intensive platforms, build reliable microservices, implement ML and IoT solutions, and train new generations of engineers.",
-    "download_cv": "Download CV",
-    "contact": "Contact me",
-    "openPhoto": "Open photo",
-    "closePhoto": "Close photo",
-    "scroll": "Scroll down"
+  "name": "Aleksei Semochkin",
+  "title": "Web developer · microservices · ML & IoT",
+  "roles": [
+    "Web developer",
+    "Microservices & APIs",
+    "Educational platforms",
+    "ML & IoT solutions",
+    "Project team mentor"
+  ],
+  "about": "I build web platforms on a modern microservice architecture and a popular, proven stack that keeps them reliable and flexible. I design educational and science-intensive systems, bring in ML and IoT solutions, and mentor student project teams.",
+  "contact": "Discuss a project",
+  "openPhoto": "Open photo",
+  "closePhoto": "Close photo",
+  "scroll": "Scroll down",
+  "projects": "See projects"
 }

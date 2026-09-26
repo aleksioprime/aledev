@@ -22,6 +22,7 @@
 
         <p v-reveal="{ delay: 140 }" class="about__lead">{{ t('about.p1') }}</p>
         <p v-reveal="{ delay: 200 }" class="about__text">{{ t('about.p2') }}</p>
+        <p v-reveal="{ delay: 240 }" class="about__text">{{ t('about.p3') }}</p>
 
         <dl class="stats">
           <div v-for="(stat, i) in stats" :key="stat.key" v-reveal="{ variant: 'scale', delay: 120 + i * 90 }"
@@ -50,11 +51,10 @@
 
 <script setup>
 import Icon from '@/components/ui/Icon.vue'
-import { mdiChip, mdiSchoolOutline, mdiServerNetwork, mdiVuejs } from '@mdi/js'
+import { mdiAccountGroupOutline, mdiChip, mdiServerNetwork, mdiWeb } from '@mdi/js'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import CountUp from '@/components/landing/effects/CountUp.vue'
-import { skills } from '@/common/constants/skills'
 import { useProjectStore } from '@/stores/project'
 import { useExperienceStore } from '@/stores/experience'
 
@@ -64,22 +64,29 @@ const { t } = useI18n()
 const projectStore = useProjectStore()
 const experienceStore = useExperienceStore()
 
+// Начало работы в образовании (из педагогического портфолио)
+const EDUCATION_SINCE = '2007-09-15'
+
+function yearsSince(date) {
+  return Math.floor((Date.now() - new Date(date).getTime()) / (365.25 * 24 * 3600 * 1000))
+}
+
 const projectsTotal = ref(0)
 const years = ref(0)
 const photoRef = ref(null)
 
 const focusAreas = [
-  { key: 'backend', icon: mdiServerNetwork },
-  { key: 'frontend', icon: mdiVuejs },
-  { key: 'iot', icon: mdiChip },
-  { key: 'teaching', icon: mdiSchoolOutline },
+  { key: 'web', icon: mdiWeb },
+  { key: 'microservices', icon: mdiServerNetwork },
+  { key: 'mliot', icon: mdiChip },
+  { key: 'mentoring', icon: mdiAccountGroupOutline },
 ]
 
 // Все цифры берутся из реальных данных: API проектов, опыта и списка навыков
 const stats = computed(() => [
   { key: 'years', value: years.value, suffix: '+' },
   { key: 'projects', value: projectsTotal.value, suffix: '' },
-  { key: 'stack', value: skills.flat().length, suffix: '' },
+  { key: 'education', value: yearsSince(EDUCATION_SINCE), suffix: '+' },
 ].filter((s) => s.value > 0))
 
 async function loadStats() {
@@ -182,18 +189,6 @@ onBeforeUnmount(() => {
   background: var(--accent-3);
 }
 
-.about__pulse::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: var(--accent-3);
-  animation: ping 1.8s var(--ease-out) infinite;
-}
-
-@keyframes ping {
-  to { transform: scale(3); opacity: 0; }
-}
 
 .about__lead {
   font-size: clamp(1.15rem, 2vw, 1.35rem);

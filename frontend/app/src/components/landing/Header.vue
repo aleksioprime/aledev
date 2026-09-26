@@ -2,7 +2,7 @@
   <header class="site-header" :class="{ 'is-scrolled': scrolled }">
     <nav class="nav shell">
       <a href="#hero" class="brand" @click.prevent="scrollToSection('hero')">
-        <span class="brand__prompt">~/</span>aledev<span class="brand__caret"></span>
+        <span class="brand__prompt">~/</span>aledev
       </a>
 
       <div class="nav__links">
@@ -21,10 +21,6 @@
           <span class="lang__thumb" :style="{ transform: `translateX(${langs.indexOf(locale) * 100}%)` }"></span>
         </div>
 
-        <a :href="cv" target="_blank" rel="noopener" class="nav__cv">
-          {{ t('header.menu.cv') }}
-          <Icon :path="mdiArrowTopRight" />
-        </a>
 
         <button type="button" class="burger" :class="{ 'is-open': mobileOpen }" :aria-expanded="mobileOpen"
           aria-label="Menu" @click="mobileOpen = !mobileOpen">
@@ -40,10 +36,6 @@
           <span class="drawer__num">0{{ i + 1 }}</span>
           {{ t(`header.menu.${item.key}`) }}
         </a>
-        <a :href="cv" target="_blank" rel="noopener" class="drawer__link" :style="{ '--i': menu.length }">
-          <span class="drawer__num">CV</span>
-          {{ t('header.menu.cv') }}
-        </a>
       </div>
     </Transition>
   </header>
@@ -58,10 +50,10 @@ import { useI18n } from 'vue-i18n'
 const { t, locale } = useI18n()
 
 const langs = ['ru', 'en']
-const cv = '/files/cv_asemochkin.pdf'
 const menu = [
   { key: 'about', anchor: 'about' },
   { key: 'projects', anchor: 'projects' },
+  { key: 'mentoring', anchor: 'mentoring' },
   { key: 'experience', anchor: 'experience' },
   { key: 'contacts', anchor: 'contacts' },
 ]
@@ -179,20 +171,6 @@ onBeforeUnmount(() => {
   color: var(--accent);
 }
 
-.brand__caret {
-  display: inline-block;
-  width: 0.55em;
-  height: 1.05em;
-  margin-left: 0.15em;
-  vertical-align: -0.15em;
-  background: var(--accent);
-  animation: blink 1.1s steps(1) infinite;
-}
-
-@keyframes blink {
-  50% { opacity: 0; }
-}
-
 .nav__links {
   display: flex;
   gap: 0.25rem;
@@ -272,24 +250,6 @@ onBeforeUnmount(() => {
   transition: transform 0.45s var(--ease-out);
 }
 
-.nav__cv {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.55rem 1.1rem;
-  border-radius: 999px;
-  background: var(--text);
-  color: #05060a !important;
-  font-size: 0.88rem;
-  font-weight: 700;
-  transition: background-color 0.3s ease, transform 0.3s var(--ease-out);
-}
-
-.nav__cv:hover {
-  background: var(--accent);
-  transform: translateY(-1px);
-}
-
 .burger {
   display: none;
   position: relative;
@@ -366,8 +326,7 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 860px) {
-  .nav__links,
-  .nav__cv {
+  .nav__links {
     display: none;
   }
 

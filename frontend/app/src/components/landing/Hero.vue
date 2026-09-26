@@ -4,11 +4,6 @@
 
     <div class="hero__inner shell">
       <div class="hero__text">
-        <p class="terminal font-mono">
-          <span class="terminal__prompt">$</span>
-          <span class="terminal__cmd">{{ typedCmd }}</span><span class="terminal__caret"></span>
-        </p>
-
         <h1 class="hero__name font-display" :aria-label="t('hero.name')">
           <span v-for="(word, wi) in nameWords" :key="`${locale}-${wi}`" class="hero__word"
             :class="{ 'text-gradient': wi === nameWords.length - 1 }">
@@ -17,10 +12,11 @@
           </span>
         </h1>
 
-        <p class="hero__role font-mono">
-          <span class="hero__role-bracket">&lt;</span>
-          <span class="hero__role-text">{{ typedRole }}</span><span class="hero__role-caret">|</span>
-          <span class="hero__role-bracket">/&gt;</span>
+        <p class="hero__role font-mono" :aria-label="t('hero.title')">
+          <span class="hero__role-bracket" aria-hidden="true">&lt;</span>
+          <span class="hero__role-text" aria-hidden="true">{{ typedRole }}</span><span class="hero__role-caret"
+            aria-hidden="true">|</span>
+          <span class="hero__role-bracket" aria-hidden="true">/&gt;</span>
         </p>
 
         <p class="hero__about">{{ t('hero.about') }}</p>
@@ -30,9 +26,8 @@
             {{ t('hero.contact') }}
             <Icon :path="mdiArrowRight" />
           </a>
-          <a v-magnetic :href="cv" target="_blank" rel="noopener" class="btn btn-ghost">
-            <Icon :path="mdiFileDownloadOutline" />
-            {{ t('hero.download_cv') }}
+          <a v-magnetic href="#projects" class="btn btn-ghost" @click.prevent="scrollToSection('projects')">
+            {{ t('hero.projects') }}
           </a>
         </div>
 
@@ -79,7 +74,7 @@
 
 <script setup>
 import Icon from '@/components/ui/Icon.vue'
-import { mdiArrowRight, mdiClose, mdiFileDownloadOutline } from '@mdi/js'
+import { mdiArrowRight, mdiClose } from '@mdi/js'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import avatar from '@/assets/img/avatar.webp'
@@ -87,15 +82,13 @@ import SignalNetwork from '@/components/landing/effects/SignalNetwork.vue'
 import { socials } from '@/common/constants/socials'
 
 const sectionId = 'hero'
-const cv = '/files/cv_asemochkin.pdf'
-const orbitTags = ['Python', 'FastAPI', 'Vue.js', 'Docker', 'IoT', 'ML']
+const orbitTags = ['Vue.js', 'FastAPI', 'Docker', 'PostgreSQL', 'ML', 'IoT']
 
 const { t, tm, rt, locale } = useI18n()
 
 const nameWords = computed(() => t('hero.name').split(' '))
 
-// --- «Терминал» и печатающиеся роли ---
-const typedCmd = ref('')
+// --- Печатающиеся роли ---
 const typedRole = ref('')
 const timers = []
 let roleIndex = 0
@@ -126,14 +119,14 @@ async function runRoles() {
     const list = roles.value
     if (!list.length) return
     await typeInto(typedRole, list[roleIndex % list.length], 60)
-    await wait(2200)
+    await wait(2600)
     await eraseFrom(typedRole)
     await wait(300)
     roleIndex += 1
   }
 }
 
-// при смене языка перезапускаем текущую роль сразу
+// при смене языка сразу начинаем печатать роль на новом языке
 watch(locale, () => {
   typedRole.value = ''
 })
@@ -164,14 +157,10 @@ function scrollToSection(anchor) {
 }
 
 onMounted(async () => {
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  if (reduced) {
-    typedCmd.value = 'whoami'
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     typedRole.value = roles.value[0] || ''
     return
   }
-  await wait(200)
-  await typeInto(typedCmd, 'whoami', 90)
   await wait(900)
   runRoles()
 })
@@ -199,40 +188,6 @@ onBeforeUnmount(() => {
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
   align-items: center;
   gap: clamp(2rem, 6vw, 5rem);
-}
-
-.terminal {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 1.5rem;
-  padding: 0.45rem 0.9rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: rgb(255 255 255 / 0.03);
-  font-size: 0.85rem;
-  color: var(--muted);
-  min-height: 2.1rem;
-}
-
-.terminal__prompt {
-  color: var(--accent-3);
-}
-
-.terminal__cmd {
-  color: var(--text);
-}
-
-.terminal__caret {
-  width: 0.5rem;
-  height: 1rem;
-  margin-left: -0.35rem;
-  background: var(--accent);
-  animation: blink 1s steps(1) infinite;
-}
-
-@keyframes blink {
-  50% { opacity: 0; }
 }
 
 .hero__name {
@@ -298,6 +253,10 @@ onBeforeUnmount(() => {
   margin-left: -0.2rem;
   color: var(--accent-2);
   animation: blink 0.9s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
 }
 
 .hero__about {
@@ -393,7 +352,7 @@ onBeforeUnmount(() => {
   inset: -6px;
   border-radius: 50%;
   background: conic-gradient(from 0deg, var(--accent), var(--accent-2), #f472b6, var(--accent-3), var(--accent));
-  animation: spin 6s linear infinite;
+  animation: spin 20s linear infinite;
   filter: blur(0.5px);
 }
 
@@ -425,7 +384,7 @@ onBeforeUnmount(() => {
   inset: 0;
   border: 1px dashed rgb(255 255 255 / 0.1);
   border-radius: 50%;
-  animation: spin 40s linear infinite;
+  animation: spin 90s linear infinite;
   pointer-events: none;
 }
 
@@ -453,7 +412,7 @@ onBeforeUnmount(() => {
   color: var(--text);
   white-space: nowrap;
   /* вращаемся навстречу орбите — подпись остаётся горизонтальной */
-  animation: counter-spin 40s linear infinite;
+  animation: counter-spin 90s linear infinite;
 }
 
 @keyframes counter-spin {

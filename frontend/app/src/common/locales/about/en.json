@@ -1,32 +1,34 @@
 {
-    "kicker": "About",
-    "titleStart": "An engineer who builds",
-    "titleAccent": "complete systems",
-    "photoAlt": "Workspace",
-    "badge": "Python · Vue · IoT",
-    "p1": "I design and build platforms end to end — from databases and microservices to interfaces and hardware.",
-    "p2": "My main focus is Python backend: async services, message queues, ETL and integrations. I bring in computer vision and ML, build IoT solutions and mentor the next generation of engineers.",
-    "stats": {
-        "years": "years in development",
-        "projects": "projects in portfolio",
-        "stack": "technologies in stack"
+  "kicker": "About",
+  "titleStart": "An engineer who builds platforms",
+  "titleAccent": "and grows engineers",
+  "photoAlt": "Workspace",
+  "badge": "Web · ML · IoT",
+  "p1": "I build full-cycle web platforms: microservice architecture and APIs, interfaces, databases, CI/CD and infrastructure. I choose a popular, proven stack — Python and FastAPI, Vue.js, PostgreSQL, message queues, Docker — so the system is reliable today and easy to evolve tomorrow.",
+  "p2": "An engineer by training (Computer Systems and Networks, diploma with honours). For a long time I combined development with education and headed the Design & Technology department at the Skolkovo International Gymnasium. Now I work in development full time: I build an educational platform for the gymnasium and a system for continuing professional education, and work on projects with startups.",
+  "stats": {
+    "years": "years in development",
+    "projects": "projects in portfolio",
+    "education": "years in education"
+  },
+  "focus": {
+    "web": {
+      "title": "Web platforms",
+      "text": "Vue.js and FastAPI: user dashboards, admin panels and public services that are easy to evolve."
     },
-    "focus": {
-        "backend": {
-            "title": "Backend & microservices",
-            "text": "FastAPI, Django, async, RabbitMQ, PostgreSQL — reliable services and APIs."
-        },
-        "frontend": {
-            "title": "Interfaces",
-            "text": "Vue.js and modern frontend: from admin panels to public websites."
-        },
-        "iot": {
-            "title": "IoT & ML",
-            "text": "Devices, data collection, computer vision with OpenCV and TensorFlow models."
-        },
-        "teaching": {
-            "title": "Teaching",
-            "text": "Sharing experience and helping new engineers grow through practice and real projects."
-        }
+    "microservices": {
+      "title": "Microservices & DevOps",
+      "text": "Docker, PostgreSQL, Redis, RabbitMQ, CI/CD — reliable infrastructure and predictable releases."
+    },
+    "mliot": {
+      "title": "ML & IoT",
+      "text": "Computer vision with OpenCV and TensorFlow, devices on Arduino, ESP and Raspberry Pi."
+    },
+    "mentoring": {
+      "title": "Mentoring",
+      "text": "I lead student project teams and create curricula in AI, programming and robotics."
     }
+  },
+  "p3": "A separate focus of mine is science-intensive projects at the intersection of web, computer vision and hardware — from a grant-funded educational platform for learning machine vision to IoT monitoring systems. As a mentor I lead student project teams from idea to prizes at national competitions.",
+  "stackLabel": "Tech stack"
 }
