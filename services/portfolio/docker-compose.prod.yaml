@@ -32,7 +32,7 @@ services:
     environment:
       UVICORN_RELOAD: "0"
     volumes:
-      - /root/aledev/media:/usr/src/app/media
+      - ../../media:/usr/src/app/media
     networks:
       - default
       - shared

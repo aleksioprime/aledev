@@ -1,0 +1,53 @@
+name: Prepare Server
+
+run-name: "Prepare server by ${{ github.actor }}"
+
+# Идемпотентная подготовка чистого сервера: Docker + Compose, каталоги, общая сеть.
+# Повторный запуск ничего не ломает.
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: ./.github/actions/ssh-setup
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          user: ${{ secrets.SERVER_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+
+      - name: Install Docker and prepare directories
+        run: |
+          ssh server bash -s <<'SCRIPT'
+          set -e
+          SUDO=""
+          if [ "$(id -u)" -ne 0 ]; then SUDO="sudo -n"; fi
+
+          if ! command -v docker >/dev/null 2>&1; then
+            echo "Устанавливаем Docker..."
+            curl -fsSL https://get.docker.com | $SUDO sh
+          fi
+          if ! docker compose version >/dev/null 2>&1 && ! $SUDO docker compose version >/dev/null 2>&1; then
+            $SUDO apt-get update -y && $SUDO apt-get install -y docker-compose-plugin
+          fi
+          if [ -n "$SUDO" ] && ! id -nG | grep -qw docker; then
+            $SUDO usermod -aG docker "$(whoami)"
+            echo "Пользователь добавлен в группу docker (вступит в силу при следующем подключении)"
+          fi
+          $SUDO systemctl enable --now docker >/dev/null 2>&1 || true
+
+          mkdir -p ~/aledev/nginx ~/aledev/media ~/aledev/services/auth ~/aledev/services/portfolio
+          $SUDO docker network inspect aledev-shared >/dev/null 2>&1 || $SUDO docker network create aledev-shared
+
+          docker --version || $SUDO docker --version
+          docker compose version || $SUDO docker compose version
+          echo "Сервер готов"
+          SCRIPT

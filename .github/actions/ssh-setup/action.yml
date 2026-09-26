@@ -1,0 +1,44 @@
+name: SSH setup
+description: Настраивает SSH-доступ к серверу деплоя под алиасом `server`
+
+inputs:
+  host:
+    description: Адрес сервера
+    required: true
+  user:
+    description: Пользователь SSH
+    required: true
+  port:
+    description: Порт SSH
+    required: false
+    default: "22"
+  key:
+    description: Приватный ключ SSH
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Configure SSH
+      shell: bash
+      env:
+        SSH_HOST: ${{ inputs.host }}
+        SSH_USER: ${{ inputs.user }}
+        SSH_PORT: ${{ inputs.port }}
+        SSH_KEY: ${{ inputs.key }}
+      run: |
+        mkdir -p ~/.ssh && chmod 700 ~/.ssh
+        printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy
+        chmod 600 ~/.ssh/id_deploy
+        ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+        cat > ~/.ssh/config <<CONFIG
+        Host server
+          HostName $SSH_HOST
+          User $SSH_USER
+          Port $SSH_PORT
+          IdentityFile ~/.ssh/id_deploy
+          IdentitiesOnly yes
+          ServerAliveInterval 30
+        CONFIG
+        chmod 600 ~/.ssh/config
+        ssh server 'echo "SSH OK: $(whoami)@$(hostname)"'

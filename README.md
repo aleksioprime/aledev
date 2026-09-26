@@ -18,119 +18,13 @@ cd aledev
 docker-compose -p aledev up -d --build
 ```
 
-# Запуск на сервере:
+# Деплой на сервер
 
-## Подготовка сервера
+Полная инструкция: [docs/deploy.md](docs/deploy.md).
 
-Установите сервер с ОС Ubuntu 22.04+
-
-Выполните обновление пакетов:
-```
-sudo apt update && sudo apt upgrade -y
-```
-
-Установите Docker:
-```
-sudo apt update && sudo apt install -y docker.io
-```
-
-Установите Compose-плагин:
-```
-DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
-mkdir -p $DOCKER_CONFIG/cli-plugins
-curl -SL https://github.com/docker/compose/releases/download/v2.40.0/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
-chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-```
-
-Проверьте установку
-```
-docker compose version
-```
-
-## Переменные окружения
-
-Переменные окружения берутся из репозитория.
-
-Для загрузки контейнеров в Docker Hub используется:
-```
-DOCKER_HUB_USERNAME=<логин пользователя Docker Hub>
-DOCKER_HUB_ACCESS_TOKEN=<access-токен, который был выдан в DockerHub>
-```
-
-Для деплоя приложения из репозитория на сервер используется:
-```
-SERVER_HOST=<IP-адрес сервера>
-SERVER_USER=<Имя пользователя сервера>
-SSH_KEY=<Приватный ключ для подключения к серверу по SSH>
-SSH_PORT=<Порт подключения по SSH>
-```
-
-Для сервиса создаётся переменная `ENV_VARS`, куда записываются все переменные из `.env.example`
-
-## Добавление бесплатного SSL-сертификата
-
-В контейнер фронтенда добавлен CertBot, с помощью которого происходит регистрация сертификата
-
-Проверьте установку:
-```
-docker exec -it aledev-frontend certbot --version
-```
-
-Запустите CertBot для получения сертификатов
-```
-docker exec -it aledev-frontend certbot --nginx -d aledev.ru -d www.aledev.ru
-ls -l /etc/letsencrypt/live/aledev.ru/
-```
-
-Добавьте автообновление сертификатов (каждые 90 дней). Для этого откройте crontab:
-```
-sudo crontab -e
-```
-
-Добавьте строку:
-```
-0 3 * * * /usr/bin/docker exec aledev-frontend timeout 180 certbot renew --non-interactive --deploy-hook "nginx -s reload" >> /var/log/certbot-cron.log 2>&1
-```
-
-Обновление сертификатов вручную:
-```
-docker exec aledev-frontend certbot renew --non-interactive
-```
-
-В случае необходимости можно удалить сертификаты (пример для aledev.ru):
-```
-docker exec -it aledev-frontend rm -rf /etc/letsencrypt/renewal/aledev.ru.conf
-docker exec -it aledev-frontend rm -rf /etc/letsencrypt/live/aledev.ru
-docker exec -it aledev-frontend rm -rf /etc/letsencrypt/archive/aledev.ru
-```
-
-Проверьте логи на сервере
-
-```
-docker compose -p aledev logs
-docker logs aledev-frontend
-
-docker compose -f ~/aledev/docker-compose.prod.yaml ps
-
-docker compose -f ~/aledev/services/auth/docker-compose.prod.yaml ps
-
-docker compose -f ~/aledev/services/portfolio/docker-compose.prod.yaml ps
-```
-
-Редактирование NGINX:
-```
-sudo nano ~/aledev/nginx/nginx.conf
-docker exec -it aledev-frontend nginx -s reload
-```
-
-Проверить нагрузку:
-```
-docker stats
-```
-
-Формирование ключа:
-
-```
-python3 -c "import secrets; print(''.join(secrets.choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_') for _ in range(86)))"
-```
-
+Коротко:
+1. Направить DNS (`aledev.ru`, `www`, `auth`, `portfolio`) на сервер и открыть порты 80/443.
+2. Заполнить секреты GitHub: `SERVER_HOST`, `SERVER_USER`, `SSH_PORT`, `SSH_KEY`, `DOCKER_HUB_*`,
+   `ENV_VARS`, `ENV_AUTH_VARS`, `ENV_PORTFOLIO_VARS`.
+3. Запустить **Actions → Deploy All**: подготовка сервера (Docker), сборка образов, деплой
+   auth → portfolio → фронтенд и, если указан email, выпуск SSL-сертификатов с автообновлением.

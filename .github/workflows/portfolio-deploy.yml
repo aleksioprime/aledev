@@ -4,6 +4,11 @@ run-name: "Deploy Portfolio Service for ${{ github.ref_name }} by ${{ github.act
 
 on:
   workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: deploy-portfolio
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -11,36 +16,41 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup SSH
+        uses: ./.github/actions/ssh-setup
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          user: ${{ secrets.SERVER_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+
+      - name: Upload compose file and .env
+        env:
+          ENV_FILE: ${{ secrets.ENV_PORTFOLIO_VARS }}
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          ssh server 'mkdir -p ~/aledev/services/portfolio ~/aledev/media'
+          scp services/portfolio/docker-compose.prod.yaml server:aledev/services/portfolio/docker-compose.prod.yaml
+          printf '%s\n' "$ENV_FILE" | ssh server 'umask 077 && cat > ~/aledev/services/portfolio/.env'
+          echo "Файлы загружены на сервер"
+
+      - name: Docker Hub login
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+        run: |
+          printf '%s' "$DOCKER_HUB_ACCESS_TOKEN" | ssh server "docker login --username '$DOCKER_HUB_USERNAME' --password-stdin"
 
       - name: Deploy on server
         run: |
-          ssh -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-
-            mkdir -p ~/aledev/services/portfolio
-            cd ~/aledev/services/portfolio
-
-            echo "${{ secrets.ENV_PORTFOLIO_VARS }}" > ~/aledev/services/portfolio/.env
-            echo "Файл .env загружен на сервер"
-
-            curl -o ~/aledev/services/portfolio/docker-compose.prod.yaml https://raw.githubusercontent.com/aleksioprime/aledev/main/services/portfolio/docker-compose.prod.yaml
-
-            echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-
-            docker network inspect aledev-shared >/dev/null 2>&1 || docker network create aledev-shared
-
-            docker compose -f docker-compose.prod.yaml down
-            docker compose -f docker-compose.prod.yaml pull
-            docker compose -f docker-compose.prod.yaml up -d --remove-orphans
-
-            docker image prune -a -f
-            echo "Portfolio сервис обновлён!"
-
-          EOF
+          ssh server bash -s <<'SCRIPT'
+          set -e
+          cd ~/aledev/services/portfolio
+          docker network inspect aledev-shared >/dev/null 2>&1 || docker network create aledev-shared
+          docker compose -f docker-compose.prod.yaml pull
+          docker compose -f docker-compose.prod.yaml up -d --remove-orphans
+          docker compose -f docker-compose.prod.yaml ps
+          docker image prune -f
+          echo "Portfolio Service обновлён!"
+          SCRIPT

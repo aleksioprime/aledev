@@ -4,6 +4,20 @@ run-name: "Deploy Main App for ${{ github.ref_name }} by ${{ github.actor }}"
 
 on:
   workflow_dispatch:
+    inputs:
+      update_nginx:
+        description: "Перезаписать nginx.conf на сервере версией из репозитория (SSL-блоки certbot придётся восстановить)"
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      update_nginx:
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -11,50 +25,53 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Test connection
-        run: nc -vz ${{ secrets.SERVER_HOST }} ${{ secrets.SSH_PORT }} || echo "Port closed"
+        uses: actions/checkout@v4
 
       - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        uses: ./.github/actions/ssh-setup
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          user: ${{ secrets.SERVER_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
 
-      - name: Show known_hosts
-        run: cat ~/.ssh/known_hosts || echo "No known_hosts file"
+      - name: Upload compose file, nginx.conf and .env
+        env:
+          ENV_FILE: ${{ secrets.ENV_VARS }}
+          UPDATE_NGINX: ${{ inputs.update_nginx && '1' || '0' }}
+        run: |
+          ssh server 'mkdir -p ~/aledev/nginx ~/aledev/media'
+          scp docker-compose.prod.yaml server:aledev/docker-compose.prod.yaml
+          printf '%s\n' "$ENV_FILE" | ssh server 'umask 077 && cat > ~/aledev/.env'
+
+          # nginx.conf на сервере правит certbot (добавляет SSL), поэтому по умолчанию
+          # загружаем его только при первом деплое
+          if [ "$UPDATE_NGINX" = "1" ] || ! ssh server 'test -f ~/aledev/nginx/nginx.conf'; then
+            ssh server 'test -f ~/aledev/nginx/nginx.conf && cp ~/aledev/nginx/nginx.conf ~/aledev/nginx/nginx.conf.bak-$(date +%Y%m%d%H%M%S) || true'
+            scp frontend/nginx/nginx.conf server:aledev/nginx/nginx.conf
+            echo "nginx.conf загружен"
+          else
+            echo "nginx.conf уже есть на сервере — не перезаписываем"
+          fi
+
+      - name: Docker Hub login
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+        run: |
+          printf '%s' "$DOCKER_HUB_ACCESS_TOKEN" | ssh server "docker login --username '$DOCKER_HUB_USERNAME' --password-stdin"
 
       - name: Deploy on server
         run: |
-          ssh -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-
-            mkdir -p ~/aledev
-            cd ~/aledev
-
-            echo "${{ secrets.ENV_VARS }}" > ~/aledev/.env
-            echo "Файл .env загружен на сервер"
-
-            curl -o ~/aledev/docker-compose.prod.yaml https://raw.githubusercontent.com/aleksioprime/aledev/main/docker-compose.prod.yaml
-
-            if [ ! -f ~/aledev/nginx/nginx.conf ]; then
-              echo "Файл nginx/nginx.conf не найден. Скачиваем..."
-              mkdir -p ~/aledev/nginx
-              curl -v -o ~/aledev/nginx/nginx.conf https://raw.githubusercontent.com/aleksioprime/aledev/main/frontend/nginx/nginx.conf
-            else
-              echo "Файл nginx/nginx.conf уже существует. Не скачиваем."
-            fi
-
-            echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-
-            docker network inspect aledev-shared >/dev/null 2>&1 || docker network create aledev-shared
-
-            docker compose -f docker-compose.prod.yaml down
-            docker compose -f docker-compose.prod.yaml pull
-            docker compose -f docker-compose.prod.yaml up -d --remove-orphans
-
-            docker image prune -a -f
-            echo "Готово!"
-
-          EOF
+          ssh server bash -s <<'SCRIPT'
+          set -e
+          cd ~/aledev
+          docker network inspect aledev-shared >/dev/null 2>&1 || docker network create aledev-shared
+          docker compose -f docker-compose.prod.yaml pull
+          docker compose -f docker-compose.prod.yaml up -d --remove-orphans
+          # подхватываем изменения nginx.conf, если контейнер не пересоздавался
+          docker exec aledev-frontend nginx -t && docker exec aledev-frontend nginx -s reload
+          docker compose -f docker-compose.prod.yaml ps
+          docker image prune -f
+          echo "Фронтенд обновлён!"
+          SCRIPT
