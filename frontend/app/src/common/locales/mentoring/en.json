@@ -1,6 +1,6 @@
 {
   "kicker": "Mentoring",
-  "titleStart": "Grants, awards",
+  "titleStart": "Research, awards",
   "titleAccent": "and student teams",
   "lead": "Experience heading the Design & Technology department at the Skolkovo International Gymnasium: curricula in AI, programming and robotics, an engineering lab and dozens of student projects — from robots to neural networks.",
   "numbers": {
@@ -8,11 +8,11 @@
     "prizes": "team prizes",
     "programs": "curricula"
   },
-  "awardsTitle": "Grants and awards",
+  "awardsTitle": "Research and awards",
   "awards": {
     "umnik": {
-      "title": "UMNIK grant (Foundation for Assistance to Innovation, NTI)",
-      "text": "Building an educational platform for learning machine vision: a mobile platform with neural networks and a test track."
+      "title": "Grant project: a platform for learning machine vision",
+      "text": "A mobile platform on a steerable chassis with neural networks for traffic sign recognition, a test track with 3D visualisation, and teaching materials for school students."
     },
     "intel": {
       "title": "1st place — Intel AI for Youth national contest",
@@ -21,10 +21,6 @@
     "pedcom": {
       "title": "1st place — PedKom national contest",
       "text": "“Innovative technologies in education”: a computer science lesson with augmented reality."
-    },
-    "patent": {
-      "title": "Patent application",
-      "text": "Utility model “Mobile platform for studying hybrid computer vision systems”."
     },
     "trainer": {
       "title": "Intel AI for Youth master trainer",

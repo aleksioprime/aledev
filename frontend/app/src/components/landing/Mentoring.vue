@@ -83,7 +83,6 @@ const awards = [
   { key: 'umnik', year: '2019' },
   { key: 'intel', year: '2021' },
   { key: 'pedcom', year: '2021' },
-  { key: 'patent', year: '2022' },
   { key: 'trainer', year: '2020' },
   { key: 'hackathon', year: '2018' },
 ]

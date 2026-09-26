@@ -5,7 +5,7 @@
   "photoAlt": "Workspace",
   "badge": "Web · ML · IoT",
   "p1": "I build full-cycle web platforms: microservice architecture and APIs, interfaces, databases, CI/CD and infrastructure. I choose a popular, proven stack — Python and FastAPI, Vue.js, PostgreSQL, message queues, Docker — so the system is reliable today and easy to evolve tomorrow.",
-  "p2": "An engineer by training (Computer Systems and Networks, diploma with honours). For many years I have combined development with education: I headed the Design & Technology department at the Skolkovo International Gymnasium and designed educational platforms and courses in programming, robotics and artificial intelligence.",
+  "p2": "An engineer by training (Computer Systems and Networks, diploma with honours). For a long time I combined development with education and headed the Design & Technology department at the Skolkovo International Gymnasium. Now I work in development full time: I build an educational platform for the gymnasium and a system for continuing professional education, and work on projects with startups.",
   "stats": {
     "years": "years in development",
     "projects": "projects in portfolio",
@@ -29,6 +29,6 @@
       "text": "I lead student project teams and create curricula in AI, programming and robotics."
     }
   },
-  "p3": "A separate focus of mine is science-intensive projects at the intersection of web, computer vision and hardware — from an educational platform for learning machine vision, backed by the UMNIK grant, to IoT monitoring systems. As a mentor I lead student project teams from idea to prizes at national competitions.",
+  "p3": "A separate focus of mine is science-intensive projects at the intersection of web, computer vision and hardware — from a grant-funded educational platform for learning machine vision to IoT monitoring systems. As a mentor I lead student project teams from idea to prizes at national competitions.",
   "stackLabel": "Tech stack"
 }
