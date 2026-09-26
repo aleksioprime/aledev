@@ -104,7 +104,7 @@ function step(time) {
   }
 
   // периодически отправляем пакеты по случайным рёбрам
-  if (time - lastSpawn > 220 && packets.length < 40) {
+  if (time - lastSpawn > 900 && packets.length < 10) {
     lastSpawn = time
     const from = nodes[(Math.random() * nodes.length) | 0]
     const near = nearest(from, LINK_DIST)
@@ -115,7 +115,7 @@ function step(time) {
     p.t += p.speed
     if (p.t >= 1) {
       // пакет «ретранслируется» дальше с некоторой вероятностью
-      if (Math.random() < 0.55) {
+      if (Math.random() < 0.3) {
         const next = nearest(p.to, LINK_DIST).filter(({ n }) => n !== p.from)
         if (next.length) spawnPacket(p.to, next[0].n, p.color)
       }

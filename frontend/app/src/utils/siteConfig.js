@@ -1,4 +1,4 @@
-const MAIN_TITLE = "Aleksei Semochkin — Software Engineer Portfolio";
+const MAIN_TITLE = "Aleksei Semochkin — Web Developer";
 
 export function getBaseTitleByRoute(route) {
   return MAIN_TITLE;

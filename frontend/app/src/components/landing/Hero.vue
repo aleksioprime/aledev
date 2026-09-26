@@ -4,11 +4,6 @@
 
     <div class="hero__inner shell">
       <div class="hero__text">
-        <p class="terminal font-mono">
-          <span class="terminal__prompt">$</span>
-          <span class="terminal__cmd">{{ typedCmd }}</span><span class="terminal__caret"></span>
-        </p>
-
         <h1 class="hero__name font-display" :aria-label="t('hero.name')">
           <span v-for="(word, wi) in nameWords" :key="`${locale}-${wi}`" class="hero__word"
             :class="{ 'text-gradient': wi === nameWords.length - 1 }">
@@ -17,11 +12,7 @@
           </span>
         </h1>
 
-        <p class="hero__role font-mono">
-          <span class="hero__role-bracket">&lt;</span>
-          <span class="hero__role-text">{{ typedRole }}</span><span class="hero__role-caret">|</span>
-          <span class="hero__role-bracket">/&gt;</span>
-        </p>
+        <p class="hero__role">{{ t('hero.title') }}</p>
 
         <p class="hero__about">{{ t('hero.about') }}</p>
 
@@ -30,9 +21,8 @@
             {{ t('hero.contact') }}
             <Icon :path="mdiArrowRight" />
           </a>
-          <a v-magnetic :href="cv" target="_blank" rel="noopener" class="btn btn-ghost">
-            <Icon :path="mdiFileDownloadOutline" />
-            {{ t('hero.download_cv') }}
+          <a v-magnetic href="#projects" class="btn btn-ghost" @click.prevent="scrollToSection('projects')">
+            {{ t('hero.projects') }}
           </a>
         </div>
 
@@ -79,64 +69,19 @@
 
 <script setup>
 import Icon from '@/components/ui/Icon.vue'
-import { mdiArrowRight, mdiClose, mdiFileDownloadOutline } from '@mdi/js'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { mdiArrowRight, mdiClose } from '@mdi/js'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import avatar from '@/assets/img/avatar.webp'
 import SignalNetwork from '@/components/landing/effects/SignalNetwork.vue'
 import { socials } from '@/common/constants/socials'
 
 const sectionId = 'hero'
-const cv = '/files/cv_asemochkin.pdf'
-const orbitTags = ['Python', 'FastAPI', 'Vue.js', 'Docker', 'IoT', 'ML']
+const orbitTags = ['Vue.js', 'FastAPI', 'Docker', 'PostgreSQL', 'ML', 'IoT']
 
-const { t, tm, rt, locale } = useI18n()
+const { t, locale } = useI18n()
 
 const nameWords = computed(() => t('hero.name').split(' '))
-
-// --- «Терминал» и печатающиеся роли ---
-const typedCmd = ref('')
-const typedRole = ref('')
-const timers = []
-let roleIndex = 0
-let alive = true
-
-const roles = computed(() => tm('hero.roles').map((r) => rt(r)))
-
-function wait(ms) {
-  return new Promise((resolve) => timers.push(setTimeout(resolve, ms)))
-}
-
-async function typeInto(target, text, speed = 55) {
-  for (let i = 1; i <= text.length && alive; i++) {
-    target.value = text.slice(0, i)
-    await wait(speed)
-  }
-}
-
-async function eraseFrom(target, speed = 28) {
-  while (target.value.length && alive) {
-    target.value = target.value.slice(0, -1)
-    await wait(speed)
-  }
-}
-
-async function runRoles() {
-  while (alive) {
-    const list = roles.value
-    if (!list.length) return
-    await typeInto(typedRole, list[roleIndex % list.length], 60)
-    await wait(2200)
-    await eraseFrom(typedRole)
-    await wait(300)
-    roleIndex += 1
-  }
-}
-
-// при смене языка перезапускаем текущую роль сразу
-watch(locale, () => {
-  typedRole.value = ''
-})
 
 // --- Превью фото ---
 const isPreviewOpen = ref(false)
@@ -163,22 +108,7 @@ function scrollToSection(anchor) {
   window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - offset + 1, behavior: 'smooth' })
 }
 
-onMounted(async () => {
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  if (reduced) {
-    typedCmd.value = 'whoami'
-    typedRole.value = roles.value[0] || ''
-    return
-  }
-  await wait(200)
-  await typeInto(typedCmd, 'whoami', 90)
-  await wait(900)
-  runRoles()
-})
-
 onBeforeUnmount(() => {
-  alive = false
-  timers.forEach(clearTimeout)
   window.removeEventListener('keydown', handleEscape)
 })
 </script>
@@ -199,40 +129,6 @@ onBeforeUnmount(() => {
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
   align-items: center;
   gap: clamp(2rem, 6vw, 5rem);
-}
-
-.terminal {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 1.5rem;
-  padding: 0.45rem 0.9rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: rgb(255 255 255 / 0.03);
-  font-size: 0.85rem;
-  color: var(--muted);
-  min-height: 2.1rem;
-}
-
-.terminal__prompt {
-  color: var(--accent-3);
-}
-
-.terminal__cmd {
-  color: var(--text);
-}
-
-.terminal__caret {
-  width: 0.5rem;
-  height: 1rem;
-  margin-left: -0.35rem;
-  background: var(--accent);
-  animation: blink 1s steps(1) infinite;
-}
-
-@keyframes blink {
-  50% { opacity: 0; }
 }
 
 .hero__name {
@@ -281,23 +177,11 @@ onBeforeUnmount(() => {
 }
 
 .hero__role {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  min-height: 2.2rem;
   margin-top: 1.3rem;
-  font-size: clamp(1rem, 2.2vw, 1.35rem);
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+  font-weight: 600;
+  line-height: 1.5;
   color: var(--accent);
-}
-
-.hero__role-bracket {
-  color: var(--muted);
-}
-
-.hero__role-caret {
-  margin-left: -0.2rem;
-  color: var(--accent-2);
-  animation: blink 0.9s steps(1) infinite;
 }
 
 .hero__about {
@@ -393,7 +277,7 @@ onBeforeUnmount(() => {
   inset: -6px;
   border-radius: 50%;
   background: conic-gradient(from 0deg, var(--accent), var(--accent-2), #f472b6, var(--accent-3), var(--accent));
-  animation: spin 6s linear infinite;
+  animation: spin 20s linear infinite;
   filter: blur(0.5px);
 }
 
@@ -425,7 +309,7 @@ onBeforeUnmount(() => {
   inset: 0;
   border: 1px dashed rgb(255 255 255 / 0.1);
   border-radius: 50%;
-  animation: spin 40s linear infinite;
+  animation: spin 90s linear infinite;
   pointer-events: none;
 }
 
@@ -453,7 +337,7 @@ onBeforeUnmount(() => {
   color: var(--text);
   white-space: nowrap;
   /* вращаемся навстречу орбите — подпись остаётся горизонтальной */
-  animation: counter-spin 40s linear infinite;
+  animation: counter-spin 90s linear infinite;
 }
 
 @keyframes counter-spin {

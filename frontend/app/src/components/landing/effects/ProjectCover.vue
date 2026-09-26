@@ -122,16 +122,8 @@ const monogram = computed(() => {
   animation: trace 3.5s var(--ease-out) forwards;
 }
 
-.cover__pad {
-  animation: pad 2.8s ease-in-out infinite;
-}
-
 @keyframes trace {
   to { stroke-dashoffset: 0; }
-}
-
-@keyframes pad {
-  50% { fill: hsl(var(--h1) 90% 65%); }
 }
 
 .cover__mono {

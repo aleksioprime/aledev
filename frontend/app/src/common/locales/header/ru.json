@@ -1,10 +1,10 @@
 {
-    "brand": "",
-    "menu": {
-        "about": "Обо мне",
-        "projects": "Проекты",
-        "experience": "Опыт",
-        "contacts": "Контакты",
-        "cv": "Резюме"
-    }
+  "brand": "",
+  "menu": {
+    "about": "Обо мне",
+    "projects": "Проекты",
+    "mentoring": "Наставничество",
+    "experience": "Опыт",
+    "contacts": "Контакты"
+  }
 }

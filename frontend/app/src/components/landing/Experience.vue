@@ -2,7 +2,7 @@
   <section :id="sectionId" class="section">
     <div class="shell exp">
       <header class="section-head exp__head">
-        <span v-reveal class="section-kicker">03 — {{ $t('experience.kicker') }}</span>
+        <span v-reveal class="section-kicker">04 — {{ $t('experience.kicker') }}</span>
         <h2 v-reveal="{ delay: 80 }" class="section-title">{{ $t('experience.sectionTitle') }}</h2>
         <p v-reveal="{ delay: 160 }" class="section-lead">{{ $t('experience.lead') }}</p>
       </header>
@@ -202,12 +202,7 @@ onBeforeUnmount(() => {
 
 .is-current .timeline__dot {
   background: var(--accent);
-  box-shadow: 0 0 0 6px rgb(34 211 238 / 0.15), 0 0 20px var(--accent);
-  animation: beacon 2.4s ease-in-out infinite;
-}
-
-@keyframes beacon {
-  50% { box-shadow: 0 0 0 12px rgb(34 211 238 / 0), 0 0 30px var(--accent); }
+  box-shadow: 0 0 0 6px rgb(34 211 238 / 0.15);
 }
 
 .timeline__meta {

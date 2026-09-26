@@ -1,10 +1,10 @@
 {
-    "brand": "",
-    "menu": {
-        "about": "About",
-        "projects": "Projects",
-        "experience": "Experience",
-        "contacts": "Contacts",
-        "cv": "Resume"
-    }
+  "brand": "",
+  "menu": {
+    "about": "About",
+    "projects": "Projects",
+    "mentoring": "Mentoring",
+    "experience": "Experience",
+    "contacts": "Contacts"
+  }
 }

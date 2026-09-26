@@ -3,7 +3,7 @@
     <div class="shell contact">
       <div class="contact__intro">
         <header class="section-head">
-          <span v-reveal class="section-kicker">04 — {{ $t('contacts.kicker') }}</span>
+          <span v-reveal class="section-kicker">05 — {{ $t('contacts.kicker') }}</span>
           <h2 v-reveal="{ delay: 80 }" class="section-title">
             {{ $t('contacts.titleStart') }} <span class="text-gradient">{{ $t('contacts.titleAccent') }}</span>
           </h2>

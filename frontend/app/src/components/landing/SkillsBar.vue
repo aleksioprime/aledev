@@ -1,5 +1,5 @@
 <template>
-  <section class="marquee-wrap" :aria-label="t('about.stats.stack')">
+  <section class="marquee-wrap" :aria-label="t('about.stackLabel')">
     <ul class="sr-only">
       <li v-for="skill in skills.flat()" :key="skill">{{ skill }}</li>
     </ul>
@@ -48,12 +48,12 @@ const { t } = useI18n()
   flex-shrink: 0;
   gap: 2.5rem;
   padding-right: 2.5rem;
-  animation: marquee 38s linear infinite;
+  animation: marquee 70s linear infinite;
 }
 
 .marquee--reverse .marquee__track {
   animation-direction: reverse;
-  animation-duration: 44s;
+  animation-duration: 80s;
 }
 
 .marquee-wrap:hover .marquee__track {
