@@ -11,48 +11,42 @@ on:
     paths:
       - 'services/auth/**'
       - '.github/workflows/auth-build.yml'
+  # В pull request образ только собирается (проверка), в Docker Hub не публикуется
+  pull_request:
+    paths:
+      - 'services/auth/**'
+      - '.github/workflows/auth-build.yml'
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run tests
-        run: |
-          echo "Тесты пока отключены. Возвращаем успешный статус."
-
   build:
     runs-on: ubuntu-latest
-    needs: test
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+
+      - name: Export build variables
+        env:
+          ENV_FILE: ${{ secrets.ENV_AUTH_VARS }}
+        run: |
+          printf '%s\n' "$ENV_FILE" | while IFS= read -r line; do
+            if [[ -n "$line" && "$line" != \#* ]]; then
+              echo "$line" >> "$GITHUB_ENV"
+            fi
+          done
+
+      - name: Build image
+        run: |
+          docker build --pull \
+            -t aleksioprime/aledev-auth:latest ./services/auth/app
 
       - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Export ENV_VARS
-        run: |
-          printf "%s\n" "${{ secrets.ENV_AUTH_VARS }}" | while IFS= read -r line; do
-            if [[ ! -z "$line" && "$line" != \#* ]]; then
-              echo "$line" >> $GITHUB_ENV
-            fi
-          done
-
-      - name: Build and push image
-        run: |
-          docker build \
-            -t aleksioprime/aledev-auth:latest ./services/auth/app
-
-          docker push aleksioprime/aledev-auth:latest
+      - name: Push image
+        if: github.event_name != 'pull_request'
+        run: docker push aleksioprime/aledev-auth:latest

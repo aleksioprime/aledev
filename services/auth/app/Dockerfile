@@ -1,18 +1,20 @@
-FROM python:3.12.11-slim-bullseye
+FROM python:3.12-slim-bookworm
 
 WORKDIR /usr/src/app
 
-ENV PYTHONPATH=/usr/src/app:$PYTHONPATH
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONPATH=/usr/src/app \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    TZ=Europe/Moscow
 
-RUN apt-get update && apt-get install -y netcat tzdata && \
-    rm -rf /var/lib/apt/lists/*
+# netcat-openbsd — ожидание базы в entrypoint.sh, tzdata — часовой пояс
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends netcat-openbsd tzdata \
+    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV TZ=Europe/Moscow
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-RUN pip install --upgrade pip
 COPY ./requirements.txt ./
 RUN pip install -r ./requirements.txt
 
