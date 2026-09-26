@@ -12,52 +12,47 @@ on:
       - 'frontend/**'
       - '.github/workflows/main-build.yml'
       - 'docker-compose.prod.yaml'
+  # В pull request образ только собирается (проверка), в Docker Hub не публикуется
+  pull_request:
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/main-build.yml'
+      - 'docker-compose.prod.yaml'
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run tests
-        run: |
-          echo "Тесты пока отключены. Возвращаем успешный статус."
-
   build:
     runs-on: ubuntu-latest
-    needs: test
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+
+      - name: Export build variables
+        env:
+          ENV_FILE: ${{ secrets.ENV_VARS }}
+        run: |
+          printf '%s\n' "$ENV_FILE" | while IFS= read -r line; do
+            if [[ -n "$line" && "$line" != \#* ]]; then
+              echo "$line" >> "$GITHUB_ENV"
+            fi
+          done
+
+      - name: Build image
+        run: |
+          docker build --pull --target prod \
+            --build-arg VITE_LOGGING=0 \
+            --build-arg VITE_AUTH_URL="$VITE_AUTH_URL" \
+            --build-arg VITE_PORTFOLIO_URL="$VITE_PORTFOLIO_URL" \
+            --build-arg VITE_TURNSTILE_SITE_KEY="$VITE_TURNSTILE_SITE_KEY" \
+            -t aleksioprime/aledev-frontend:latest ./frontend
 
       - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Export ENV_VARS
-        run: |
-          printf "%s\n" "${{ secrets.ENV_VARS }}" | while IFS= read -r line; do
-            if [[ ! -z "$line" && "$line" != \#* ]]; then
-              echo "$line" >> $GITHUB_ENV
-            fi
-          done
-
-      - name: Build and push frontend image
-        run: |
-          docker build --target prod \
-            --build-arg VITE_LOGGING=0 \
-            --build-arg VITE_AUTH_URL=$VITE_AUTH_URL \
-            --build-arg VITE_PORTFOLIO_URL=$VITE_PORTFOLIO_URL \
-            --build-arg VITE_TURNSTILE_SITE_KEY=$VITE_TURNSTILE_SITE_KEY \
-            -t aleksioprime/aledev-frontend:latest ./frontend
-
-          docker push aleksioprime/aledev-frontend:latest
+      - name: Push image
+        if: github.event_name != 'pull_request'
+        run: docker push aleksioprime/aledev-frontend:latest
