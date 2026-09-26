@@ -1,0 +1,16 @@
+{
+  "sectionTitle": "Контакты",
+  "email": "Email",
+  "telegram": "Telegram",
+  "name": "Ваше имя",
+  "message": "Сообщение",
+  "send": "Отправить",
+  "success": "Спасибо! Ваше сообщение отправлено",
+  "error": "Ошибка отправки. Попробуйте ещё раз",
+  "captchaRequired": "Подтвердите, что вы не робот",
+  "captchaLoadFailed": "Не удалось загрузить CAPTCHA. Обновите страницу",
+  "captchaMisconfigured": "CAPTCHA не настроена на сервере",
+  "refreshCaptcha": "Обновить",
+  "thankYou": "Спасибо! Ваше сообщение отправлено",
+  "errorSend": "Ошибка отправки. Попробуйте ещё раз"
+}

@@ -1,0 +1,64 @@
+x-app: &app
+  env_file:
+    - ./.env
+  restart: unless-stopped
+  platform: linux/amd64
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: aledev-auth-postgres
+    <<: *app
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data/
+    environment:
+      TZ: "Europe/Moscow"
+      PGTZ: "Europe/Moscow"
+
+  redis:
+    image: redis:6
+    container_name: aledev-auth-redis
+    <<: *app
+    volumes:
+      - redis_volume:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: aleksioprime/aledev-auth:latest
+    container_name: aledev-auth-app
+    <<: *app
+    command: python src/main.py
+    environment:
+      UVICORN_RELOAD: "0"
+    volumes:
+      - /root/aledev/media:/usr/src/app/media
+    networks:
+      - default
+      - shared
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_volume:
+  redis_volume:
+
+networks:
+  shared:
+    external: true
+    name: aledev-shared

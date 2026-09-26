@@ -1,0 +1,17 @@
+# Additional local listening ports that forward traffic through upstream proxies.
+# Clients authenticate with local users from /etc/3proxy/users.list.
+# Upstream credentials are used only between this 3proxy instance and parent proxy.
+#
+# Example HTTP parent on local port 35103:
+# flush
+# auth strong
+# allow *
+# parent 1000 http 195.26.226.75 35103 UPSTREAM_LOGIN UPSTREAM_PASSWORD
+# proxy -p35103
+#
+# Example SOCKS5 parent on local port 51111:
+# flush
+# auth strong
+# allow *
+# parent 1000 socks5+ 195.26.226.75 51111 UPSTREAM_LOGIN UPSTREAM_PASSWORD
+# socks -p51111
