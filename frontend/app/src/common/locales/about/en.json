@@ -1,0 +1,32 @@
+{
+    "kicker": "About",
+    "titleStart": "An engineer who builds",
+    "titleAccent": "complete systems",
+    "photoAlt": "Workspace",
+    "badge": "Python · Vue · IoT",
+    "p1": "I design and build platforms end to end — from databases and microservices to interfaces and hardware.",
+    "p2": "My main focus is Python backend: async services, message queues, ETL and integrations. I bring in computer vision and ML, build IoT solutions and mentor the next generation of engineers.",
+    "stats": {
+        "years": "years in development",
+        "projects": "projects in portfolio",
+        "stack": "technologies in stack"
+    },
+    "focus": {
+        "backend": {
+            "title": "Backend & microservices",
+            "text": "FastAPI, Django, async, RabbitMQ, PostgreSQL — reliable services and APIs."
+        },
+        "frontend": {
+            "title": "Interfaces",
+            "text": "Vue.js and modern frontend: from admin panels to public websites."
+        },
+        "iot": {
+            "title": "IoT & ML",
+            "text": "Devices, data collection, computer vision with OpenCV and TensorFlow models."
+        },
+        "teaching": {
+            "title": "Teaching",
+            "text": "Sharing experience and helping new engineers grow through practice and real projects."
+        }
+    }
+}

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
+    "@mdi/js": "^7.4.47",
     "@tailwindcss/vite": "^4.1.11",
     "@vueuse/core": "^13.5.0",
     "axios": "^1.10.0",

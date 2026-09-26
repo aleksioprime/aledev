@@ -1,7 +1,7 @@
 {
   "sectionTitle": "Projects",
-  "github": "Github",
-  "demo": "Demo",
+  "github": "GitHub",
+  "demo": "Open demo",
   "details": "Details",
   "openDetails": "Open project details",
   "previous": "Previous projects",
@@ -10,5 +10,8 @@
   "stack": "Stack",
   "links": "Links",
   "showMore": "Show more",
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "kicker": "Selected work",
+  "lead": "Selected projects: platforms, services and devices. Click a card to see the details.",
+  "empty": "Projects coming soon"
 }

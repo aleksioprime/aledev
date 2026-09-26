@@ -11,6 +11,53 @@
   "captchaLoadFailed": "CAPTCHA failed to load. Please refresh the page",
   "captchaMisconfigured": "CAPTCHA is not configured on the server",
   "refreshCaptcha": "Refresh CAPTCHA",
-  "thankYou": "Thank you! Your message has been sent",
-  "errorSend": "Sending failed. Please try again"
+  "kicker": "Contacts",
+  "titleStart": "Let's",
+  "titleAccent": "talk",
+  "lead": "Have a project, a task or just a question? Pick the request type — I'll get an email and reply to the address you leave.",
+  "github": "GitHub",
+  "kindLabel": "Request type",
+  "kinds": {
+    "order": "Start a project",
+    "question": "Ask a question"
+  },
+  "kindHints": {
+    "order": "Tell me about the task — I'll reply with a time and cost estimate.",
+    "question": "Consulting, code review, mentoring or anything else."
+  },
+  "contactField": "Telegram or phone",
+  "serviceLabel": "What you need",
+  "services": {
+    "web": "Web service / site",
+    "backend": "Backend / API",
+    "iot": "IoT / devices",
+    "ml": "ML / vision",
+    "automation": "Automation",
+    "mentoring": "Mentoring",
+    "other": "Other"
+  },
+  "budgetLabel": "Budget",
+  "budgets": {
+    "lt100": "under ₽100k",
+    "100_300": "₽100–300k",
+    "300_700": "₽300–700k",
+    "gt700": "₽700k+",
+    "discuss": "Let's discuss"
+  },
+  "deadline": "Preferred timeline",
+  "messageLabels": {
+    "order": "Describe the task",
+    "question": "Your question"
+  },
+  "note": "By sending, you agree that I'll use this data only to reply to your request.",
+  "successByKind": {
+    "order": "Thank you! Request received — I'll get back to you shortly.",
+    "question": "Thank you! Question received — I'll reply by email."
+  },
+  "sendAnother": "Send another one",
+  "errors": {
+    "required": "Required field",
+    "minLength": "At least {n} characters",
+    "email": "Invalid email"
+  }
 }

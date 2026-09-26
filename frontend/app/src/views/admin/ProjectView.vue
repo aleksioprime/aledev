@@ -164,7 +164,7 @@ const fetchProjects = async (reset = false) => {
 
   // Формируем параметры запроса для API
   const params = {
-    offset: page.value,
+    offset: page.value + 1,
     limit,
   };
 
@@ -205,7 +205,7 @@ const reloadLoadedProjects = async () => {
   const newProjects = [];
   for (let i = 0; i < loadedPages; i++) {
     const params = {
-      offset: i,
+      offset: i + 1,
       limit,
     };
     const data = await projectStore.loadProjects({ params });

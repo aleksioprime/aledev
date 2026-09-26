@@ -1,4 +1,5 @@
 <template>
+  <v-app>
   <!-- Навигационное меню (боковая панель) -->
   <v-navigation-drawer v-model="drawer" app :temporary="mobile" :width="240">
     <v-list>
@@ -69,6 +70,7 @@
       <slot />
     </div>
   </v-main>
+  </v-app>
 </template>
 
 <script setup>
@@ -117,6 +119,7 @@ function handleMenuItemClick() {
 
 // Элементы бокового меню
 const menuItems = [
+  { title: 'Обращения', icon: 'mdi-email-outline', to: 'feedback' },
   { title: 'Проекты', icon: 'mdi-account-multiple', to: 'projects' },
   { title: 'Опыт работы', icon: 'mdi-account-multiple', to: 'experiences' },
 ]

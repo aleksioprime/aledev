@@ -1,0 +1,113 @@
+name: Deploy All
+
+run-name: "Deploy all services for ${{ github.ref_name }} by ${{ github.actor }}"
+
+# Полный деплой одной кнопкой: подготовка сервера → сборка образов →
+# auth → portfolio → фронтенд → (по желанию) SSL-сертификаты.
+on:
+  workflow_dispatch:
+    inputs:
+      build:
+        description: "Собрать и загрузить образы в Docker Hub перед деплоем"
+        type: boolean
+        default: true
+      prepare_server:
+        description: "Подготовить сервер (установить Docker, создать каталоги и сеть)"
+        type: boolean
+        default: true
+      update_nginx:
+        description: "Перезаписать nginx.conf на сервере версией из репозитория"
+        type: boolean
+        default: false
+      certbot_email:
+        description: "Email для Let's Encrypt — если указан, будут выпущены/установлены SSL-сертификаты"
+        type: string
+        default: ""
+      domains:
+        description: "Домены для SSL через пробел"
+        type: string
+        default: "aledev.ru www.aledev.ru auth.aledev.ru portfolio.aledev.ru"
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: ${{ inputs.prepare_server }}
+    uses: ./.github/workflows/server-prepare.yml
+    secrets: inherit
+
+  build-auth:
+    if: ${{ inputs.build }}
+    uses: ./.github/workflows/auth-build.yml
+    secrets: inherit
+
+  build-portfolio:
+    if: ${{ inputs.build }}
+    uses: ./.github/workflows/portfolio-build.yml
+    secrets: inherit
+
+  build-main:
+    if: ${{ inputs.build }}
+    uses: ./.github/workflows/main-build.yml
+    secrets: inherit
+
+  deploy-auth:
+    needs: [prepare, build-auth, build-portfolio, build-main]
+    if: ${{ !failure() && !cancelled() }}
+    uses: ./.github/workflows/auth-deploy.yml
+    secrets: inherit
+
+  deploy-portfolio:
+    needs: deploy-auth
+    if: ${{ !failure() && !cancelled() }}
+    uses: ./.github/workflows/portfolio-deploy.yml
+    secrets: inherit
+
+  deploy-main:
+    needs: deploy-portfolio
+    if: ${{ !failure() && !cancelled() }}
+    uses: ./.github/workflows/main-deploy.yml
+    with:
+      update_nginx: ${{ inputs.update_nginx }}
+    secrets: inherit
+
+  ssl:
+    needs: deploy-main
+    if: ${{ !failure() && !cancelled() && inputs.certbot_email != '' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: ./.github/actions/ssh-setup
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          user: ${{ secrets.SERVER_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+
+      - name: Issue or reinstall certificates
+        env:
+          EMAIL: ${{ inputs.certbot_email }}
+          DOMAINS: ${{ inputs.domains }}
+        run: |
+          ARGS=""
+          for d in $DOMAINS; do ARGS="$ARGS -d $d"; done
+          # --keep-until-expiring: не перевыпускает действующий сертификат,
+          # но заново прописывает его в nginx.conf (нужно после update_nginx)
+          ssh server "docker exec aledev-frontend certbot --nginx --non-interactive --agree-tos \
+            --email '$EMAIL' --redirect --keep-until-expiring $ARGS"
+
+      - name: Enable auto-renewal (cron)
+        run: |
+          ssh server bash -s <<'SCRIPT'
+          set -e
+          LINE='0 3 * * * docker exec aledev-frontend timeout 180 certbot renew --non-interactive --deploy-hook "nginx -s reload" >> $HOME/aledev/certbot-cron.log 2>&1 # aledev-certbot'
+          ( crontab -l 2>/dev/null | grep -v 'aledev-certbot' ; echo "$LINE" ) | crontab -
+          echo "Автообновление сертификатов настроено:"
+          crontab -l | grep aledev-certbot
+          SCRIPT

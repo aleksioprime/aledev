@@ -1,9 +1,7 @@
 <template>
-  <v-app>
-    <app-layout>
-      <router-view />
-    </app-layout>
-  </v-app>
+  <app-layout>
+    <router-view />
+  </app-layout>
 </template>
 
 <script setup>
@@ -27,5 +25,3 @@ watch(
   { immediate: true }
 )
 </script>
-
-<style scoped></style>

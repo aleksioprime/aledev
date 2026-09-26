@@ -83,14 +83,14 @@ const login = async () => {
     return
   }
   await authStore.getMe();
-  await router.push({ name: "projects" });
+  await router.push({ name: "feedback" });
 }
 
 onMounted(async () => {
   const accessToken = jwtService.getAccessToken();
 
   if (accessToken && authStore.isAuthenticated) {
-    router.push({ name: "projects" });
+    router.push({ name: "feedback" });
   }
 })
 </script>

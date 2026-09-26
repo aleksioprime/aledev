@@ -1,9 +1,10 @@
 {
     "brand": "",
     "menu": {
+        "about": "About",
         "projects": "Projects",
         "experience": "Experience",
         "contacts": "Contacts",
-        "cv": "CV"
+        "cv": "Resume"
     }
 }

@@ -49,14 +49,36 @@ docker compose version
 
 Для сервиса создаётся переменная `ENV_PORTFOLIO_VARS`, куда записываются все переменные из `.env.example`
 
-Для отправки формы обратной связи через Resend обязательно заполните:
+### Обратная связь
+
+Форма на сайте принимает два типа обращений: **заказ** (тип работ, бюджет, сроки) и **вопрос**.
+
+Как это работает:
+1. `POST /api/v1/feedback/` проверяет капчу Turnstile и сразу сохраняет обращение в БД
+   (таблица `feedback_messages`) — оно не потеряется, даже если почта недоступна.
+2. Письмо отправляется фоновой задачей после ответа клиенту: сначала через SMTP Яндекса,
+   при ошибке — через Resend (если задан `RESEND_API_KEY`).
+3. Воркер в процессе приложения раз в `EMAIL_RETRY_INTERVAL_SECONDS` досылает неотправленные письма
+   (до `EMAIL_MAX_ATTEMPTS` попыток с растущей паузой).
+4. В админке (`/admin/feedback`) видны все обращения: фильтры, поиск, статус обработки, заметки,
+   статус доставки письма и кнопка повторной отправки.
+
+Настройка Яндекс Почты:
+1. В настройках ящика включите «Почтовые программы → С сервера imap.yandex.ru по протоколу IMAP»
+   (без этого SMTP-авторизация не пройдёт): https://mail.yandex.ru/#setup/client
+2. Создайте пароль приложения: https://id.yandex.ru/security/app-passwords → «Почта».
+3. Добавьте в `ENV_PORTFOLIO_VARS`:
 ```
-RESEND_API_KEY=<your_resend_api_key>
-FEEDBACK_SENDER_NAME=AleDev
-FEEDBACK_SENDER=no-reply@aledev.ru
-FEEDBACK_RECEIVER=<куда_получать_письма>
+SMTP_USER=alesemochkin@yandex.ru
+SMTP_PASSWORD=<пароль_приложения>
+FEEDBACK_RECEIVER=alesemochkin@yandex.ru
 TURNSTILE_SECRET_KEY=<your_turnstile_secret_key>
+# запасной канал (необязательно)
+RESEND_API_KEY=<your_resend_api_key>
+RESEND_SENDER=no-reply@aledev.ru
 ```
+
+В письме выставляется `Reply-To` с адресом посетителя — ответить можно прямо из почты.
 
 ## Добавление бесплатного SSL-сертификата
 

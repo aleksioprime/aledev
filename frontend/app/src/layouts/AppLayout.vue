@@ -18,13 +18,8 @@ watch(
   () => route.meta,
   async meta => {
     try {
-      if (meta.layout && layoutMap[meta.layout]) {
-        layout.value = layoutMap[meta.layout] || layoutMap.default;
-        logger.info('Шаблон найден: ', layout.value.__file);
-      } else {
-        layout.value = layoutMap.default;
-        logger.info('Базовый шаблон:', layout.value.__file);
-      }
+      layout.value = layoutMap[meta.layout] || layoutMap.default;
+      logger.info('Шаблон:', meta.layout || 'default');
     } catch (e) {
       logger.error('Динамический шаблон не найден. Установлен шаблон по-умолчанию.', e);
       layout.value = layoutMap.default;

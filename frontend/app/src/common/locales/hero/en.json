@@ -1,7 +1,17 @@
 {
     "name": "Aleksei Semochkin",
     "title": "Software Engineer / Fullstack & IoT Developer",
+    "roles": [
+        "Software Engineer",
+        "Fullstack Developer",
+        "Backend & Microservices",
+        "IoT & ML Solutions",
+        "Engineering Mentor"
+    ],
     "about": "Fullstack developer focused on backend. I design educational and science-intensive platforms, build reliable microservices, implement ML and IoT solutions, and train new generations of engineers.",
     "download_cv": "Download CV",
-    "contact": "Contact"
+    "contact": "Contact me",
+    "openPhoto": "Open photo",
+    "closePhoto": "Close photo",
+    "scroll": "Scroll down"
 }

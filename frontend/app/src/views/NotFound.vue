@@ -1,19 +1,82 @@
 <template>
-  <section class="min-h-screen flex flex-col items-center justify-center bg-neutral-900 text-neutral-100 px-4">
-    <div
-      class="flex flex-col items-center max-w-md w-full py-10 rounded-2xl shadow-2xl bg-neutral-800 animate-fade-in-up">
-      <!-- SVG иконка или кастомный арт -->
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-cyan-400 mb-6" fill="none" viewBox="0 0 24 24"
-        stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.054 0 1.918-.816 1.995-1.85l.007-.15V6c0-1.054-.816-1.918-1.85-1.995L18.928 4H5.072c-1.054 0-1.918.816-1.995 1.85L3.07 6v12c0 1.054.816 1.918 1.85 1.995l.15.005z" />
-      </svg>
-      <h1 class="text-7xl font-extrabold text-cyan-400 mb-2 tracking-tight drop-shadow-xl">404</h1>
-      <p class="text-2xl font-semibold mb-4">Страница не найдена</p>
-      <router-link to="/"
-        class="inline-block px-8 py-3 rounded-xl !bg-cyan-500 hover:!bg-cyan-400 transition font-bold shadow-lg text-neutral-900 text-lg">
-        На главную
-      </router-link>
-    </div>
+  <section class="landing notfound">
+    <p class="notfound__cmd font-mono">$ cd {{ path }}<br /><span>bash: {{ path }}: No such file or directory</span></p>
+    <h1 class="glitch font-display" data-text="404">404</h1>
+    <p class="notfound__text">Страница не найдена · Page not found</p>
+    <router-link v-magnetic to="/" class="btn btn-primary">
+      <Icon :path="mdiArrowLeft" />
+      На главную
+    </router-link>
   </section>
 </template>
+
+<script setup>
+import Icon from '@/components/ui/Icon.vue'
+import { mdiArrowLeft } from '@mdi/js'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const path = computed(() => route.fullPath)
+</script>
+
+<style scoped>
+.notfound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.notfound__cmd {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+  color: var(--accent-3);
+}
+
+.notfound__cmd span {
+  color: #f87171;
+}
+
+.notfound__text {
+  color: var(--muted);
+}
+
+.glitch {
+  position: relative;
+  font-size: clamp(6rem, 24vw, 14rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+}
+
+.glitch::before {
+  color: var(--accent);
+  animation: glitch 2.6s infinite steps(1);
+  mix-blend-mode: screen;
+}
+
+.glitch::after {
+  color: var(--accent-2);
+  animation: glitch 2.6s infinite steps(1) reverse;
+  mix-blend-mode: screen;
+}
+
+@keyframes glitch {
+  0%, 86%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+  88% { clip-path: inset(20% 0 55% 0); transform: translate(-6px, 2px); }
+  91% { clip-path: inset(60% 0 10% 0); transform: translate(6px, -2px); }
+  94% { clip-path: inset(40% 0 35% 0); transform: translate(-3px, 0); }
+}
+</style>

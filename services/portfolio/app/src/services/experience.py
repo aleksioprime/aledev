@@ -39,7 +39,7 @@ class ExperienceService:
             total=total,
             limit=params.limit,
             offset=params.offset,
-            has_next=(params.offset + 1) * params.limit < total,
+            has_next=params.offset + params.limit < total,
             has_previous=params.offset > 0
         )
 

@@ -8,6 +8,7 @@ export const routes = [
     component: () => import("@/views/NotFound.vue"),
     meta: {
       title: "Страница не найдена",
+      layout: "landing",
     },
   },
 ];
