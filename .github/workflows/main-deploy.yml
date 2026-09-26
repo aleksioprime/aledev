@@ -1,0 +1,60 @@
+name: Deploy Main App
+
+run-name: "Deploy Main App for ${{ github.ref_name }} by ${{ github.actor }}"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Test connection
+        run: nc -vz ${{ secrets.SERVER_HOST }} ${{ secrets.SSH_PORT }} || echo "Port closed"
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Show known_hosts
+        run: cat ~/.ssh/known_hosts || echo "No known_hosts file"
+
+      - name: Deploy on server
+        run: |
+          ssh -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+
+            mkdir -p ~/aledev
+            cd ~/aledev
+
+            echo "${{ secrets.ENV_VARS }}" > ~/aledev/.env
+            echo "Файл .env загружен на сервер"
+
+            curl -o ~/aledev/docker-compose.prod.yaml https://raw.githubusercontent.com/aleksioprime/aledev/main/docker-compose.prod.yaml
+
+            if [ ! -f ~/aledev/nginx/nginx.conf ]; then
+              echo "Файл nginx/nginx.conf не найден. Скачиваем..."
+              mkdir -p ~/aledev/nginx
+              curl -v -o ~/aledev/nginx/nginx.conf https://raw.githubusercontent.com/aleksioprime/aledev/main/frontend/nginx/nginx.conf
+            else
+              echo "Файл nginx/nginx.conf уже существует. Не скачиваем."
+            fi
+
+            echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+            docker network inspect aledev-shared >/dev/null 2>&1 || docker network create aledev-shared
+
+            docker compose -f docker-compose.prod.yaml down
+            docker compose -f docker-compose.prod.yaml pull
+            docker compose -f docker-compose.prod.yaml up -d --remove-orphans
+
+            docker image prune -a -f
+            echo "Готово!"
+
+          EOF

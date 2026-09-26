@@ -1,0 +1,16 @@
+{
+  "sectionTitle": "Contacts",
+  "email": "Email",
+  "telegram": "Telegram",
+  "name": "Your Name",
+  "message": "Message",
+  "send": "Send",
+  "success": "Thank you! Your message has been sent",
+  "error": "Sending failed. Please try again",
+  "captchaRequired": "Please confirm you are not a robot",
+  "captchaLoadFailed": "CAPTCHA failed to load. Please refresh the page",
+  "captchaMisconfigured": "CAPTCHA is not configured on the server",
+  "refreshCaptcha": "Refresh CAPTCHA",
+  "thankYou": "Thank you! Your message has been sent",
+  "errorSend": "Sending failed. Please try again"
+}

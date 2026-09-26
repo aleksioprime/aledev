@@ -1,0 +1,44 @@
+# Reverse SSH Tunnels (separate stack)
+
+`tunnel/docker-compose.prod.yaml` starts one container `aledev-tunnel` in a separate compose stack.
+
+Main services (`docker-compose.prod.yaml`, frontend/auth/portfolio) are not changed by this stack.
+
+## Required GitHub secret
+
+- `TUNNEL_HOME_PUBLIC_KEY` - public key from home server (one line from `~/.ssh/aledev_home.pub`).
+
+`tunnel-deploy` writes this key to `~/aledev/tunnel/keys/home_server.pub`.
+
+## Home server autossh command
+
+Use the VPS SSH tunnel gateway port `46222`.
+
+Important: keep `-R 0.0.0.0:...` because frontend nginx reaches these ports over Docker network (`aledev-tunnel:<port>`).
+
+```bash
+autossh -f -M 0 -N \
+  -o "ServerAliveInterval=60" \
+  -o "ServerAliveCountMax=3" \
+  -o "ExitOnForwardFailure=yes" \
+  -i ~/.ssh/aledev \
+  -R 0.0.0.0:9005:localhost:9000 \
+  -R 0.0.0.0:9011:localhost:8011 \
+  -R 0.0.0.0:9021:localhost:8021 \
+  -R 0.0.0.0:9088:localhost:8888 \
+  -R 0.0.0.0:9050:localhost:5000 \
+  -R 0.0.0.0:9058:localhost:5080 \
+  -R 0.0.0.0:9080:localhost:30865 \
+  -R 0.0.0.0:9022:localhost:22 \
+  tunnel@89.223.68.11 -p 46222
+```
+
+Then connect to your home server through VPS:
+
+```bash
+ssh -p 9022 <home_user>@<VPS_IP>
+```
+
+## Deploy
+
+Run GitHub workflow `tunnel-deploy`.

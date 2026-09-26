@@ -1,0 +1,20 @@
+services:
+
+  frontend-mysite:
+    build:
+      context: ./frontend
+      target: dev
+      args:
+        - VITE_LOGGING=1
+        - VITE_AUTH_URL=${VITE_AUTH_URL}
+        - VITE_PORTFOLIO_URL=${VITE_PORTFOLIO_URL}
+        - VITE_TURNSTILE_SITE_KEY=${VITE_TURNSTILE_SITE_KEY}
+    restart: unless-stopped
+    platform: linux/amd64
+    container_name: aledev-frontend-mysite
+    volumes:
+      - ./frontend/app/src:/usr/src/app/src
+    ports:
+      - "8085:5173"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
