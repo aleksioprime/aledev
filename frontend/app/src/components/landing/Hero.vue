@@ -12,7 +12,12 @@
           </span>
         </h1>
 
-        <p class="hero__role">{{ t('hero.title') }}</p>
+        <p class="hero__role font-mono" :aria-label="t('hero.title')">
+          <span class="hero__role-bracket" aria-hidden="true">&lt;</span>
+          <span class="hero__role-text" aria-hidden="true">{{ typedRole }}</span><span class="hero__role-caret"
+            aria-hidden="true">|</span>
+          <span class="hero__role-bracket" aria-hidden="true">/&gt;</span>
+        </p>
 
         <p class="hero__about">{{ t('hero.about') }}</p>
 
@@ -70,7 +75,7 @@
 <script setup>
 import Icon from '@/components/ui/Icon.vue'
 import { mdiArrowRight, mdiClose } from '@mdi/js'
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import avatar from '@/assets/img/avatar.webp'
 import SignalNetwork from '@/components/landing/effects/SignalNetwork.vue'
@@ -79,9 +84,52 @@ import { socials } from '@/common/constants/socials'
 const sectionId = 'hero'
 const orbitTags = ['Vue.js', 'FastAPI', 'Docker', 'PostgreSQL', 'ML', 'IoT']
 
-const { t, locale } = useI18n()
+const { t, tm, rt, locale } = useI18n()
 
 const nameWords = computed(() => t('hero.name').split(' '))
+
+// --- Печатающиеся роли ---
+const typedRole = ref('')
+const timers = []
+let roleIndex = 0
+let alive = true
+
+const roles = computed(() => tm('hero.roles').map((r) => rt(r)))
+
+function wait(ms) {
+  return new Promise((resolve) => timers.push(setTimeout(resolve, ms)))
+}
+
+async function typeInto(target, text, speed = 55) {
+  for (let i = 1; i <= text.length && alive; i++) {
+    target.value = text.slice(0, i)
+    await wait(speed)
+  }
+}
+
+async function eraseFrom(target, speed = 28) {
+  while (target.value.length && alive) {
+    target.value = target.value.slice(0, -1)
+    await wait(speed)
+  }
+}
+
+async function runRoles() {
+  while (alive) {
+    const list = roles.value
+    if (!list.length) return
+    await typeInto(typedRole, list[roleIndex % list.length], 60)
+    await wait(2600)
+    await eraseFrom(typedRole)
+    await wait(300)
+    roleIndex += 1
+  }
+}
+
+// при смене языка сразу начинаем печатать роль на новом языке
+watch(locale, () => {
+  typedRole.value = ''
+})
 
 // --- Превью фото ---
 const isPreviewOpen = ref(false)
@@ -108,7 +156,18 @@ function scrollToSection(anchor) {
   window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - offset + 1, behavior: 'smooth' })
 }
 
+onMounted(async () => {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    typedRole.value = roles.value[0] || ''
+    return
+  }
+  await wait(900)
+  runRoles()
+})
+
 onBeforeUnmount(() => {
+  alive = false
+  timers.forEach(clearTimeout)
   window.removeEventListener('keydown', handleEscape)
 })
 </script>
@@ -177,11 +236,27 @@ onBeforeUnmount(() => {
 }
 
 .hero__role {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.2rem;
   margin-top: 1.3rem;
-  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
-  font-weight: 600;
-  line-height: 1.5;
+  font-size: clamp(1rem, 2.2vw, 1.35rem);
   color: var(--accent);
+}
+
+.hero__role-bracket {
+  color: var(--muted);
+}
+
+.hero__role-caret {
+  margin-left: -0.2rem;
+  color: var(--accent-2);
+  animation: blink 0.9s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
 }
 
 .hero__about {

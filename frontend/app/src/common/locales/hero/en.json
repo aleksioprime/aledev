@@ -1,6 +1,13 @@
 {
   "name": "Aleksei Semochkin",
   "title": "Web developer · microservices · ML & IoT",
+  "roles": [
+    "Web developer",
+    "Microservices & APIs",
+    "Educational platforms",
+    "ML & IoT solutions",
+    "Project team mentor"
+  ],
   "about": "I build web platforms on a modern microservice architecture and a popular, proven stack that keeps them reliable and flexible. I design educational and science-intensive systems, bring in ML and IoT solutions, and mentor student project teams.",
   "contact": "Discuss a project",
   "openPhoto": "Open photo",
