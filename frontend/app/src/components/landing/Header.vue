@@ -2,7 +2,7 @@
   <header class="site-header" :class="{ 'is-scrolled': scrolled }">
     <nav class="nav shell">
       <a href="#hero" class="brand" @click.prevent="scrollToSection('hero')">
-        <span class="brand__prompt">~/</span>aledev
+        <span class="brand__prompt">~/</span>aledev<span class="brand__caret"></span>
       </a>
 
       <div class="nav__links">
@@ -169,6 +169,20 @@ onBeforeUnmount(() => {
 
 .brand__prompt {
   color: var(--accent);
+}
+
+.brand__caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 0.15em;
+  vertical-align: -0.15em;
+  background: var(--accent);
+  animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
 }
 
 .nav__links {
