@@ -113,26 +113,6 @@ PROJECTS = [
         ),
     },
     {
-        'stack': 'Python, FastAPI, OpenAI API, YandexGPT, Vue.js',
-        'ru': (
-            'Сервис генерации IB-репортов',
-            'Генерация отзывов учителя и тьютора по стандартам Международного бакалавриата на основе '
-            'данных об успеваемости — с выбором языковой модели.',
-            'Сервис для тестирования генерации типовых отзывов (репортов) учителя и тьютора по стандартам '
-            'IB. Модель выбирается из поддерживаемых: ChatGPT, DeepSeek, Qwen или YandexGPT. Интегрирован с '
-            'платформой SkolStream и использует актуальные данные об успеваемости учащихся Международной '
-            'гимназии «Сколково».',
-        ),
-        'en': (
-            'IB report generation service',
-            'Generates teacher and tutor reports to International Baccalaureate standards from student '
-            'performance data, with a choice of language model.',
-            'A service for testing generation of standard teacher and tutor reports to IB standards. The '
-            'model is one of ChatGPT, DeepSeek, Qwen or YandexGPT. It integrates with the SkolStream '
-            'platform and uses up-to-date performance data of Skolkovo International Gymnasium students.',
-        ),
-    },
-    {
         'stack': 'Python, FastAPI, PostgreSQL, MQTT, Mosquitto, Vue.js, Vuetify, Arduino',
         'ru': (
             'ЕмПолимер — мониторинг биоустановок',
