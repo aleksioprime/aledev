@@ -279,7 +279,7 @@ class _Builder:
             zoom.set(qn("w:percent"), "100")
 
         core = self.doc.core_properties
-        core.title = f"{self.t['name']} — {self.t['footer']}"
+        core.title = f"{self.t['name']} - {self.t['footer']}"
         core.author = self.t["name"]
 
         footer = section.footer.paragraphs[0]
@@ -359,7 +359,7 @@ class _Builder:
             return f"{months[value.month - 1]} {value.year}"
 
         end = self.t["present"] if exp.is_current or not exp.end_date else fmt(exp.end_date)
-        return f"{fmt(exp.start_date)} — {end}"
+        return f"{fmt(exp.start_date)} - {end}"
 
     def experience(self):
         """
@@ -455,13 +455,13 @@ class _Builder:
                 _set_cell_margins(left, 50, 90, 0, 120)
                 _set_cell_margins(right, 50, 90, 120, 0)
                 year = _clear_cell(left)
-                _style_run(year.add_run(str(item.year) if item.year else "—"), size=9.5, bold=True, color=MUTED)
+                _style_run(year.add_run(str(item.year) if item.year else "-"), size=9.5, bold=True, color=MUTED)
 
                 title = _clear_cell(right)
                 title.paragraph_format.space_after = Pt(1)
                 _style_run(title.add_run(item.title), size=10, bold=True, color=INK)
                 if item.result:
-                    _style_run(title.add_run(f"  —  {item.result}"), size=10, bold=True, color=AMBER)
+                    _style_run(title.add_run(f"  -  {item.result}"), size=10, bold=True, color=AMBER)
 
                 meta = [
                     self.t["categories"].get(item.category, item.category),

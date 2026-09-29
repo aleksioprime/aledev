@@ -293,8 +293,8 @@ def upgrade() -> None:
         'created_at': created_at, 'updated_at': created_at,
     }])
     page_copy = {
-        'ru': ('Наставничество', 'Исследования, конкурсы', 'и команды учеников', 'Опыт руководства кафедрой дизайна и технологии Международной гимназии «Сколково»: учебные программы по ИИ, программированию и робототехнике, инженерная лаборатория и десятки ученических проектов — от роботов до нейросетей.'),
-        'en': ('Mentoring', 'Research, awards', 'and student teams', 'Experience heading the Design & Technology department at the Skolkovo International Gymnasium: curricula in AI, programming and robotics, an engineering lab and dozens of student projects — from robots to neural networks.'),
+        'ru': ('Наставничество', 'Исследования, конкурсы', 'и команды учеников', 'Опыт руководства кафедрой дизайна и технологии Международной гимназии «Сколково»: учебные программы по ИИ, программированию и робототехнике, инженерная лаборатория и десятки ученических проектов - от роботов до нейросетей.'),
+        'en': ('Mentoring', 'Research, awards', 'and student teams', 'Experience heading the Design & Technology department at the Skolkovo International Gymnasium: curricula in AI, programming and robotics, an engineering lab and dozens of student projects - from robots to neural networks.'),
     }
     op.bulk_insert(page_translation_table, [
         {

@@ -1,6 +1,6 @@
 <template>
   <!-- Генеративная обложка-заглушка: уникальна для каждого проекта (по его id).
-       Когда у проекта появится поле с изображением — передайте его в prop `image`. -->
+       Когда у проекта появится поле с изображением - передайте его в prop `image`. -->
   <div class="cover" :style="{ '--h1': palette.h1, '--h2': palette.h2 }">
     <img v-if="image" :src="image" :alt="title" loading="lazy" class="cover__img" />
     <svg v-else class="cover__svg" viewBox="0 0 400 225" preserveAspectRatio="xMidYMid slice" aria-hidden="true">

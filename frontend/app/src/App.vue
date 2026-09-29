@@ -19,7 +19,7 @@ watch(
     const baseTitle = getBaseTitleByRoute(route);
 
     document.title = route.meta.title
-      ? `${baseTitle} — ${route.meta.title}`
+      ? `${baseTitle} - ${route.meta.title}`
       : baseTitle;
   },
   { immediate: true }

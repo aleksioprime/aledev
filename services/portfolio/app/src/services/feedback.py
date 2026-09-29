@@ -303,7 +303,7 @@ class FeedbackService:
         prefix = "🟢 Заказ" if data["is_order"] else "🎓 Обучение" if data["is_training"] else "💬 Вопрос"
 
         msg = EmailMessage()
-        msg["Subject"] = f"{prefix} с aledev.ru — {safe_name}"
+        msg["Subject"] = f"{prefix} с aledev.ru - {safe_name}"
         msg["From"] = formataddr((self.settings.feedback_sender_name, self.settings.sender))
         msg["To"] = self.settings.receiver
         msg["Reply-To"] = data["email"]

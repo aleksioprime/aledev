@@ -60,7 +60,7 @@ class Mailer:
                 await asyncio.to_thread(self._send_smtp, msg)
                 return MailResult("yandex", errors)
             except smtplib.SMTPAuthenticationError as e:
-                errors.append(f"SMTP auth: {e.smtp_code} {e.smtp_error!r} — проверьте пароль приложения Яндекса")
+                errors.append(f"SMTP auth: {e.smtp_code} {e.smtp_error!r} - проверьте пароль приложения Яндекса")
             except Exception as e:  # noqa: BLE001 - любая ошибка SMTP ведёт к запасному каналу
                 errors.append(f"SMTP: {type(e).__name__}: {e}")
             logger.warning("[Mailer] SMTP не отправил письмо: %s", errors[-1])

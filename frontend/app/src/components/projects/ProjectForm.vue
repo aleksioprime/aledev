@@ -4,7 +4,7 @@
     <div class="flex ">
       <v-checkbox v-model="useOrder" label="Задать порядок вручную" />
     <v-text-field v-if="useOrder" v-model="form.order" label="Порядок" type="number" min="0"
-      hint="0 — первый, 1 — второй и т.д." persistent-hint class="ms-5" />
+      hint="0 - первый, 1 - второй и т.д." persistent-hint class="ms-5" />
     </div>
 
     <v-text-field v-model="form.stack" label="Технологический стек" />

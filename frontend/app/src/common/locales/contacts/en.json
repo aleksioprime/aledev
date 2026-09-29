@@ -14,7 +14,7 @@
   "kicker": "Contacts",
   "titleStart": "Let's",
   "titleAccent": "talk",
-  "lead": "Have a project, a task or just a question? Pick the request type — I'll get an email and reply to the address you leave.",
+  "lead": "Have a project, a task or just a question? Pick the request type - I'll get an email and reply to the address you leave.",
   "github": "GitHub",
   "kindLabel": "Request type",
   "kinds": {
@@ -23,7 +23,7 @@
     "question": "Question"
   },
   "kindHints": {
-    "order": "Need something built? Tell me about the task — I'll reply with a time and cost estimate.",
+    "order": "Need something built? Tell me about the task - I'll reply with a time and cost estimate.",
     "question": "Consulting, code review or any other question.",
     "training": "Lessons in programming, web, AI and robotics, mentoring of project teams."
   },
@@ -53,9 +53,9 @@
   },
   "note": "By sending, you agree that I'll use this data only to reply to your request.",
   "successByKind": {
-    "order": "Thank you! Request received — I'll get back to you shortly.",
-    "question": "Thank you! Question received — I'll reply by email.",
-    "training": "Thank you! Training request received — I'll get in touch to discuss the programme."
+    "order": "Thank you! Request received - I'll get back to you shortly.",
+    "question": "Thank you! Question received - I'll reply by email.",
+    "training": "Thank you! Training request received - I'll get in touch to discuss the programme."
   },
   "sendAnother": "Send another one",
   "errors": {

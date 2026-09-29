@@ -3,7 +3,7 @@
     <div class="shell">
       <header class="section-head projects-head">
         <div>
-          <span v-reveal class="section-kicker">02 — {{ $t('projects.kicker') }}</span>
+          <span v-reveal class="section-kicker">02 - {{ $t('projects.kicker') }}</span>
           <h2 v-reveal="{ delay: 80 }" class="section-title">{{ $t('projects.sectionTitle') }}</h2>
         </div>
         <p v-reveal="{ delay: 160 }" class="section-lead">{{ $t('projects.lead') }}</p>
