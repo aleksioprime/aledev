@@ -1,5 +1,5 @@
 import http
-from typing import Optional, Set, Union
+from typing import Optional
 
 from fastapi import HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -8,6 +8,9 @@ from src.utils.token import JWTHelper
 
 
 class JWTBearer(HTTPBearer):
+    """
+    Зависимость FastAPI: проверяет Bearer-токен и возвращает данные пользователя
+    """
     def __init__(self, auto_error: bool = True):
         super().__init__(auto_error=auto_error)
 
@@ -34,5 +37,8 @@ class JWTBearer(HTTPBearer):
 
     @staticmethod
     def parse_token(jwt_token: str) -> Optional[dict]:
+        """
+        Декодирует токен и возвращает его полезную нагрузку
+        """
         payload = JWTHelper().decode(jwt_token)
         return payload

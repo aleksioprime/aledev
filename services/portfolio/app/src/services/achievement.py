@@ -7,6 +7,9 @@ from src.schemas.pagination import PaginatedResponse
 
 
 class AchievementService:
+    """
+    Сервис достижений
+    """
     def __init__(self, uow: UnitOfWork):
         self.uow = uow
 
@@ -16,6 +19,9 @@ class AchievementService:
         *,
         include_unpublished: bool = False,
     ) -> PaginatedResponse[AchievementSchema]:
+        """
+        Возвращает страницу достижений
+        """
         async with self.uow:
             items, total = await self.uow.achievement.get_all(
                 params,
@@ -31,6 +37,9 @@ class AchievementService:
         )
 
     async def get_by_id(self, achievement_id: UUID) -> AchievementSchema:
+        """
+        Возвращает достижение по ID
+        """
         async with self.uow:
             achievement = await self.uow.achievement.get_by_id(achievement_id)
             if not achievement:
@@ -38,11 +47,17 @@ class AchievementService:
         return AchievementSchema.model_validate(achievement)
 
     async def create(self, body: AchievementCreateSchema) -> AchievementSchema:
+        """
+        Создаёт достижение
+        """
         async with self.uow:
             achievement = await self.uow.achievement.create(body)
         return AchievementSchema.model_validate(achievement)
 
     async def update(self, achievement_id: UUID, body: AchievementUpdateSchema) -> AchievementSchema:
+        """
+        Обновляет достижение
+        """
         async with self.uow:
             achievement = await self.uow.achievement.update(achievement_id, body)
             if not achievement:
@@ -50,6 +65,9 @@ class AchievementService:
         return AchievementSchema.model_validate(achievement)
 
     async def delete(self, achievement_id: UUID) -> None:
+        """
+        Удаляет достижение
+        """
         async with self.uow:
             if not await self.uow.achievement.delete(achievement_id):
                 raise NotFoundException(f"Достижение с ID {achievement_id} не найдено")

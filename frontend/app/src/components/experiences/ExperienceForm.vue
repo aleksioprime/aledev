@@ -109,7 +109,7 @@ function removeTranslation(idx) {
   }
 }
 
-// Если выбран is_current — обнуляем дату окончания
+// Если выбран is_current - обнуляем дату окончания
 watch(() => form.is_current, val => {
   if (val) emit("update:modelValue", { ...form, end_date: null });
 });

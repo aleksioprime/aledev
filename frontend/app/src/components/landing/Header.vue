@@ -68,7 +68,7 @@ function changeLang(lang) {
   try {
     localStorage.setItem('locale', lang)
   } catch {
-    // хранилище недоступно — язык просто не запомнится
+    // хранилище недоступно - язык просто не запомнится
   }
 }
 
@@ -117,7 +117,7 @@ onMounted(() => {
     }
   }, { rootMargin: '-45% 0px -50% 0px' })
 
-  // секции подгружаются асинхронно — ждём один кадр
+  // секции подгружаются асинхронно - ждём один кадр
   requestAnimationFrame(() => {
     for (const item of menu) {
       const el = document.getElementById(item.anchor)
@@ -178,7 +178,7 @@ onBeforeUnmount(() => {
   color: var(--accent);
 }
 
-/* Курсор терминала — горит ровно, без мигания */
+/* Курсор терминала - горит ровно, без мигания */
 .brand__caret {
   display: inline-block;
   width: 0.55em;

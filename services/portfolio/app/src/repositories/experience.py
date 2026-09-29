@@ -20,29 +20,50 @@ logger = logging.getLogger(__name__)
 
 
 class BaseExperienceRepository(ABC):
+    """
+    Интерфейс репозитория опыта работы
+    """
 
     @abstractmethod
     async def get_by_id(self, experience_id: UUID):
+        """
+        Получает запись по ID
+        """
         ...
 
     @abstractmethod
     async def get_all(self, params: ExperienceQueryParams):
+        """
+        Получает страницу записей
+        """
         ...
 
     @abstractmethod
     async def create(self, body: ExperienceCreateSchema):
+        """
+        Создаёт запись
+        """
         ...
 
     @abstractmethod
     async def update(self, experience_id: UUID, body: ExperienceUpdateSchema):
+        """
+        Обновляет запись
+        """
         ...
 
     @abstractmethod
     async def delete(self, experience_id: UUID):
+        """
+        Удаляет запись
+        """
         ...
 
 
 class ExperienceRepository(BaseExperienceRepository, BaseSQLRepository):
+    """
+    Репозиторий опыта работы
+    """
 
     async def get_by_id(self, experience_id: UUID) -> Experience | None:
         """

@@ -10,10 +10,16 @@ def permission_required(
     allow_self: bool = False,
     user_id_param: str = "user_id",
 ):
+    """
+    Создаёт зависимость, проверяющую роли пользователя
+    """
     def checker(
         user: UserJWT = Depends(JWTBearer()),
         request: Request = None,
     ):
+        """
+        Пропускает суперпользователя, владельца или пользователя с нужной ролью
+        """
         if getattr(user, "is_superuser", False):
             return user
 

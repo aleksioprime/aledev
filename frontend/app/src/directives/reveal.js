@@ -1,5 +1,4 @@
-// v-reveal — плавное появление элемента при попадании в область видимости.
-// Использование: v-reveal, v-reveal="'left'", v-reveal="{ variant: 'scale', delay: 120 }"
+// v-reveal - появление элемента при прокрутке: v-reveal, v-reveal="'left'", v-reveal="{ variant, delay }"
 let observer = null
 
 function getObserver() {

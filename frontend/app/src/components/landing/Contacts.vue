@@ -193,7 +193,7 @@ const emptyForm = (kind = "order") => ({
 const form = ref(emptyForm());
 const kindIndex = computed(() => Math.max(0, kinds.findIndex((k) => k.value === form.value.kind)))
 
-// у заказа и обучения разные справочники в поле service — сбрасываем выбор при смене типа
+// Сброс service при смене типа обращения
 watch(() => form.value.kind, () => {
   form.value.service = null
 })
@@ -870,7 +870,7 @@ onUnmounted(() => {
     display: none;
   }
 
-  /* 16px+ в полях — iOS не будет зумить страницу при фокусе */
+  /* 16px+ в полях - iOS не будет зумить страницу при фокусе */
   .field input,
   .field textarea {
     font-size: 16px;

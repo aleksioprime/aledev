@@ -9,6 +9,9 @@ from src.db.postgres import Base
 
 
 class Achievement(Base):
+    """
+    Достижение: конкурс, грант, сертификат или экспертиза
+    """
     __tablename__ = "achievements"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -36,6 +39,9 @@ class Achievement(Base):
 
 
 class AchievementTranslation(Base):
+    """
+    Перевод достижения
+    """
     __tablename__ = "achievement_translations"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)

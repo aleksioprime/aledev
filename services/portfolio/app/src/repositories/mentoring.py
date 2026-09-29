@@ -12,7 +12,13 @@ from src.schemas.mentoring import MentoringPageUpdateSchema
 
 
 class MentoringRepository(BaseSQLRepository):
+    """
+    Репозиторий секции наставничества
+    """
     async def get_page(self, *, include_unpublished: bool = False) -> MentoringPage | None:
+        """
+        Получает контент секции с переводами и цифрами
+        """
         stmt = (
             select(MentoringPage)
             .where(MentoringPage.slug == "mentoring")
@@ -27,14 +33,15 @@ class MentoringRepository(BaseSQLRepository):
         return result.scalars().unique().one_or_none()
 
     async def update_page(self, body: MentoringPageUpdateSchema) -> MentoringPage:
+        """
+        Заменяет тексты и цифры секции
+        """
         page = await self.get_page(include_unpublished=True)
         if page is None:
             raise LookupError("Блок наставничества не найден")
 
         page.is_published = body.is_published
-        # Сначала удаляем старые переводы и метрики: при простой замене коллекций
-        # SQLAlchemy вставляет новые строки раньше удаления старых, и срабатывают
-        # уникальные ограничения (page_id, lang) и (page_id, key)
+        # Удаляем старые строки до вставки новых, иначе конфликт уникальных ключей
         page.translations.clear()
         page.metrics.clear()
         await self.session.flush()

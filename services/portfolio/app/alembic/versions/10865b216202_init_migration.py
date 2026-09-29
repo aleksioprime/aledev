@@ -366,5 +366,5 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_achievements_category'), table_name='achievements')
     op.drop_table('achievements')
     # ### end Alembic commands ###
-    # Тип enum создаётся вместе с таблицами переводов, но drop_table его не удаляет
+    # drop_table не удаляет enum-тип
     postgresql.ENUM(name='langenum').drop(op.get_bind(), checkfirst=True)

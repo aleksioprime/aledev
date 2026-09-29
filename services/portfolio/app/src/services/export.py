@@ -30,12 +30,15 @@ class PortfolioExportService:
         self.uow = uow
 
     async def build_docx(self, lang: str) -> bytes:
+        """
+        Собирает документ Word на выбранном языке
+        """
         async with self.uow:
             session = self.uow.session
             experiences = (await session.execute(
                 select(Experience).order_by(nulls_first(desc(Experience.end_date)), desc(Experience.start_date))
             )).scalars().unique().all()
-            # На сайте показываются избранные проекты — их же выгружаем
+            # На сайте показываются избранные проекты - их же выгружаем
             projects = (await session.execute(
                 select(Project).where(Project.is_favorite.is_(True)).order_by(Project.order)
             )).scalars().unique().all()

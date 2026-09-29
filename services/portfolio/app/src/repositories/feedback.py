@@ -10,17 +10,29 @@ from src.schemas.feedback import FeedbackQueryParams
 
 
 class FeedbackRepository(BaseSQLRepository):
+    """
+    Репозиторий обращений
+    """
 
     async def create(self, **data) -> Feedback:
+        """
+        Сохраняет обращение
+        """
         feedback = Feedback(**data)
         self.session.add(feedback)
         await self.session.flush()
         return feedback
 
     async def get_by_id(self, feedback_id: UUID) -> Feedback | None:
+        """
+        Получает обращение по ID
+        """
         return await self.session.get(Feedback, feedback_id)
 
     async def get_all(self, params: FeedbackQueryParams) -> tuple[list[Feedback], int]:
+        """
+        Получает страницу обращений с фильтрами
+        """
         conditions = []
         if params.kind:
             conditions.append(Feedback.kind == params.kind)
@@ -49,6 +61,9 @@ class FeedbackRepository(BaseSQLRepository):
         return list(items), total
 
     async def stats(self) -> dict:
+        """
+        Считает обращения по типам и статусам
+        """
         def count(*where):
             return select(func.count()).select_from(Feedback).where(*where).scalar_subquery()
 
@@ -63,6 +78,9 @@ class FeedbackRepository(BaseSQLRepository):
         return dict(row._mapping)
 
     async def update(self, feedback_id: UUID, **values) -> Feedback | None:
+        """
+        Обновляет поля обращения
+        """
         if values:
             await self.session.execute(
                 update(Feedback).where(Feedback.id == feedback_id).values(**values)
@@ -73,6 +91,9 @@ class FeedbackRepository(BaseSQLRepository):
         return feedback
 
     async def delete(self, feedback_id: UUID) -> bool:
+        """
+        Удаляет обращение
+        """
         feedback = await self.get_by_id(feedback_id)
         if not feedback:
             return False
@@ -108,10 +129,7 @@ class FeedbackRepository(BaseSQLRepository):
 
     async def get_retry_ids(self, max_attempts: int, limit: int = 20) -> list[UUID]:
         """
-        Обращения, письмо по которым нужно (пере)отправить:
-        - pending старше 30 секунд (фоновая задача не отработала, например, из-за рестарта);
-        - failed с оставшимися попытками (с растущей паузой между попытками);
-        - «зависшие» в sending дольше 10 минут.
+        Возвращает ID обращений, письма по которым нужно отправить повторно
         """
         now = datetime.now(timezone.utc)
         stmt = (

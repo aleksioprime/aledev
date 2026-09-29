@@ -9,6 +9,9 @@ from src.schemas.pagination import BasePaginationParams
 
 
 class AchievementQueryParams(BasePaginationParams):
+    """
+    Параметры фильтрации и пагинации достижений
+    """
     category: str | None = Field(None, max_length=40)
     scope: str | None = Field(None, max_length=30)
 
@@ -17,6 +20,9 @@ class AchievementQueryParams(BasePaginationParams):
 
 
 class AchievementTranslationSchema(BaseModel):
+    """
+    Перевод достижения
+    """
     lang: LangEnum
     title: str
     organization: str | None = None
@@ -29,6 +35,9 @@ class AchievementTranslationSchema(BaseModel):
 
 
 class AchievementSchema(BaseModel):
+    """
+    Достижение с переводами
+    """
     id: UUID
     category: str
     scope: str
@@ -47,6 +56,9 @@ class AchievementSchema(BaseModel):
 
 
 class AchievementTranslationCreateSchema(BaseModel):
+    """
+    Перевод достижения при создании
+    """
     lang: LangEnum
     title: str = Field(..., min_length=1, max_length=255)
     organization: str | None = Field(None, max_length=255)
@@ -56,6 +68,9 @@ class AchievementTranslationCreateSchema(BaseModel):
 
 
 class AchievementCreateSchema(BaseModel):
+    """
+    Данные для создания достижения
+    """
     category: str = Field(..., min_length=1, max_length=40)
     scope: str = Field(..., min_length=1, max_length=30)
     year: int | None = Field(None, ge=1900, le=2200)
@@ -68,6 +83,9 @@ class AchievementCreateSchema(BaseModel):
 
 
 class AchievementUpdateSchema(BaseModel):
+    """
+    Данные для обновления достижения
+    """
     category: str | None = Field(None, min_length=1, max_length=40)
     scope: str | None = Field(None, min_length=1, max_length=30)
     year: int | None = Field(None, ge=1900, le=2200)

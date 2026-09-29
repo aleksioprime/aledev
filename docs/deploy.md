@@ -1,20 +1,20 @@
 # Деплой на сервер
 
 Инструкция для развёртывания портфолио на новом (или пересобранном) сервере.
-Адрес сервера и все настройки хранятся в **секретах GitHub** — в коде их нет, поэтому для переезда
+Адрес сервера и все настройки хранятся в **секретах GitHub** - в коде их нет, поэтому для переезда
 на другой сервер достаточно обновить секреты и запустить workflow **Deploy**.
 
 ## Что где работает
 
 | Компонент | Каталог на сервере | Контейнеры |
 | --- | --- | --- |
-| Системный nginx + certbot | `/etc/nginx/sites-available/aledev.ru` | — (порты 80, 443, SSL; рядом могут жить другие сайты) |
+| Системный nginx + certbot | `/etc/nginx/sites-available/aledev.ru` | - (порты 80, 443, SSL; рядом могут жить другие сайты) |
 | Фронтенд (nginx со SPA, разводит поддомены по сервисам) | `~/aledev` | `aledev-frontend` (только `127.0.0.1:8080`) |
 | Сервис авторизации | `~/aledev/services/auth` | `aledev-auth-app`, Postgres, Redis |
 | Сервис портфолио | `~/aledev/services/portfolio` | `aledev-portfolio-app`, Postgres |
 | Общие файлы (медиа) | `~/aledev/media` | монтируется во все сервисы |
 
-`~` — домашний каталог пользователя из секрета `SERVER_USER`. Пути в compose-файлах относительные,
+`~` - домашний каталог пользователя из секрета `SERVER_USER`. Пути в compose-файлах относительные,
 поэтому подойдёт как `root`, так и обычный пользователь с `sudo`.
 Сервисы общаются через Docker-сеть `aledev-shared`.
 
@@ -32,8 +32,8 @@
    apt install nginx certbot python3-certbot-nginx
    ```
    Пользователь `SERVER_USER` должен иметь доступ к Docker daemon без `sudo` (обычно через группу `docker`),
-   а если это не `root` — ещё и `sudo` без пароля для `nginx`, `systemctl`, `certbot`, `tee`, `cp`, `ln`.
-4. Создайте SSH-ключ для GitHub Actions — на своём компьютере:
+   а если это не `root` - ещё и `sudo` без пароля для `nginx`, `systemctl`, `certbot`, `tee`, `cp`, `ln`.
+4. Создайте SSH-ключ для GitHub Actions - на своём компьютере:
    ```bash
    ssh-keygen -t ed25519 -f aledev_deploy -N "" -C "github-actions@aledev"
    ssh-copy-id -i aledev_deploy.pub -p <SSH-порт> <пользователь>@<IP-сервера>
@@ -51,7 +51,7 @@ auth.aledev.ru       A  <IP>
 portfolio.aledev.ru  A  <IP>
 ```
 
-Дождитесь, пока записи обновятся (`dig +short aledev.ru`), — без этого не выпустится SSL.
+Дождитесь, пока записи обновятся (`dig +short aledev.ru`), - без этого не выпустится SSL.
 
 ## 3. Секреты GitHub
 
@@ -76,11 +76,11 @@ VITE_PORTFOLIO_URL=https://portfolio.aledev.ru
 VITE_TURNSTILE_SITE_KEY=<site key из Cloudflare Turnstile>
 ```
 
-В `ENV_AUTH_VARS` и `ENV_PORTFOLIO_VARS` обратите внимание:
-- `JWT_SECRET_KEY` должен **совпадать** в обоих сервисах — портфолио проверяет токены, выданные auth.
+Что важно в `ENV_AUTH_VARS` и `ENV_PORTFOLIO_VARS`:
+- `JWT_SECRET_KEY` должен **совпадать** в обоих сервисах - портфолио проверяет токены, выданные auth.
 - Пароли баз данных придумайте новые (`POSTGRES_PASSWORD` = `DB_PASSWORD`).
 - Для обратной связи в портфолио: `SMTP_USER`, `SMTP_PASSWORD` (пароль приложения Яндекса),
-  `FEEDBACK_RECEIVER`, `TURNSTILE_SECRET_KEY`; запасной канал — `RESEND_API_KEY`.
+  `FEEDBACK_RECEIVER`, `TURNSTILE_SECRET_KEY`; запасной канал - `RESEND_API_KEY`.
 
 Сгенерировать секретный ключ:
 ```bash
@@ -89,26 +89,26 @@ python3 -c "import secrets; print(secrets.token_urlsafe(64))"
 
 ## 4. Деплой
 
-В проекте один workflow — **Deploy** (`.github/workflows/deploy.yml`).
+В проекте один workflow - **Deploy** (`.github/workflows/deploy.yml`).
 
-**Автоматически** — при пуше (слиянии PR) в `main`: собирается и деплоится только то, что изменилось.
+**Автоматически** - при пуше (слиянии PR) в `main`: собирается и деплоится только то, что изменилось.
 
 | Изменились файлы | Что деплоится |
 | --- | --- |
 | `services/auth/**` | сервис авторизации |
-| `services/portfolio/**` | сервис портфолио (перед сборкой прогоняются тесты — если упали, деплоя не будет) |
+| `services/portfolio/**` | сервис портфолио (перед сборкой прогоняются тесты - если упали, деплоя не будет) |
 | `frontend/**`, `deploy/**`, `docker-compose.prod.yaml` | фронтенд + сайт в системном nginx и SSL |
 
 Изменения только в документации (`*.md`) и в `.github/` деплой не запускают.
 
-**Вручную** — **Actions → Deploy → Run workflow** (ветка `main`), например для первого деплоя
+**Вручную** - **Actions → Deploy → Run workflow** (ветка `main`), например для первого деплоя
 на новый сервер или после смены секретов:
 
 | Параметр | Первый запуск | Обычное обновление |
 | --- | --- | --- |
 | Что деплоить | `all` | нужный сервис или `all` |
-| Собрать образы | ✅ | ✅ (выключите, если образы в Docker Hub уже актуальны) |
-| Перезаписать сайт в nginx | не нужно (при первом деплое он установится сам) | ✅ только если меняли `deploy/nginx/aledev.conf` |
+| Собрать образы | да | да (выключите, если образы в Docker Hub уже актуальны) |
+| Перезаписать сайт в nginx | не нужно (при первом деплое он установится сам) | да, только если меняли `deploy/nginx/aledev.conf` |
 | Email для Let's Encrypt | ваш email, если certbot на сервере ещё не настраивали | пусто |
 | Домены | по умолчанию | по умолчанию |
 
@@ -133,7 +133,7 @@ docker compose -f docker-compose.prod.yaml exec app \
   python scripts/create_superuser.py --username admin --password '<пароль>' --email <email>
 ```
 
-Войдите на `https://aledev.ru/admin` и добавьте проекты и опыт — на новом сервере базы пустые.
+Войдите на `https://aledev.ru/admin` и добавьте проекты и опыт - на новом сервере базы пустые.
 
 ### Перенос данных со старого сервера (если он доступен)
 
@@ -167,12 +167,12 @@ docker logs aledev-portfolio-app --tail 50  # ошибки отправки пи
 
 | Симптом | Причина / решение |
 | --- | --- |
-| `Setup SSH`: «Порт закрыт или не отвечает» / «SSH-сервер не отвечает раннеру» | с вашего компьютера порт открыт, а с GitHub — нет: файрвол, fail2ban (`fail2ban-client status sshd`) или хостер режет входящий SSH из-за рубежа. IP раннера выводится в логе шага |
+| `Setup SSH`: «Порт закрыт или не отвечает» / «SSH-сервер не отвечает раннеру» | с вашего компьютера порт открыт, а с GitHub - нет: файрвол, fail2ban (`fail2ban-client status sshd`) или хостер режет входящий SSH из-за рубежа. IP раннера выводится в логе шага |
 | `Setup SSH`: «Сервер отклонил ключ» | публичная часть ключа не добавлена в `~/.ssh/authorized_keys` пользователя `SERVER_USER` |
-| `Setup SSH`: «SSH_KEY не читается» / «не похож на приватный ключ» | в секрет попала публичная часть, ключ обрезан или с паролем — вставьте приватный ключ без passphrase целиком |
+| `Setup SSH`: «SSH_KEY не читается» / «не похож на приватный ключ» | в секрет попала публичная часть, ключ обрезан или с паролем - вставьте приватный ключ без passphrase целиком |
 | `permission denied ... docker.sock` | добавьте `SERVER_USER` в группу `docker` и переподключитесь по SSH |
 | Certbot: `DNS problem` / `Timeout during connect` | DNS ещё не обновился (нужны все домены из списка) или закрыт порт 80 |
-| `address already in use` на `127.0.0.1:8080` | порт занят другой программой (`ss -tlnp \| grep 8080`) — задайте другой `FRONTEND_PORT` в `ENV_VARS` |
+| `address already in use` на `127.0.0.1:8080` | порт занят другой программой (`ss -tlnp \| grep 8080`) - задайте другой `FRONTEND_PORT` в `ENV_VARS` |
 | В админке 401/403 на запросах к портфолио | разные `JWT_SECRET_KEY` в `ENV_AUTH_VARS` и `ENV_PORTFOLIO_VARS` |
 | Письма не приходят | смотрите статус письма в админке → «Обращения» и `docker logs aledev-portfolio-app` |
 

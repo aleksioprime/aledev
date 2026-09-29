@@ -8,6 +8,9 @@ from src.schemas.pagination import BasePaginationParams
 
 
 class ExperienceQueryParams(BasePaginationParams):
+    """
+    Параметры пагинации опыта работы
+    """
 
     class Config:
         arbitrary_types_allowed = True

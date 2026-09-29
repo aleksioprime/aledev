@@ -15,13 +15,22 @@ logger = logging.getLogger(__name__)
 
 
 class BaseUserRepository(ABC):
+    """
+    Интерфейс репозитория пользователей
+    """
 
     @abstractmethod
     async def update(self, user_id: UUID, body: UserUpdateSchema):
+        """
+        Обновляет пользователя
+        """
         ...
 
 
 class UserRepository(BaseUserRepository, BaseSQLRepository):
+    """
+    Репозиторий пользователей
+    """
 
     async def get_user_by_id(self, user_id: UUID) -> User | None:
         """

@@ -2,8 +2,6 @@
 Модуль содержит сервисы для аутентификации и регистрации пользователей
 """
 
-from uuid import UUID
-from typing import List
 
 from redis.asyncio import Redis
 

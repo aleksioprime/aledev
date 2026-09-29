@@ -13,6 +13,9 @@ def register_exception_handlers(app: FastAPI):
     # Обработчик исключений для ошибок NotFound
     @app.exception_handler(NotFoundException)
     async def not_found_exception_handler(request: Request, exc: NotFoundException):
+        """
+        Отдаёт 404 для NotFoundException
+        """
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"detail": str(exc)},
@@ -21,6 +24,9 @@ def register_exception_handlers(app: FastAPI):
     # Обработчик исключений для базовых ошибок
     @app.exception_handler(BaseException)
     async def request_exception_handler(request: Request, exc: BaseException):
+        """
+        Отдаёт 400 для ошибок приложения
+        """
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={"detail": str(exc)},
@@ -29,6 +35,9 @@ def register_exception_handlers(app: FastAPI):
     # Обработчик общего исключения
     @app.exception_handler(Exception)
     async def general_exception_handler(request: Request, exc: Exception):
+        """
+        Отдаёт 500 для непредвиденных ошибок
+        """
         return JSONResponse(
             status_code=500,
             content={

@@ -21,6 +21,9 @@ logger = logging.getLogger(__name__)
 
 
 class ExperienceService:
+    """
+    Сервис опыта работы
+    """
 
     def __init__(self, uow: UnitOfWork):
         self.uow = uow

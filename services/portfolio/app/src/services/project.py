@@ -22,6 +22,9 @@ logger = logging.getLogger(__name__)
 
 
 class ProjectService:
+    """
+    Сервис проектов
+    """
 
     def __init__(self, uow: UnitOfWork):
         self.uow = uow

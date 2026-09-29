@@ -26,4 +26,7 @@ def get_project_params(
 async def get_project_service(
         uow: Annotated[UnitOfWork, Depends(get_unit_of_work)],
 ):
+    """
+    Возвращает сервис проектов
+    """
     return ProjectService(uow)

@@ -9,6 +9,9 @@ from src.db.postgres import Base
 
 
 class MentoringPage(Base):
+    """
+    Контент секции наставничества
+    """
     __tablename__ = "mentoring_pages"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -32,6 +35,9 @@ class MentoringPage(Base):
 
 
 class MentoringPageTranslation(Base):
+    """
+    Перевод текста секции наставничества
+    """
     __tablename__ = "mentoring_page_translations"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -48,6 +54,9 @@ class MentoringPageTranslation(Base):
 
 
 class MentoringMetric(Base):
+    """
+    Цифра в секции наставничества
+    """
     __tablename__ = "mentoring_metrics"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -65,6 +74,9 @@ class MentoringMetric(Base):
 
 
 class MentoringMetricTranslation(Base):
+    """
+    Перевод подписи к цифре
+    """
     __tablename__ = "mentoring_metric_translations"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)

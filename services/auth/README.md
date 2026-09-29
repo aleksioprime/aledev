@@ -57,4 +57,4 @@ docker compose version
 ## SSL-сертификат
 
 SSL для всех доменов (включая этот сервис) выпускает certbot системного nginx сервера
-во время деплоя фронтенда, продлевает — `certbot.timer`. Подробнее — [docs/deploy.md](../../docs/deploy.md).
+во время деплоя фронтенда, продлевает - `certbot.timer`. Подробнее - [docs/deploy.md](../../docs/deploy.md).

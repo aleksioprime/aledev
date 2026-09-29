@@ -21,6 +21,9 @@ router = APIRouter()
 async def get_mentoring_page(
     service: Annotated[MentoringService, Depends(get_mentoring_service)],
 ) -> MentoringPageSchema:
+    """
+    Возвращает опубликованный контент наставничества
+    """
     return await service.get_page()
 
 
@@ -34,6 +37,9 @@ async def get_admin_mentoring_page(
     service: Annotated[MentoringService, Depends(get_mentoring_service)],
     user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ) -> MentoringPageSchema:
+    """
+    Возвращает контент наставничества для админки
+    """
     return await service.get_page(include_unpublished=True)
 
 
@@ -48,4 +54,7 @@ async def update_mentoring_page(
     service: Annotated[MentoringService, Depends(get_mentoring_service)],
     user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ) -> MentoringPageSchema:
+    """
+    Обновляет контент наставничества
+    """
     return await service.update_page(body)

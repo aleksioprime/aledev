@@ -11,7 +11,7 @@ import { createPinia } from 'pinia'
 // Импорт модуля навигации Vue Router
 import router from "@/router";
 
-// Vuetify подключается лениво — только для админ-панели
+// Vuetify подключается лениво - только для админ-панели
 import { installVuetify } from '@/plugins/vuetify'
 
 // Импортируем директивы анимаций (v-reveal, v-magnetic, v-tilt)

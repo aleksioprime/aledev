@@ -2,6 +2,9 @@ from enum import Enum
 
 
 class LangEnum(Enum):
+    """
+    Языки контента
+    """
     ru = "ru"
     en = "en"
 

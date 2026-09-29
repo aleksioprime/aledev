@@ -1,10 +1,13 @@
-from typing import Optional, List
+from typing import Optional
 from uuid import UUID
 from pydantic import BaseModel, Field
 
 from src.schemas.pagination import BasePaginationParams
 
 class UserQueryParams(BasePaginationParams):
+    """
+    Параметры фильтрации списка пользователей
+    """
 
     class Config:
         arbitrary_types_allowed = True

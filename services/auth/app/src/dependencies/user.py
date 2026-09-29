@@ -24,4 +24,7 @@ def get_user_params(
 async def get_user_service(
         uow: Annotated[UnitOfWork, Depends(get_unit_of_work)],
 ):
+    """
+    Возвращает сервис пользователей
+    """
     return UserService(uow)

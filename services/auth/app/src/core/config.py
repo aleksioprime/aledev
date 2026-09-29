@@ -53,10 +53,16 @@ class JWTSettings(BaseSettings):
 
 
 class MediaSettings(BaseSettings):
+    """
+    Настройки хранения медиафайлов
+    """
     base: str = "media"
 
     @property
     def base_path(self) -> str:
+        """
+        Абсолютный путь к каталогу медиафайлов
+        """
         return os.path.abspath(self.base)
 
     def __getattr__(self, name: str) -> str:
@@ -70,6 +76,9 @@ class MediaSettings(BaseSettings):
 
 
 class Settings(BaseSettings):
+    """
+    Настройки сервиса авторизации
+    """
     project_name: str = Field(alias="PROJECT_NAME", default="AledevAuth")
     project_description: str = Field(
         alias="PROJECT_DESCRIPTION", default="Authorization service for ALEDEV application"

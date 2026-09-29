@@ -44,10 +44,16 @@ class JWTSettings(BaseSettings):
 
 
 class MediaSettings(BaseSettings):
+    """
+    Настройки хранения медиафайлов
+    """
     base: str = "media"
 
     @property
     def base_path(self) -> str:
+        """
+        Абсолютный путь к каталогу медиафайлов
+        """
         return os.path.abspath(self.base)
 
     def __getattr__(self, name: str) -> str:
@@ -63,7 +69,7 @@ class MediaSettings(BaseSettings):
 class EmailSettings(BaseSettings):
     """
     Отправка писем обратной связи через SMTP Яндекс Почты.
-    Пароль — это «пароль приложения» (id.yandex.ru → Безопасность → Пароли приложений),
+    Пароль - это «пароль приложения» (id.yandex.ru → Безопасность → Пароли приложений),
     а в настройках ящика должен быть разрешён доступ почтовых программ по IMAP/SMTP.
     """
     smtp_host: str = Field(alias="SMTP_HOST", default="smtp.yandex.ru")
@@ -73,16 +79,16 @@ class EmailSettings(BaseSettings):
     smtp_use_ssl: bool = Field(alias="SMTP_USE_SSL", default=True)
     smtp_timeout: int = Field(alias="SMTP_TIMEOUT", default=15)
 
-    # Resend — запасной канал: используется, если SMTP Яндекса недоступен
+    # Resend - запасной канал: используется, если SMTP Яндекса недоступен
     resend_api_key: str = Field(alias="RESEND_API_KEY", default="")
     resend_api_base_url: str = Field(alias="RESEND_API_BASE_URL", default="https://api.resend.com")
     resend_sender: str = Field(alias="RESEND_SENDER", default="no-reply@aledev.ru")
 
-    # Очередь отправки: сколько попыток и как часто воркер проверяет неотправленные письма
+    # Повторная отправка писем: число попыток и интервал проверки
     email_max_attempts: int = Field(alias="EMAIL_MAX_ATTEMPTS", default=5)
     email_retry_interval: int = Field(alias="EMAIL_RETRY_INTERVAL_SECONDS", default=60)
     feedback_sender_name: str = Field(alias="FEEDBACK_SENDER_NAME", default="AleDev")
-    # Яндекс разрешает отправку только от имени своего ящика — по умолчанию берём SMTP_USER
+    # Яндекс отправляет только от имени своего ящика, по умолчанию SMTP_USER
     feedback_sender: str = Field(alias="FEEDBACK_SENDER", default="")
     feedback_receiver: str = Field(alias="FEEDBACK_RECEIVER", default="")
     templates_path: str = Field(
@@ -92,14 +98,23 @@ class EmailSettings(BaseSettings):
 
     @property
     def sender(self) -> str:
+        """
+        Адрес отправителя писем
+        """
         return self.feedback_sender or self.smtp_user
 
     @property
     def receiver(self) -> str:
+        """
+        Адрес получателя обращений
+        """
         return self.feedback_receiver or self.smtp_user
 
 
 class FeedbackProtectionSettings(BaseSettings):
+    """
+    Настройки защиты формы обратной связи
+    """
     turnstile_secret_key: str = Field(alias="TURNSTILE_SECRET_KEY", default="")
     turnstile_verify_url: str = Field(
         alias="TURNSTILE_VERIFY_URL",
@@ -109,6 +124,9 @@ class FeedbackProtectionSettings(BaseSettings):
 
 
 class Settings(BaseSettings):
+    """
+    Настройки сервиса портфолио
+    """
     project_name: str = Field(alias="PROJECT_NAME", default="AledevPortfolio")
     project_description: str = Field(
         alias="PROJECT_DESCRIPTION", default="Portfolio service for ALEDEV application"

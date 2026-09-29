@@ -5,6 +5,9 @@ from src.repositories.user import UserRepository
 
 
 class UnitOfWork:
+    """
+    Единица работы: одна сессия и транзакция на набор репозиториев
+    """
     def __init__(self):
         self.session_factory = async_session_maker
 
@@ -21,7 +24,13 @@ class UnitOfWork:
         await self.session.close()
 
     async def commit(self):
+        """
+        Фиксирует транзакцию
+        """
         await self.session.commit()
 
     async def rollback(self):
+        """
+        Откатывает транзакцию
+        """
         await self.session.rollback()

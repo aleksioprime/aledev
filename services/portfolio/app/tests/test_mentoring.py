@@ -15,7 +15,7 @@ async def test_update_page_replaces_translations_and_metrics(client, admin_heade
              "title_accent": t["title_accent"], "lead": t["lead"]}
             for t in page["translations"]
         ],
-        # те же ключи метрик — проверяем, что замена не упирается в уникальность (page_id, key)
+        # те же ключи метрик: замена не должна упираться в уникальность
         "metrics": [
             {"key": m["key"], "value": "99", "order": m["order"],
              "translations": [{"lang": t["lang"], "label": t["label"]} for t in m["translations"]]}

@@ -27,6 +27,9 @@ async def export_portfolio(
     user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
     lang: Annotated[LangEnum, Query(description="Язык документа")] = LangEnum.ru,
 ) -> Response:
+    """
+    Отдаёт портфолио в формате Word
+    """
     content = await PortfolioExportService(uow).build_docx(lang.value)
     filename = f"Semochkin_portfolio_{lang.value}.docx"
     return Response(

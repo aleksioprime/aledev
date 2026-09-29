@@ -135,7 +135,6 @@ const onProjectsReorder = async () => {
     order: idx
   }));
   await projectStore.reorderProjects(payload);
-  // Если backend вернёт актуальный список — можешь обновить projects.value из ответа
   fetchProjects(true);
 };
 
