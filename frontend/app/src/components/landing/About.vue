@@ -171,6 +171,12 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* Секция идёт сразу за наклонённой бегущей строкой, у которой нет нижнего отступа,
+   как у остальных секций, — добавляем его сверху */
+.section {
+  padding-top: clamp(4rem, 9vw, 7rem);
+}
+
 .about {
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);

@@ -37,6 +37,20 @@
 
     <!-- Блок авторизации -->
     <template v-if="authStore.isAuthenticated">
+      <!-- Экспорт портфолио в Word -->
+      <v-menu>
+        <template #activator="{ props }">
+          <v-btn v-bind="props" variant="text" class="text-none me-2" prepend-icon="mdi-file-word-outline"
+            :loading="exporting">
+            <span class="d-none d-sm-inline">Портфолио в Word</span>
+          </v-btn>
+        </template>
+        <v-list density="compact">
+          <v-list-item title="На русском" @click="downloadPortfolio('ru')" />
+          <v-list-item title="На английском" @click="downloadPortfolio('en')" />
+        </v-list>
+      </v-menu>
+
       <v-menu>
         <template #activator="{ props }">
           <v-btn v-bind="props" text class="text-none">
@@ -112,6 +126,26 @@ watch(drawer, (val) => {
     localStorage.setItem('drawerOpen', val);
   }
 });
+
+// Скачивание портфолио в Word: документ собирается на сервере из текущих данных
+import resources from "@/services/resources";
+const exporting = ref(false);
+
+async function downloadPortfolio(lang) {
+  exporting.value = true;
+  const res = await resources.export.exportPortfolio(lang);
+  exporting.value = false;
+  if (res.__state !== "success") {
+    alert("Не удалось сформировать документ");
+    return;
+  }
+  const url = URL.createObjectURL(res.data);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `Semochkin_portfolio_${lang}.docx`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 function handleMenuItemClick() {
   if (mobile.value) drawer.value = false;
