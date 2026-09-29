@@ -1,7 +1,6 @@
 import uvicorn
 import os
 import logging
-import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI

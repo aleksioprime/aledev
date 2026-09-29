@@ -3,13 +3,12 @@
 </template>
 
 <script setup>
-// «Сигнальная сеть» — узлы-устройства дрейфуют, соединяются линиями,
-// а по рёбрам бегут пакеты данных. Курсор — ещё один узел сети.
+// Фон «сигнальная сеть»: узлы, связи и пакеты данных; курсор - тоже узел
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const canvasRef = ref(null)
 
-// Цвета берутся из токенов --accent-rgb / --accent-2-rgb / --accent-3-rgb (main.css)
+// Цвета из токенов --accent-*-rgb (main.css)
 let COLORS = ['255, 181, 71', '255, 107, 74', '255, 217, 160']
 
 function readColors() {
@@ -65,8 +64,7 @@ function resize() {
   canvas.width = Math.round(width * dpr)
   canvas.height = Math.round(height * dpr)
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-  // На мобильных resize срабатывает при скрытии адресной строки (меняется только высота) —
-  // в этом случае сохраняем узлы, чтобы сеть не «перескакивала»
+  // При изменении только высоты (адресная строка на мобильных) узлы не пересоздаём
   if (width !== lastWidth || !nodes.length) {
     lastWidth = width
     createNodes()

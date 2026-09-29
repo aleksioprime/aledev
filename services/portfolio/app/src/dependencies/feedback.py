@@ -11,6 +11,9 @@ from src.services.feedback import FeedbackService
 
 
 def get_feedback_service() -> FeedbackService:
+    """
+    Возвращает сервис обратной связи
+    """
     return FeedbackService(settings.email, settings.feedback_protection)
 
 
@@ -20,6 +23,9 @@ def get_feedback_params(
         status: FeedbackStatus | None = Query(None, description="Статус обработки"),
         search: str | None = Query(None, max_length=100, description="Поиск по имени, email, тексту"),
 ) -> FeedbackQueryParams:
+    """
+    Собирает параметры фильтрации и пагинации обращений
+    """
     return FeedbackQueryParams(
         limit=pagination.limit,
         offset=pagination.offset,

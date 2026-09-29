@@ -13,7 +13,7 @@ def _utcnow() -> datetime:
 
 
 def _enum(enum_cls):
-    # Храним как строки (без нативного типа PostgreSQL) — проще добавлять значения
+    # Храним как строки (без нативного типа PostgreSQL) - проще добавлять значения
     return SqlEnum(enum_cls, native_enum=False, length=20, values_callable=lambda e: [i.value for i in e])
 
 

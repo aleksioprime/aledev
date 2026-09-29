@@ -4,7 +4,6 @@ from sqlalchemy import Column, DateTime, String, Boolean, func
 from sqlalchemy.dialects.postgresql import UUID
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from src.core.config import settings
 from src.db.postgres import Base
 
 
@@ -44,6 +43,9 @@ class User(Base):
         self.is_superuser = is_superuser
 
     def check_password(self, password: str) -> bool:
+        """
+        Проверяет пароль по хэшу
+        """
         return check_password_hash(self.hashed_password, password)
 
     def __repr__(self) -> str:

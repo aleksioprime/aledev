@@ -7,11 +7,17 @@ from src.schemas.pagination import BasePaginationParams
 
 
 class ProjectOrderSchema(BaseModel):
+    """
+    Новая позиция проекта в списке
+    """
     id: UUID = Field(..., description="Уникальный идентификатор проекта")
     order: int = Field(0, ge=0, description="Порядок")
 
 
 class ProjectQueryParams(BasePaginationParams):
+    """
+    Параметры фильтрации и пагинации проектов
+    """
     is_favorite: bool | None = Field(None, description="Метка изобранного проекта")
 
     class Config:

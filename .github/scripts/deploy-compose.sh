@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Загружает compose-файл и .env (из переменной ENV_FILE) на сервер и перезапускает сервис.
-# Использование: deploy-compose.sh <каталог на сервере относительно ~> <compose-файл в репозитории>
+# Загружает compose-файл и .env (из ENV_FILE) на сервер и перезапускает сервис.
+# Использование: deploy-compose.sh <каталог от ~> <compose-файл>
 set -euo pipefail
 
 DIR=$1

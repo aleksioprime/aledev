@@ -1,4 +1,4 @@
-// v-magnetic — элемент слегка «притягивается» к курсору.
+// v-magnetic - элемент слегка «притягивается» к курсору.
 const finePointer = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 

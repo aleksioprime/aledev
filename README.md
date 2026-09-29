@@ -1,4 +1,4 @@
-# aledev.ru — портфолио
+# aledev.ru - портфолио
 
 Сайт-портфолио: фронтенд (Vue 3 + Vite), сервис портфолио (FastAPI) и сервис авторизации для админ-панели.
 
@@ -27,4 +27,4 @@ docker compose up -d --build
 2. Заполнить секреты GitHub: `SERVER_HOST`, `SERVER_USER`, `SSH_PORT`, `SSH_KEY`, `DOCKER_HUB_*`,
    `ENV_VARS`, `ENV_AUTH_VARS`, `ENV_PORTFOLIO_VARS`.
 3. Запустить **Actions → Deploy** (`all`): сборка образов, деплой auth → portfolio → фронтенд,
-   сайт в системном nginx и SSL. Дальше деплой идёт сам при слиянии в `main` — только изменённых сервисов.
+   сайт в системном nginx и SSL. Дальше деплой идёт сам при слиянии в `main` - только изменённых сервисов.

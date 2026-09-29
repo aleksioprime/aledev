@@ -1,6 +1,5 @@
 import time
 from datetime import timedelta
-from uuid import UUID
 
 import jwt
 from jwt import ExpiredSignatureError, InvalidTokenError, decode

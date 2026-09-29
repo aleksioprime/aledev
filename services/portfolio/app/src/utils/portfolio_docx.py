@@ -1,8 +1,5 @@
 """
-Сборка портфолио в формате Word (.docx) на python-docx.
-
-Оформление повторяет сайт в «бумажном» варианте: чернильный индиго для текста
-и заголовков, янтарь для акцентов, светлая янтарная заливка для цифр.
+Сборка портфолио в формате Word (.docx)
 """
 from __future__ import annotations
 
@@ -37,6 +34,9 @@ CONTENT_WIDTH = Cm(17.4)  # A4 минус поля 1.8 см
 
 @dataclass
 class ExportExperience:
+    """
+    Запись опыта работы для документа
+    """
     start_date: date
     end_date: date | None
     is_current: bool
@@ -48,6 +48,9 @@ class ExportExperience:
 
 @dataclass
 class ExportProject:
+    """
+    Проект для документа
+    """
     title: str
     short_description: str | None = None
     description: str | None = None
@@ -56,6 +59,9 @@ class ExportProject:
 
 @dataclass
 class ExportAchievement:
+    """
+    Достижение для документа
+    """
     title: str
     category: str
     scope: str
@@ -67,12 +73,18 @@ class ExportAchievement:
 
 @dataclass
 class ExportMetric:
+    """
+    Цифра наставничества для документа
+    """
     value: str
     label: str
 
 
 @dataclass
 class PortfolioExportData:
+    """
+    Данные для сборки документа
+    """
     lang: str
     experiences: list[ExportExperience] = field(default_factory=list)
     projects: list[ExportProject] = field(default_factory=list)
@@ -82,7 +94,7 @@ class PortfolioExportData:
 
 
 # ---------------------------------------------------------------- XML-помощники
-# Порядок дочерних элементов в OOXML строгий: вставляем перед теми, что идут после по схеме
+# Порядок элементов в OOXML строгий, вставляем по схеме
 
 _PBDR_SUCCESSORS = (
     "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct",
@@ -233,7 +245,7 @@ def _para(container, text: str = "", *, size=10, bold=False, italic=False, color
 
 
 def _clear_cell(cell):
-    """В новой ячейке уже есть пустой абзац — используем его, а не плодим отступы."""
+    """В новой ячейке уже есть пустой абзац - используем его, а не плодим отступы."""
     return cell.paragraphs[0]
 
 
@@ -277,6 +289,9 @@ class _Builder:
 
     # --- шапка
     def header(self):
+        """
+        Шапка: фото, имя, роль и контакты
+        """
         table = self.doc.add_table(rows=1, cols=2)
         _remove_table_borders(table)
         _set_col_widths(table, [Cm(3.6), CONTENT_WIDTH - Cm(3.6)])
@@ -304,6 +319,9 @@ class _Builder:
 
     # --- заголовок раздела: «01  ОПЫТ РАБОТЫ» с тонкой линией
     def heading(self, title: str):
+        """
+        Заголовок раздела с номером
+        """
         self.section_no += 1
         paragraph = _para(self.doc, before=16, after=8, keep_next=True)
         _style_run(paragraph.add_run(f"{self.section_no:02d}"), size=10, bold=True, color=AMBER)
@@ -312,10 +330,16 @@ class _Builder:
         _paragraph_border(paragraph, "bottom", LINE_HEX, size=6, space=4)
 
     def summary(self):
+        """
+        Раздел «Обо мне»
+        """
         self.heading(self.t["sections"]["summary"])
         _para(self.doc, self.t["summary"], size=10.5, line=1.3, after=2)
 
     def skills(self):
+        """
+        Раздел навыков
+        """
         self.heading(self.t["sections"]["skills"])
         table = self.doc.add_table(rows=0, cols=2)
         _remove_table_borders(table)
@@ -338,6 +362,9 @@ class _Builder:
         return f"{fmt(exp.start_date)} — {end}"
 
     def experience(self):
+        """
+        Раздел опыта работы
+        """
         if not self.data.experiences:
             return
         self.heading(self.t["sections"]["experience"])
@@ -364,6 +391,9 @@ class _Builder:
         _set_col_widths(table, [Cm(3.6), CONTENT_WIDTH - Cm(3.6)])
 
     def projects(self):
+        """
+        Раздел проектов
+        """
         if not self.data.projects:
             return
         self.heading(self.t["sections"]["projects"])
@@ -389,6 +419,9 @@ class _Builder:
                            size=9, color=MUTED)
 
     def mentoring(self):
+        """
+        Раздел наставничества и достижений
+        """
         if not (self.data.metrics or self.data.achievements):
             return
         self.heading(self.t["sections"]["mentoring"])
@@ -442,6 +475,9 @@ class _Builder:
             _set_col_widths(table, [Cm(1.6), CONTENT_WIDTH - Cm(1.6)])
 
     def build(self) -> bytes:
+        """
+        Собирает все разделы и возвращает байты документа
+        """
         self.header()
         self.summary()
         self.skills()
@@ -454,4 +490,7 @@ class _Builder:
 
 
 def build_portfolio_docx(data: PortfolioExportData) -> bytes:
+    """
+    Собирает документ Word и возвращает его содержимое
+    """
     return _Builder(data).build()

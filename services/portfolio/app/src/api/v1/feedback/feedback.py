@@ -39,6 +39,9 @@ async def send_feedback(
     background_tasks: BackgroundTasks,
     service: Annotated[FeedbackService, Depends(get_feedback_service)],
 ):
+    """
+    Принимает обращение с сайта и ставит письмо в отправку
+    """
     remote_ip = _client_ip(request)
     is_human = await service.verify_feedback_request(
         captcha_token=body.captcha_token,
@@ -52,7 +55,7 @@ async def send_feedback(
             detail="Spam protection validation failed",
         )
 
-    # Сначала сохраняем в БД — обращение не потеряется, даже если почта недоступна
+    # Сначала сохраняем в БД - обращение не потеряется, даже если почта недоступна
     feedback_id = await service.create(body, ip=remote_ip, user_agent=request.headers.get("user-agent"))
     # Письмо уходит после ответа клиенту; при сбое его дошлёт воркер повторов
     background_tasks.add_task(service.notify, feedback_id)
@@ -69,6 +72,9 @@ async def list_feedback(
     service: Annotated[FeedbackService, Depends(get_feedback_service)],
     user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ):
+    """
+    Возвращает список обращений
+    """
     return await service.get_all(params)
 
 
@@ -81,6 +87,9 @@ async def feedback_stats(
     service: Annotated[FeedbackService, Depends(get_feedback_service)],
     user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ):
+    """
+    Возвращает счётчики обращений
+    """
     return await service.stats()
 
 
@@ -95,6 +104,9 @@ async def update_feedback(
     service: Annotated[FeedbackService, Depends(get_feedback_service)],
     user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ):
+    """
+    Меняет статус или заметку обращения
+    """
     return await service.update(feedback_id, body)
 
 
@@ -108,6 +120,9 @@ async def resend_feedback(
     service: Annotated[FeedbackService, Depends(get_feedback_service)],
     user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ):
+    """
+    Повторно отправляет письмо по обращению
+    """
     return await service.requeue(feedback_id)
 
 
@@ -121,4 +136,7 @@ async def delete_feedback(
     service: Annotated[FeedbackService, Depends(get_feedback_service)],
     user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ):
+    """
+    Удаляет обращение
+    """
     await service.delete(feedback_id)

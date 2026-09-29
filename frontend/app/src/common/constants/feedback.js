@@ -1,5 +1,4 @@
-// Справочники формы обратной связи. Ключи совпадают с бэкендом
-// (services/portfolio/app/src/constants/base.py: FEEDBACK_SERVICES / FEEDBACK_TRAINING_FORMATS / FEEDBACK_BUDGETS)
+// Справочники формы обратной связи, ключи совпадают с constants/base.py бэкенда
 export const FEEDBACK_SERVICES = ['web', 'backend', 'iot', 'ml', 'automation', 'other']
 export const FEEDBACK_TRAINING_FORMATS = ['individual', 'group', 'team', 'corporate', 'curriculum']
 export const FEEDBACK_BUDGETS = ['lt100', '100_300', '300_700', 'gt700', 'discuss']

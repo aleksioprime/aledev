@@ -21,8 +21,7 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
-# Записи создаются с фиксированными id: миграция заменяет только их,
-# проекты и опыт, добавленные через админку, не трогаются.
+# Фиксированные id: записи из админки миграция не трогает
 PROJECTS = [
     {
         'stack': 'Django, DRF, Vue 3, Pinia, PostgreSQL, Celery, Redis, OpenRouter, Docker, Kubernetes',
@@ -290,7 +289,7 @@ def upgrade() -> None:
 
     _delete_seeded(conn)
 
-    # Свои проекты — первыми, проекты из админки сдвигаются следом
+    # Проекты из админки сдвигаются после добавленных
     conn.execute(sa.text('UPDATE projects SET "order" = "order" + :n'), {'n': len(PROJECTS)})
 
     project_table = sa.table(

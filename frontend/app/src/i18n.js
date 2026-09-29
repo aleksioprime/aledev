@@ -52,6 +52,4 @@ const i18n = createI18n({
   messages,
 })
 
-// console.log('Все локали vue-i18n:', i18n.global.messages.value)
-
 export default i18n

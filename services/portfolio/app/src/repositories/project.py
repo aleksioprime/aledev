@@ -21,29 +21,50 @@ logger = logging.getLogger(__name__)
 
 
 class BaseProjectRepository(ABC):
+    """
+    Интерфейс репозитория проектов
+    """
 
     @abstractmethod
     async def get_by_id(self, project_id: UUID):
+        """
+        Получает проект по ID
+        """
         ...
 
     @abstractmethod
     async def get_all(self, params: ProjectQueryParams):
+        """
+        Получает страницу проектов
+        """
         ...
 
     @abstractmethod
     async def create(self, body: ProjectCreateSchema):
+        """
+        Создаёт проект
+        """
         ...
 
     @abstractmethod
     async def update(self, project_id: UUID, body: ProjectUpdateSchema):
+        """
+        Обновляет проект
+        """
         ...
 
     @abstractmethod
     async def delete(self, project_id: UUID):
+        """
+        Удаляет проект
+        """
         ...
 
 
 class ProjectRepository(BaseProjectRepository, BaseSQLRepository):
+    """
+    Репозиторий проектов
+    """
 
     async def get_by_id(self, project_id: UUID) -> Project | None:
         """

@@ -27,10 +27,10 @@ runs:
         SSH_PORT: ${{ inputs.port }}
         SSH_KEY: ${{ inputs.key }}
       run: |
-        # Каждая проверка падает с понятным сообщением, чтобы по логу было видно, что именно не так
+        # Каждая проверка падает со своим сообщением
         fail() { echo "::error title=SSH::$1"; exit 1; }
 
-        # Секреты часто вставляют с пробелами или переводом строки в конце
+        # Убираем случайные пробелы и переводы строк из секретов
         SSH_HOST=$(printf '%s' "$SSH_HOST" | tr -d '[:space:]')
         SSH_USER=$(printf '%s' "$SSH_USER" | tr -d '[:space:]')
         SSH_PORT=$(printf '%s' "${SSH_PORT:-22}" | tr -d '[:space:]')
@@ -39,7 +39,7 @@ runs:
         [ -n "$SSH_USER" ] || fail "Секрет SERVER_USER пуст или не задан"
         [ -n "$SSH_KEY" ] || fail "Секрет SSH_KEY пуст или не задан"
         case "$SSH_HOST" in
-          *://*|*/*|*@*|*:*) fail "SERVER_HOST должен быть только IP или доменом — без протокола, пользователя, порта и пути" ;;
+          *://*|*/*|*@*|*:*) fail "SERVER_HOST должен быть только IP или доменом - без протокола, пользователя, порта и пути" ;;
         esac
         [[ "$SSH_PORT" =~ ^[0-9]+$ ]] || fail "SSH_PORT должен быть числом"
 
@@ -70,7 +70,7 @@ runs:
         ssh-keyscan -T 10 -p "$SSH_PORT" -H "$SSH_HOST" > /tmp/known_hosts 2> /tmp/keyscan.err || true
         if [ ! -s /tmp/known_hosts ]; then
           cat /tmp/keyscan.err
-          fail "Порт открыт, но SSH-сервер не отвечает раннеру (IP $RUNNER_IP): соединение сбрасывается — обычно это fail2ban, geo-блокировка или порт не SSH"
+          fail "Порт открыт, но SSH-сервер не отвечает раннеру (IP $RUNNER_IP): соединение сбрасывается - обычно это fail2ban, geo-блокировка или порт не SSH"
         fi
         cat /tmp/known_hosts >> ~/.ssh/known_hosts
         echo "✓ SSH-сервер отвечает"

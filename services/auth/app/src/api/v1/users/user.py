@@ -130,6 +130,9 @@ async def upload_user_avatar(
     photo: UploadFile = File(...),
 
 ):
+    """
+    Загружает фото пользователя и возвращает ссылку на него
+    """
     photo_url = await service.upload_photo(user_id, photo)
     return {"photo": photo_url}
 

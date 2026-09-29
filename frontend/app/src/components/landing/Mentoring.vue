@@ -71,7 +71,6 @@ import { useI18n } from 'vue-i18n'
 import { useAchievementStore } from '@/stores/achievement'
 import { useMentoringStore } from '@/stores/mentoring'
 
-// Факты — из педагогического портфолио (Международная гимназия «Сколково», 2016–2022)
 const sectionId = 'mentoring'
 const { t, locale } = useI18n()
 const achievementStore = useAchievementStore()
@@ -218,7 +217,7 @@ onMounted(async () => {
 
 .achievement {
   display: grid;
-  /* фиксированные крайние колонки: у каждой строки своя сетка, и с auto заголовки «плыли» */
+  /* фиксированные крайние колонки, чтобы заголовки строк были на одной линии */
   grid-template-columns: 9rem minmax(0, 1fr) 9.5rem;
   align-items: start;
   gap: 1.25rem;

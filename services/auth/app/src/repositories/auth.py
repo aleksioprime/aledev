@@ -1,6 +1,4 @@
-from abc import ABC, abstractmethod
-from typing import List
-from uuid import UUID
+from abc import ABC
 
 from sqlalchemy import select
 
@@ -9,10 +7,16 @@ from src.repositories.base import BaseSQLRepository
 
 
 class BaseAuthRepository(ABC):
+    """
+    Интерфейс репозитория аутентификации
+    """
     ...
 
 
 class AuthRepository(BaseAuthRepository, BaseSQLRepository):
+    """
+    Репозиторий аутентификации
+    """
 
     async def get_user_by_username(self, username: str) -> User | None:
         """

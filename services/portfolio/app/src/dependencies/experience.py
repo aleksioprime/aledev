@@ -24,4 +24,7 @@ def get_experience_params(
 async def get_experience_service(
         uow: Annotated[UnitOfWork, Depends(get_unit_of_work)],
 ):
+    """
+    Возвращает сервис опыта работы
+    """
     return ExperienceService(uow)

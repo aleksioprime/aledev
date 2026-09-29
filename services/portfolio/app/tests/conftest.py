@@ -43,7 +43,7 @@ def app(database):
 
 @pytest.fixture
 async def client(app):
-    # ASGITransport не запускает lifespan, поэтому фоновый воркер писем в тестах не стартует
+    # ASGITransport не запускает lifespan, воркер писем не стартует
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as c:
         yield c
 

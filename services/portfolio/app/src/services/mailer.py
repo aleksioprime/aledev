@@ -11,19 +11,25 @@ logger = logging.getLogger(__name__)
 
 
 class MailError(Exception):
+    """
+    Письмо не удалось отправить ни одним способом
+    """
     pass
 
 
 @dataclass
 class MailResult:
+    """
+    Результат отправки письма
+    """
     provider: str
     errors: list[str]
 
 
 class Mailer:
     """
-    Отправка писем: основной канал — SMTP Яндекс Почты,
-    запасной — Resend API (если задан RESEND_API_KEY).
+    Отправка писем: основной канал - SMTP Яндекс Почты,
+    запасной - Resend API (если задан RESEND_API_KEY).
     """
 
     def __init__(self, settings):
@@ -31,13 +37,22 @@ class Mailer:
 
     @property
     def smtp_configured(self) -> bool:
+        """
+        Заданы ли логин и пароль SMTP
+        """
         return bool(self.settings.smtp_user and self.settings.smtp_password)
 
     @property
     def resend_configured(self) -> bool:
+        """
+        Задан ли ключ Resend
+        """
         return bool(self.settings.resend_api_key)
 
     async def send(self, msg: EmailMessage, text: str, html: str) -> MailResult:
+        """
+        Отправляет письмо через SMTP, при ошибке через Resend
+        """
         errors: list[str] = []
 
         if self.smtp_configured:
@@ -46,7 +61,7 @@ class Mailer:
                 return MailResult("yandex", errors)
             except smtplib.SMTPAuthenticationError as e:
                 errors.append(f"SMTP auth: {e.smtp_code} {e.smtp_error!r} — проверьте пароль приложения Яндекса")
-            except Exception as e:  # noqa: BLE001 — любая ошибка SMTP ведёт к запасному каналу
+            except Exception as e:  # noqa: BLE001 - любая ошибка SMTP ведёт к запасному каналу
                 errors.append(f"SMTP: {type(e).__name__}: {e}")
             logger.warning("[Mailer] SMTP не отправил письмо: %s", errors[-1])
         else:

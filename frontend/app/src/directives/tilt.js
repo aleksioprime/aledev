@@ -1,4 +1,4 @@
-// v-tilt — 3D-наклон карточки за курсором + координаты подсветки (--mx, --my).
+// v-tilt - 3D-наклон карточки за курсором + координаты подсветки (--mx, --my).
 const finePointer = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 

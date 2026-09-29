@@ -8,6 +8,9 @@ from src.constants.base import LangEnum
 
 
 class MentoringPageTranslationSchema(BaseModel):
+    """
+    Перевод текста секции наставничества
+    """
     lang: LangEnum
     kicker: str
     title_start: str
@@ -19,6 +22,9 @@ class MentoringPageTranslationSchema(BaseModel):
 
 
 class MentoringMetricTranslationSchema(BaseModel):
+    """
+    Перевод подписи к цифре
+    """
     lang: LangEnum
     label: str
 
@@ -27,6 +33,9 @@ class MentoringMetricTranslationSchema(BaseModel):
 
 
 class MentoringMetricSchema(BaseModel):
+    """
+    Цифра секции наставничества
+    """
     id: UUID
     key: str
     value: str
@@ -38,6 +47,9 @@ class MentoringMetricSchema(BaseModel):
 
 
 class MentoringPageSchema(BaseModel):
+    """
+    Контент секции наставничества
+    """
     id: UUID
     slug: str
     is_published: bool
@@ -51,6 +63,9 @@ class MentoringPageSchema(BaseModel):
 
 
 class MentoringPageTranslationUpdateSchema(BaseModel):
+    """
+    Перевод текста секции при обновлении
+    """
     lang: LangEnum
     kicker: str = Field(..., min_length=1, max_length=255)
     title_start: str = Field(..., min_length=1, max_length=255)
@@ -59,11 +74,17 @@ class MentoringPageTranslationUpdateSchema(BaseModel):
 
 
 class MentoringMetricTranslationUpdateSchema(BaseModel):
+    """
+    Перевод подписи к цифре при обновлении
+    """
     lang: LangEnum
     label: str = Field(..., min_length=1, max_length=255)
 
 
 class MentoringMetricUpdateSchema(BaseModel):
+    """
+    Цифра секции при обновлении
+    """
     key: str = Field(..., min_length=1, max_length=40)
     value: str = Field(..., min_length=1, max_length=40)
     order: int = Field(0, ge=0)
@@ -71,6 +92,9 @@ class MentoringMetricUpdateSchema(BaseModel):
 
 
 class MentoringPageUpdateSchema(BaseModel):
+    """
+    Данные для обновления секции наставничества
+    """
     is_published: bool = True
     translations: List[MentoringPageTranslationUpdateSchema] = Field(..., min_length=1)
     metrics: List[MentoringMetricUpdateSchema] = Field(default_factory=list)

@@ -8,7 +8,13 @@ from src.schemas.achievement import AchievementCreateSchema, AchievementQueryPar
 
 
 class AchievementRepository(BaseSQLRepository):
+    """
+    Репозиторий достижений
+    """
     async def get_by_id(self, achievement_id: UUID) -> Achievement | None:
+        """
+        Получает достижение по ID
+        """
         result = await self.session.execute(select(Achievement).where(Achievement.id == achievement_id))
         return result.scalars().unique().one_or_none()
 
@@ -18,6 +24,9 @@ class AchievementRepository(BaseSQLRepository):
         *,
         include_unpublished: bool = False,
     ) -> tuple[list[Achievement], int]:
+        """
+        Получает страницу достижений и их общее количество
+        """
         conditions = []
         if not include_unpublished:
             conditions.append(Achievement.is_published.is_(True))
@@ -40,6 +49,9 @@ class AchievementRepository(BaseSQLRepository):
         return list(items), total
 
     async def create(self, body: AchievementCreateSchema) -> Achievement:
+        """
+        Создаёт достижение с переводами
+        """
         data = body.model_dump(exclude={"translations"})
         achievement = Achievement(**data)
         achievement.translations = [
@@ -51,6 +63,9 @@ class AchievementRepository(BaseSQLRepository):
         return achievement
 
     async def update(self, achievement_id: UUID, body: AchievementUpdateSchema) -> Achievement | None:
+        """
+        Обновляет достижение и заменяет переводы
+        """
         achievement = await self.get_by_id(achievement_id)
         if not achievement:
             return None
@@ -77,12 +92,14 @@ class AchievementRepository(BaseSQLRepository):
             ])
 
         await self.session.flush()
-        # Массовые UPDATE/DELETE не обновляют уже загруженный объект и его переводы —
-        # перечитываем запись, иначе в ответ попадут старые значения
+        # Перечитываем запись после массовых UPDATE/DELETE
         await self.session.refresh(achievement)
         return achievement
 
     async def delete(self, achievement_id: UUID) -> bool:
+        """
+        Удаляет достижение
+        """
         achievement = await self.get_by_id(achievement_id)
         if not achievement:
             return False

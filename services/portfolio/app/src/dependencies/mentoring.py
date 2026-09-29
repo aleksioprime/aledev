@@ -10,4 +10,7 @@ from src.services.mentoring import MentoringService
 async def get_mentoring_service(
     uow: Annotated[UnitOfWork, Depends(get_unit_of_work)],
 ) -> MentoringService:
+    """
+    Возвращает сервис наставничества
+    """
     return MentoringService(uow)

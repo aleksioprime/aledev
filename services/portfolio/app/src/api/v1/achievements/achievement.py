@@ -29,6 +29,9 @@ async def get_achievements(
     params: Annotated[AchievementQueryParams, Depends(get_achievement_params)],
     service: Annotated[AchievementService, Depends(get_achievement_service)],
 ) -> PaginatedResponse[AchievementSchema]:
+    """
+    Возвращает опубликованные достижения
+    """
     return await service.get_all(params)
 
 
@@ -43,6 +46,9 @@ async def get_admin_achievements(
     service: Annotated[AchievementService, Depends(get_achievement_service)],
     user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ) -> PaginatedResponse[AchievementSchema]:
+    """
+    Возвращает все достижения, включая неопубликованные
+    """
     return await service.get_all(params, include_unpublished=True)
 
 
@@ -57,6 +63,9 @@ async def create_achievement(
     service: Annotated[AchievementService, Depends(get_achievement_service)],
     user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ) -> AchievementSchema:
+    """
+    Создаёт достижение
+    """
     return await service.create(body)
 
 
@@ -72,6 +81,9 @@ async def update_achievement(
     service: Annotated[AchievementService, Depends(get_achievement_service)],
     user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ) -> AchievementSchema:
+    """
+    Обновляет достижение
+    """
     return await service.update(achievement_id, body)
 
 
@@ -85,5 +97,8 @@ async def delete_achievement(
     service: Annotated[AchievementService, Depends(get_achievement_service)],
     user: Annotated[UserJWT, Depends(permission_required(roles=["admin"]))],
 ) -> Response:
+    """
+    Удаляет достижение
+    """
     await service.delete(achievement_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -17,5 +17,8 @@ async def get_auth_service(
         uow: Annotated[UnitOfWork, Depends(get_unit_of_work)],
         redis: Annotated[Redis, Depends(get_redis)],
 ):
+    """
+    Возвращает сервис аутентификации
+    """
     jwt_helper = JWTHelper()
     return AuthService(uow, redis, jwt_helper)

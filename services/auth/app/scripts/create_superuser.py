@@ -50,6 +50,9 @@ async def create_or_update_superuser(session: AsyncSession, username: str, passw
         print(f"Ошибка при создании суперпользователя: {exc.orig}")
 
 async def main():
+    """
+    Создаёт или обновляет суперпользователя из аргументов командной строки
+    """
     parser = argparse.ArgumentParser(description="Создание/обновление суперпользователя")
     parser.add_argument("--username", required=True, help="Логин суперпользователя")
     parser.add_argument("--password", required=True, help="Пароль суперпользователя")

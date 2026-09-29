@@ -32,6 +32,9 @@ from src.services.mailer import Mailer, MailError
 logger = logging.getLogger(__name__)
 
 class FeedbackService:
+    """
+    Сервис обратной связи: сохранение обращений и отправка писем
+    """
     def __init__(self, settings, protection_settings, uow_factory=UnitOfWork):
         self.settings = settings
         self.protection_settings = protection_settings
@@ -50,6 +53,9 @@ class FeedbackService:
         form_started_at: int,
         remote_ip: str | None = None,
     ) -> bool:
+        """
+        Проверяет honeypot и капчу Turnstile
+        """
         if honeypot and honeypot.strip():
             logger.warning("[FeedbackService] Honeypot triggered")
             return False
@@ -184,7 +190,7 @@ class FeedbackService:
         while not stop.is_set():
             try:
                 await self.process_queue()
-            except Exception:  # noqa: BLE001 — воркер не должен падать
+            except Exception:  # noqa: BLE001 - воркер не должен падать
                 logger.error("[FeedbackService] Ошибка воркера писем", exc_info=True)
             try:
                 await asyncio.wait_for(stop.wait(), timeout=interval)
@@ -196,6 +202,9 @@ class FeedbackService:
     # ------------------------------------------------------------------
 
     async def get_all(self, params: FeedbackQueryParams) -> PaginatedResponse[FeedbackSchema]:
+        """
+        Возвращает страницу обращений
+        """
         uow = self.uow_factory()
         async with uow:
             items, total = await uow.feedback.get_all(params)
@@ -209,11 +218,17 @@ class FeedbackService:
         )
 
     async def stats(self) -> FeedbackStatsSchema:
+        """
+        Возвращает счётчики обращений
+        """
         uow = self.uow_factory()
         async with uow:
             return FeedbackStatsSchema(**await uow.feedback.stats())
 
     async def update(self, feedback_id: UUID, body: FeedbackUpdateSchema) -> FeedbackSchema:
+        """
+        Меняет статус или заметку обращения
+        """
         uow = self.uow_factory()
         async with uow:
             feedback = await uow.feedback.update(feedback_id, **body.model_dump(exclude_unset=True))
@@ -222,6 +237,9 @@ class FeedbackService:
             return FeedbackSchema.model_validate(feedback)
 
     async def delete(self, feedback_id: UUID) -> None:
+        """
+        Удаляет обращение
+        """
         uow = self.uow_factory()
         async with uow:
             if not await uow.feedback.delete(feedback_id):

@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 
 
 class UserService:
+    """
+    Сервис управления пользователями
+    """
 
     def __init__(self, uow: UnitOfWork):
         self.uow = uow
