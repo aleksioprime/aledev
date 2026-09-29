@@ -144,7 +144,9 @@ docker logs aledev-portfolio-app --tail 50  # ошибки отправки пи
 
 | Симптом | Причина / решение |
 | --- | --- |
-| `Setup SSH` падает на `ssh-keyscan` или `Permission denied` | неверные `SERVER_HOST` / `SSH_PORT` / `SSH_KEY`, или публичный ключ не добавлен в `~/.ssh/authorized_keys` |
+| `Setup SSH`: «Порт закрыт или не отвечает» / «SSH-сервер не отвечает раннеру» | с вашего компьютера порт открыт, а с GitHub — нет: файрвол, fail2ban (`fail2ban-client status sshd`) или хостер режет входящий SSH из-за рубежа. IP раннера выводится в логе шага |
+| `Setup SSH`: «Сервер отклонил ключ» | публичная часть ключа не добавлена в `~/.ssh/authorized_keys` пользователя `SERVER_USER` |
+| `Setup SSH`: «SSH_KEY не читается» / «не похож на приватный ключ» | в секрет попала публичная часть, ключ обрезан или с паролем — вставьте приватный ключ без passphrase целиком |
 | `permission denied ... docker.sock` | добавьте `SERVER_USER` в группу `docker` и переподключитесь по SSH |
 | Certbot: `DNS problem` / `Timeout during connect` | DNS ещё не обновился или закрыт порт 80 |
 | В админке 401/403 на запросах к портфолио | разные `JWT_SECRET_KEY` в `ENV_AUTH_VARS` и `ENV_PORTFOLIO_VARS` |
