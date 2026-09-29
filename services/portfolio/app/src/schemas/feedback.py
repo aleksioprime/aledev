@@ -130,6 +130,7 @@ class FeedbackQueryParams(BasePaginationParams):
     """
     kind: FeedbackKind | None = None
     status: FeedbackStatus | None = None
+    email_status: EmailStatus | None = None
     search: str | None = None
 
     class Config:

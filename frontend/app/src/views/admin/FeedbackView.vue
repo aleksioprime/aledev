@@ -1,36 +1,38 @@
 <template>
   <div>
     <div class="d-flex flex-wrap align-center justify-space-between ga-2 mb-4">
-      <h1 class="text-h5">Обращения</h1>
+      <div>
+        <h1 class="text-h5">Обращения</h1>
+        <p class="text-body-2 text-medium-emphasis mt-1">Сообщения с формы обратной связи на сайте</p>
+      </div>
       <v-btn variant="text" prepend-icon="mdi-refresh" :loading="loading" @click="reload">Обновить</v-btn>
     </div>
 
-    <!-- Счётчики -->
+    <!-- Счётчики-фильтры -->
     <div v-if="stats" class="d-flex flex-wrap ga-2 mb-4">
-      <v-chip color="primary" variant="tonal" prepend-icon="mdi-bell-outline">Новые: {{ stats.new }}</v-chip>
-      <v-chip variant="tonal" prepend-icon="mdi-briefcase-outline">Заказы: {{ stats.orders }}</v-chip>
-      <v-chip variant="tonal" prepend-icon="mdi-school-outline">Обучение: {{ stats.trainings }}</v-chip>
-      <v-chip variant="tonal" prepend-icon="mdi-help-circle-outline">Вопросы: {{ stats.questions }}</v-chip>
-      <v-chip v-if="stats.email_failed" color="red" variant="tonal" prepend-icon="mdi-email-alert-outline">
+      <v-chip color="primary" :variant="filters.status === 'new' ? 'flat' : 'tonal'" prepend-icon="mdi-bell-outline"
+        @click="toggleStatus('new')">Новые: {{ stats.new }}</v-chip>
+      <v-chip :variant="filters.kind === 'order' ? 'flat' : 'tonal'" prepend-icon="mdi-briefcase-outline"
+        @click="toggleKind('order')">Заказы: {{ stats.orders }}</v-chip>
+      <v-chip :variant="filters.kind === 'training' ? 'flat' : 'tonal'" prepend-icon="mdi-school-outline"
+        @click="toggleKind('training')">Обучение: {{ stats.trainings }}</v-chip>
+      <v-chip :variant="filters.kind === 'question' ? 'flat' : 'tonal'" prepend-icon="mdi-help-circle-outline"
+        @click="toggleKind('question')">Вопросы: {{ stats.questions }}</v-chip>
+      <v-chip :variant="isAllActive ? 'flat' : 'tonal'" prepend-icon="mdi-format-list-bulleted"
+        @click="resetKindStatusFilters">Все</v-chip>
+      <v-chip v-if="stats.email_failed" color="red" :variant="filters.email_status === 'failed' ? 'flat' : 'tonal'"
+        prepend-icon="mdi-email-alert-outline" @click="toggleEmailStatus('failed')">
         Не доставлено на почту: {{ stats.email_failed }}
       </v-chip>
     </div>
 
     <!-- Фильтры -->
     <v-row dense class="mb-2">
-      <v-col cols="12" md="4">
-        <v-btn-toggle v-model="filters.kind" mandatory density="comfortable" variant="outlined" divided class="w-100">
-          <v-btn value="" class="flex-grow-1">Все</v-btn>
-          <v-btn value="order" class="flex-grow-1">Заказы</v-btn>
-          <v-btn value="training" class="flex-grow-1">Обучение</v-btn>
-          <v-btn value="question" class="flex-grow-1">Вопросы</v-btn>
-        </v-btn-toggle>
-      </v-col>
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" sm="4" md="3">
         <v-select v-model="filters.status" :items="statusFilterItems" label="Статус" density="comfortable"
           hide-details clearable />
       </v-col>
-      <v-col cols="12" sm="6" md="5">
+      <v-col cols="12" sm="8" md="9">
         <v-text-field v-model="filters.search" label="Поиск: имя, email, текст" density="comfortable" hide-details
           clearable prepend-inner-icon="mdi-magnify" />
       </v-col>
@@ -102,7 +104,7 @@
           Отправить письмо ещё раз
         </v-btn>
         <v-spacer />
-        <v-btn color="red" variant="text" icon="mdi-delete-outline" :loading="busy[item.id] === 'delete'"
+        <v-btn color="red" variant="text" icon="mdi-delete" aria-label="Удалить обращение" :loading="busy[item.id] === 'delete'"
           @click="remove(item)" />
       </v-card-actions>
     </v-card>
@@ -121,7 +123,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 
 import { useFeedbackStore } from '@/stores/feedback'
 import {
@@ -143,10 +145,29 @@ const loading = ref(false)
 const page = ref(0)
 const limit = 20
 const hasNextPage = ref(true)
-const filters = reactive({ kind: '', status: null, search: '' })
+const filters = reactive({ kind: '', status: null, email_status: null, search: '' })
 const snackbar = reactive({ visible: false, text: '', color: 'success' })
 
 const statusFilterItems = STATUS_OPTIONS.map(({ value, title }) => ({ value, title }))
+const isAllActive = computed(() => !filters.kind && !filters.status && !filters.email_status)
+
+function toggleKind(kind) {
+  filters.kind = filters.kind === kind ? '' : kind
+}
+
+function toggleStatus(status) {
+  filters.status = filters.status === status ? null : status
+}
+
+function toggleEmailStatus(emailStatusValue) {
+  filters.email_status = filters.email_status === emailStatusValue ? null : emailStatusValue
+}
+
+function resetKindStatusFilters() {
+  filters.kind = ''
+  filters.status = null
+  filters.email_status = null
+}
 
 function notify(text, color = 'success') {
   Object.assign(snackbar, { visible: true, text, color })
@@ -202,6 +223,7 @@ async function fetchPage(reset = false) {
   const params = { offset: page.value + 1, limit }
   if (filters.kind) params.kind = filters.kind
   if (filters.status) params.status = filters.status
+  if (filters.email_status) params.email_status = filters.email_status
   if (filters.search) params.search = filters.search
 
   const data = await feedbackStore.loadFeedback({ params })
@@ -253,7 +275,7 @@ async function remove(item) {
 }
 
 let searchTimer = null
-watch(() => [filters.kind, filters.status], () => fetchPage(true))
+watch(() => [filters.kind, filters.status, filters.email_status], () => fetchPage(true))
 watch(() => filters.search, () => {
   clearTimeout(searchTimer)
   searchTimer = setTimeout(() => fetchPage(true), 400)

@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends, Query
 
-from src.constants.base import FeedbackKind, FeedbackStatus
+from src.constants.base import EmailStatus, FeedbackKind, FeedbackStatus
 from src.core.config import settings
 from src.dependencies.pagination import get_pagination_params
 from src.schemas.feedback import FeedbackQueryParams
@@ -21,6 +21,7 @@ def get_feedback_params(
         pagination: Annotated[BasePaginationParams, Depends(get_pagination_params)],
         kind: FeedbackKind | None = Query(None, description="Тип обращения"),
         status: FeedbackStatus | None = Query(None, description="Статус обработки"),
+        email_status: EmailStatus | None = Query(None, description="Статус доставки на почту"),
         search: str | None = Query(None, max_length=100, description="Поиск по имени, email, тексту"),
 ) -> FeedbackQueryParams:
     """
@@ -31,5 +32,6 @@ def get_feedback_params(
         offset=pagination.offset,
         kind=kind,
         status=status,
+        email_status=email_status,
         search=search or None,
     )

@@ -38,6 +38,8 @@ class FeedbackRepository(BaseSQLRepository):
             conditions.append(Feedback.kind == params.kind)
         if params.status:
             conditions.append(Feedback.status == params.status)
+        if params.email_status:
+            conditions.append(Feedback.email_status == params.email_status)
         if params.search:
             pattern = f"%{params.search.strip()}%"
             conditions.append(or_(
