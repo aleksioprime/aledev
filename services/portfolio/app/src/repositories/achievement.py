@@ -77,7 +77,10 @@ class AchievementRepository(BaseSQLRepository):
             ])
 
         await self.session.flush()
-        return await self.get_by_id(achievement_id)
+        # Массовые UPDATE/DELETE не обновляют уже загруженный объект и его переводы —
+        # перечитываем запись, иначе в ответ попадут старые значения
+        await self.session.refresh(achievement)
+        return achievement
 
     async def delete(self, achievement_id: UUID) -> bool:
         achievement = await self.get_by_id(achievement_id)

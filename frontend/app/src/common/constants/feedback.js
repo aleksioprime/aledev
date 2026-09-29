@@ -1,6 +1,7 @@
 // Справочники формы обратной связи. Ключи совпадают с бэкендом
-// (services/portfolio/app/src/constants/base.py: FEEDBACK_SERVICES / FEEDBACK_BUDGETS)
-export const FEEDBACK_SERVICES = ['web', 'backend', 'iot', 'ml', 'automation', 'mentoring', 'other']
+// (services/portfolio/app/src/constants/base.py: FEEDBACK_SERVICES / FEEDBACK_TRAINING_FORMATS / FEEDBACK_BUDGETS)
+export const FEEDBACK_SERVICES = ['web', 'backend', 'iot', 'ml', 'automation', 'other']
+export const FEEDBACK_TRAINING_FORMATS = ['individual', 'group', 'team', 'corporate', 'curriculum']
 export const FEEDBACK_BUDGETS = ['lt100', '100_300', '300_700', 'gt700', 'discuss']
 
 // Подписи для админки
@@ -10,8 +11,22 @@ export const SERVICE_LABELS = {
   iot: 'IoT / устройства',
   ml: 'ML / компьютерное зрение',
   automation: 'Автоматизация',
-  mentoring: 'Обучение / менторство',
   other: 'Другое',
+}
+
+export const TRAINING_LABELS = {
+  individual: 'Индивидуальные занятия',
+  group: 'Группа или класс',
+  team: 'Менторство проектной команды',
+  corporate: 'Обучение сотрудников',
+  curriculum: 'Разработка курса или программы',
+}
+
+// Типы обращений для админки
+export const KIND_META = {
+  order: { title: 'Заказ', color: 'teal', icon: 'mdi-briefcase-outline', subject: 'Re: ваш заказ на aledev.ru' },
+  training: { title: 'Обучение', color: 'amber-darken-2', icon: 'mdi-school-outline', subject: 'Re: ваш запрос на обучение на aledev.ru' },
+  question: { title: 'Вопрос', color: 'indigo', icon: 'mdi-help-circle-outline', subject: 'Re: ваш вопрос на aledev.ru' },
 }
 
 export const BUDGET_LABELS = {

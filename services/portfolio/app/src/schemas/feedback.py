@@ -9,6 +9,7 @@ from src.constants.base import (
     FeedbackStatus,
     EmailStatus,
     FEEDBACK_SERVICES,
+    FEEDBACK_TRAINING_FORMATS,
     FEEDBACK_BUDGETS,
 )
 from src.schemas.pagination import BasePaginationParams
@@ -27,7 +28,7 @@ class FeedbackCreateSchema(BaseModel):
     name: str = Field(..., min_length=2, max_length=100)
     email: EmailStr
     contact: str | None = Field(None, max_length=255, description="Telegram / телефон")
-    service: str | None = Field(None, max_length=30, description="Тип работ (для заказа)")
+    service: str | None = Field(None, max_length=30, description="Тип работ (заказ) или формат (обучение)")
     budget: str | None = Field(None, max_length=30, description="Бюджет (для заказа)")
     deadline: str | None = Field(None, max_length=100, description="Сроки (для заказа)")
     message: str = Field(..., min_length=10, max_length=4000)
@@ -53,13 +54,6 @@ class FeedbackCreateSchema(BaseModel):
     def strip_optional(cls, value):
         return _clean(value) if isinstance(value, str) or value is None else value
 
-    @field_validator("service")
-    @classmethod
-    def check_service(cls, value):
-        if value is not None and value not in FEEDBACK_SERVICES:
-            raise ValueError("Недопустимый тип работ")
-        return value
-
     @field_validator("budget")
     @classmethod
     def check_budget(cls, value):
@@ -68,10 +62,15 @@ class FeedbackCreateSchema(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def drop_order_fields_for_question(self):
-        # Поля заказа имеют смысл только для заказа
+    def check_kind_fields(self):
         if self.kind == FeedbackKind.question:
+            # у вопроса нет полей заказа
             self.service = self.budget = self.deadline = None
+            return self
+        # у заказа — тип работ, у обучения — формат занятий
+        allowed = FEEDBACK_SERVICES if self.kind == FeedbackKind.order else FEEDBACK_TRAINING_FORMATS
+        if self.service is not None and self.service not in allowed:
+            raise ValueError("Недопустимое значение service для этого типа обращения")
         return self
 
 
@@ -120,5 +119,6 @@ class FeedbackStatsSchema(BaseModel):
     total: int
     new: int
     orders: int
+    trainings: int
     questions: int
     email_failed: int

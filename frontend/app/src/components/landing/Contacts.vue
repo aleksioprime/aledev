@@ -40,7 +40,7 @@
                 <Icon :path="k.icon" />
                 {{ $t(`contacts.kinds.${k.value}`) }}
               </button>
-              <span class="kind__thumb" :class="{ 'is-right': form.kind === 'question' }"></span>
+              <span class="kind__thumb" :style="{ transform: `translateX(${kindIndex * 100}%)` }"></span>
             </div>
             <p class="kind__hint">{{ $t(`contacts.kindHints.${form.kind}`) }}</p>
 
@@ -63,6 +63,26 @@
               <input v-model="form.contact" type="text" autocomplete="tel" placeholder=" " maxlength="255" />
               <span class="field__label">{{ $t('contacts.contactField') }}</span>
             </label>
+
+            <Transition name="expand">
+              <div v-if="form.kind === 'training'" class="order">
+                <div class="order__inner">
+                  <fieldset class="options">
+                    <legend class="options__legend">{{ $t('contacts.trainingLabel') }}</legend>
+                    <button v-for="key in FEEDBACK_TRAINING_FORMATS" :key="key" type="button" class="option"
+                      :class="{ 'is-active': form.service === key }" :aria-pressed="form.service === key"
+                      @click="form.service = form.service === key ? null : key">
+                      {{ $t(`contacts.trainingFormats.${key}`) }}
+                    </button>
+                  </fieldset>
+
+                  <label class="field">
+                    <input v-model="form.deadline" type="text" placeholder=" " maxlength="100" />
+                    <span class="field__label">{{ $t('contacts.startLabel') }}</span>
+                  </label>
+                </div>
+              </div>
+            </Transition>
 
             <Transition name="expand">
               <div v-if="form.kind === 'order'" class="order">
@@ -141,10 +161,10 @@
 
 <script setup>
 import Icon from '@/components/ui/Icon.vue'
-import { mdiArrowTopRight, mdiBriefcaseOutline, mdiChatQuestionOutline, mdiRefresh, mdiSend } from '@mdi/js'
-import { nextTick, onMounted, onUnmounted, ref, watch } from "vue"
+import { mdiArrowTopRight, mdiBriefcaseOutline, mdiChatQuestionOutline, mdiRefresh, mdiSchoolOutline, mdiSend } from '@mdi/js'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
-import { FEEDBACK_SERVICES, FEEDBACK_BUDGETS } from "@/common/constants/feedback"
+import { FEEDBACK_SERVICES, FEEDBACK_TRAINING_FORMATS, FEEDBACK_BUDGETS } from "@/common/constants/feedback"
 import { contacts as contactInfo, socialIcons } from "@/common/constants/socials"
 
 import { useFeedbackStore } from "@/stores/feedback";
@@ -164,12 +184,19 @@ const sending = ref(false)
 const MESSAGE_MAX = 4000
 const kinds = [
   { value: "order", icon: mdiBriefcaseOutline },
+  { value: "training", icon: mdiSchoolOutline },
   { value: "question", icon: mdiChatQuestionOutline },
 ]
 const emptyForm = (kind = "order") => ({
   kind, name: "", email: "", contact: "", service: null, budget: null, deadline: "", message: "", website: "",
 })
 const form = ref(emptyForm());
+const kindIndex = computed(() => Math.max(0, kinds.findIndex((k) => k.value === form.value.kind)))
+
+// у заказа и обучения разные справочники в поле service — сбрасываем выбор при смене типа
+watch(() => form.value.kind, () => {
+  form.value.service = null
+})
 const sentKind = ref("order")
 const errors = ref({ name: null, email: null, message: null });
 
@@ -323,14 +350,15 @@ async function submitForm() {
   sending.value = true
   const f = form.value
   const isOrder = f.kind === "order"
+  const hasDetails = isOrder || f.kind === "training"
   const result = await feedbackStore.sendFeedback({
     kind: f.kind,
     name: f.name.trim(),
     email: f.email.trim(),
     contact: f.contact.trim() || null,
-    service: isOrder ? f.service : null,
+    service: hasDetails ? f.service : null,
     budget: isOrder ? f.budget : null,
-    deadline: isOrder ? f.deadline.trim() || null : null,
+    deadline: hasDetails ? f.deadline.trim() || null : null,
     message: f.message.trim(),
     lang: locale.value,
     website: f.website,
@@ -480,11 +508,11 @@ onUnmounted(() => {
   gap: 1rem;
 }
 
-/* --- Переключатель «Заказ / Вопрос» --- */
+/* --- Переключатель «Проект / Обучение / Вопрос» --- */
 .kind {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   padding: 4px;
   border: 1px solid var(--line-strong);
   border-radius: 999px;
@@ -516,16 +544,13 @@ onUnmounted(() => {
   top: 4px;
   bottom: 4px;
   left: 4px;
-  width: calc(50% - 4px);
+  width: calc((100% - 8px) / 3);
   border-radius: 999px;
   background: var(--grad);
   box-shadow: 0 8px 30px -8px rgb(34 211 238 / 0.6);
   transition: transform 0.5s var(--ease-out);
 }
 
-.kind__thumb.is-right {
-  transform: translateX(100%);
-}
 
 .kind__hint {
   margin-top: -0.35rem;

@@ -32,6 +32,13 @@ class MentoringRepository(BaseSQLRepository):
             raise LookupError("Блок наставничества не найден")
 
         page.is_published = body.is_published
+        # Сначала удаляем старые переводы и метрики: при простой замене коллекций
+        # SQLAlchemy вставляет новые строки раньше удаления старых, и срабатывают
+        # уникальные ограничения (page_id, lang) и (page_id, key)
+        page.translations.clear()
+        page.metrics.clear()
+        await self.session.flush()
+
         page.translations = [
             MentoringPageTranslation(**translation.model_dump())
             for translation in body.translations

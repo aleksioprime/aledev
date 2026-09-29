@@ -13,6 +13,7 @@ from src.constants.base import (
     EmailStatus,
     FeedbackKind,
     FEEDBACK_SERVICES,
+    FEEDBACK_TRAINING_FORMATS,
     FEEDBACK_BUDGETS,
 )
 from src.exceptions.base import NotFoundException
@@ -246,14 +247,18 @@ class FeedbackService:
 
     def _email_context(self, feedback: Feedback) -> dict:
         is_order = feedback.kind == FeedbackKind.order
+        is_training = feedback.kind == FeedbackKind.training
+        services = FEEDBACK_TRAINING_FORMATS if is_training else FEEDBACK_SERVICES
         return {
             "id": str(feedback.id),
             "is_order": is_order,
-            "kind_label": "Заказ" if is_order else "Вопрос",
+            "is_training": is_training,
+            "kind_label": "Заказ" if is_order else "Обучение" if is_training else "Вопрос",
+            "service_label": "Формат" if is_training else "Что нужно",
             "name": feedback.name,
             "email": feedback.email,
             "contact": feedback.contact,
-            "service": FEEDBACK_SERVICES.get(feedback.service) if feedback.service else None,
+            "service": services.get(feedback.service) if feedback.service else None,
             "budget": FEEDBACK_BUDGETS.get(feedback.budget) if feedback.budget else None,
             "deadline": feedback.deadline,
             "message": feedback.message,
@@ -266,7 +271,7 @@ class FeedbackService:
         if data["contact"]:
             lines.append(f"Контакт: {data['contact']}")
         if data["service"]:
-            lines.append(f"Что нужно: {data['service']}")
+            lines.append(f"{data['service_label']}: {data['service']}")
         if data["budget"]:
             lines.append(f"Бюджет: {data['budget']}")
         if data["deadline"]:
@@ -277,7 +282,7 @@ class FeedbackService:
 
     def _build_message(self, data: dict, text: str, html: str) -> EmailMessage:
         safe_name = " ".join(data["name"].split())  # защита от переносов строк в заголовке
-        prefix = "🟢 Заказ" if data["is_order"] else "💬 Вопрос"
+        prefix = "🟢 Заказ" if data["is_order"] else "🎓 Обучение" if data["is_training"] else "💬 Вопрос"
 
         msg = EmailMessage()
         msg["Subject"] = f"{prefix} с aledev.ru — {safe_name}"

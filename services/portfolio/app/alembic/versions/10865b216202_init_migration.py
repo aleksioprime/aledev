@@ -217,8 +217,8 @@ def upgrade() -> None:
     )
     achievement_rows = [
         ('grant', 'personal', 2019,
-         ('Грантовый проект: платформа для изучения технического зрения', 'Программа «УМНИК»', 'Грант', 'Мобильная платформа с нейросетями для распознавания дорожных знаков, испытательный полигон с 3D-визуализацией и методические материалы для школьников.'),
-         ('Grant project: a platform for learning machine vision', 'UMNIK programme', 'Grant', 'A mobile platform with neural networks for traffic sign recognition, a test track with 3D visualisation, and teaching materials for school students.')),
+         ('Грантовый проект: платформа для изучения технического зрения', None, 'Грант', 'Мобильная платформа с нейросетями для распознавания дорожных знаков, испытательный полигон с 3D-визуализацией и методические материалы для школьников.'),
+         ('Grant project: a platform for learning machine vision', None, 'Grant', 'A mobile platform with neural networks for traffic sign recognition, a test track with 3D visualisation, and teaching materials for school students.')),
         ('competition', 'personal', 2021,
          ('Всероссийский конкурс Intel AI for Youth', 'Intel AI for Youth', '1 место', 'Учебный кейс по машинному зрению с 3D-камерой для беспилотного автомобиля на Raspberry Pi.'),
          ('Intel AI for Youth national contest', 'Intel AI for Youth', '1st place', 'A teaching case on machine vision with a 3D camera for a self-driving car on Raspberry Pi.')),
@@ -366,3 +366,5 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_achievements_category'), table_name='achievements')
     op.drop_table('achievements')
     # ### end Alembic commands ###
+    # Тип enum создаётся вместе с таблицами переводов, но drop_table его не удаляет
+    postgresql.ENUM(name='langenum').drop(op.get_bind(), checkfirst=True)

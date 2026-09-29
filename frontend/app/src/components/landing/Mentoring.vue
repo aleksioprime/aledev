@@ -218,7 +218,8 @@ onMounted(async () => {
 
 .achievement {
   display: grid;
-  grid-template-columns: minmax(7rem, 0.22fr) minmax(0, 1fr) auto;
+  /* фиксированные крайние колонки: у каждой строки своя сетка, и с auto заголовки «плыли» */
+  grid-template-columns: 9rem minmax(0, 1fr) 9.5rem;
   align-items: start;
   gap: 1.25rem;
   padding: 1.25rem 0.25rem;
@@ -235,6 +236,10 @@ onMounted(async () => {
 .achievement__category {
   font-size: 0.76rem;
   color: var(--accent);
+}
+
+.achievement__category {
+  text-align: right;
 }
 
 .achievement__scope {
