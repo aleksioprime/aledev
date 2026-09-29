@@ -2,13 +2,14 @@
 
 Инструкция для развёртывания портфолио на новом (или пересобранном) сервере.
 Адрес сервера и все настройки хранятся в **секретах GitHub** — в коде их нет, поэтому для переезда
-на другой сервер достаточно обновить секреты и запустить workflow **Deploy All**.
+на другой сервер достаточно обновить секреты и запустить workflow **Deploy**.
 
 ## Что где работает
 
 | Компонент | Каталог на сервере | Контейнеры |
 | --- | --- | --- |
-| Фронтенд + nginx + certbot | `~/aledev` | `aledev-frontend` (порты 80, 443) |
+| Системный nginx + certbot | `/etc/nginx/sites-available/aledev.ru` | — (порты 80, 443, SSL; рядом могут жить другие сайты) |
+| Фронтенд (nginx со SPA, разводит поддомены по сервисам) | `~/aledev` | `aledev-frontend` (только `127.0.0.1:8080`) |
 | Сервис авторизации | `~/aledev/services/auth` | `aledev-auth-app`, Postgres, Redis |
 | Сервис портфолио | `~/aledev/services/portfolio` | `aledev-portfolio-app`, Postgres |
 | Общие файлы (медиа) | `~/aledev/media` | монтируется во все сервисы |
@@ -17,12 +18,21 @@
 поэтому подойдёт как `root`, так и обычный пользователь с `sudo`.
 Сервисы общаются через Docker-сеть `aledev-shared`.
 
+Снаружи запросы принимает **системный nginx** сервера: он держит SSL и проксирует `aledev.ru`,
+`auth.aledev.ru` и `portfolio.aledev.ru` в контейнер `aledev-frontend`. Так на одном сервере
+могут работать и другие сайты. Порт контейнера меняется переменной `FRONTEND_PORT` в `ENV_VARS`
+(по умолчанию `8080`).
+
 ## 1. Сервер
 
 1. Ubuntu 22.04+ или другой поддерживаемый Linux.
 2. Откройте в файрволе порты **80**, **443** и порт SSH.
-3. Заранее установите Docker Engine и Docker Compose plugin. Пользователь `SERVER_USER`
-  должен иметь доступ к Docker daemon без `sudo` (обычно через группу `docker`).
+3. Заранее установите Docker Engine и Docker Compose plugin, а также nginx и certbot:
+   ```bash
+   apt install nginx certbot python3-certbot-nginx
+   ```
+   Пользователь `SERVER_USER` должен иметь доступ к Docker daemon без `sudo` (обычно через группу `docker`),
+   а если это не `root` — ещё и `sudo` без пароля для `nginx`, `systemctl`, `certbot`, `tee`, `cp`, `ln`.
 4. Создайте SSH-ключ для GitHub Actions — на своём компьютере:
    ```bash
    ssh-keygen -t ed25519 -f aledev_deploy -N "" -C "github-actions@aledev"
@@ -77,29 +87,42 @@ VITE_TURNSTILE_SITE_KEY=<site key из Cloudflare Turnstile>
 python3 -c "import secrets; print(secrets.token_urlsafe(64))"
 ```
 
-## 4. Деплой одной кнопкой
+## 4. Деплой
 
-**Actions → Deploy All → Run workflow** (ветка `main`):
+В проекте один workflow — **Deploy** (`.github/workflows/deploy.yml`).
+
+**Автоматически** — при пуше (слиянии PR) в `main`: собирается и деплоится только то, что изменилось.
+
+| Изменились файлы | Что деплоится |
+| --- | --- |
+| `services/auth/**` | сервис авторизации |
+| `services/portfolio/**` | сервис портфолио (перед сборкой прогоняются тесты — если упали, деплоя не будет) |
+| `frontend/**`, `deploy/**`, `docker-compose.prod.yaml` | фронтенд + сайт в системном nginx и SSL |
+
+Изменения только в документации (`*.md`) и в `.github/` деплой не запускают.
+
+**Вручную** — **Actions → Deploy → Run workflow** (ветка `main`), например для первого деплоя
+на новый сервер или после смены секретов:
 
 | Параметр | Первый запуск | Обычное обновление |
 | --- | --- | --- |
-| Собрать образы | ✅ | ✅ |
-| Перезаписать nginx.conf | не нужно (при первом деплое он загрузится сам) | ✅ только если меняли `frontend/nginx/nginx.conf` |
-| Email для Let's Encrypt | ваш email | ваш email, если перезаписывали nginx.conf, иначе пусто |
+| Что деплоить | `all` | нужный сервис или `all` |
+| Собрать образы | ✅ | ✅ (выключите, если образы в Docker Hub уже актуальны) |
+| Перезаписать сайт в nginx | не нужно (при первом деплое он установится сам) | ✅ только если меняли `deploy/nginx/aledev.conf` |
+| Email для Let's Encrypt | ваш email, если certbot на сервере ещё не настраивали | пусто |
 | Домены | по умолчанию | по умолчанию |
 
-Порядок шагов: сборка трёх образов → auth → portfolio → фронтенд → SSL.
+Порядок шагов: тесты портфолио → сборка образов → auth → portfolio → фронтенд → сайт в системном nginx и SSL.
 Миграции баз применяются автоматически при старте контейнеров.
-Шаг SSL выпускает сертификаты, прописывает их в nginx, включает редирект на HTTPS
-и добавляет в `crontab` ежедневное автообновление. Повторный запуск не перевыпускает действующий сертификат.
+Шаг SSL выпускает сертификат (или расширяет существующий на все домены), прописывает его в nginx
+и включает редирект на HTTPS. Повторный запуск не перевыпускает действующий сертификат,
+продлевает их системный `certbot.timer`.
 
-Отдельные workflow (**Build …**, **Deploy …**) по-прежнему можно запускать по одному.
-Сборка образа также запускается автоматически при пуше в `main`, если менялся соответствующий сервис.
-
-> **Про nginx.conf.** Certbot дописывает SSL-настройки прямо в `~/aledev/nginx/nginx.conf` на сервере,
-> поэтому при обычном деплое файл не перезаписывается. Если включить «Перезаписать nginx.conf»,
-> старая версия сохранится рядом как `nginx.conf.bak-<дата>`, а SSL надо вернуть — укажите email
-> в том же запуске.
+> **Про конфиг сайта.** Certbot дописывает SSL-настройки прямо в `/etc/nginx/sites-available/aledev.ru`,
+> поэтому при обычном деплое файл не перезаписывается. Он устанавливается при первом деплое (если там
+> ещё чужой конфиг) или с флагом «Перезаписать сайт в nginx»; прежняя версия сохраняется в
+> `~/aledev/deploy/backup/`, SSL certbot прописывает заново в том же запуске.
+> Конфиг nginx внутри контейнера (`frontend/nginx/`) входит в образ и обновляется вместе с ним.
 
 ## 5. После первого деплоя
 
@@ -148,7 +171,8 @@ docker logs aledev-portfolio-app --tail 50  # ошибки отправки пи
 | `Setup SSH`: «Сервер отклонил ключ» | публичная часть ключа не добавлена в `~/.ssh/authorized_keys` пользователя `SERVER_USER` |
 | `Setup SSH`: «SSH_KEY не читается» / «не похож на приватный ключ» | в секрет попала публичная часть, ключ обрезан или с паролем — вставьте приватный ключ без passphrase целиком |
 | `permission denied ... docker.sock` | добавьте `SERVER_USER` в группу `docker` и переподключитесь по SSH |
-| Certbot: `DNS problem` / `Timeout during connect` | DNS ещё не обновился или закрыт порт 80 |
+| Certbot: `DNS problem` / `Timeout during connect` | DNS ещё не обновился (нужны все домены из списка) или закрыт порт 80 |
+| `address already in use` на `127.0.0.1:8080` | порт занят другой программой (`ss -tlnp \| grep 8080`) — задайте другой `FRONTEND_PORT` в `ENV_VARS` |
 | В админке 401/403 на запросах к портфолио | разные `JWT_SECRET_KEY` в `ENV_AUTH_VARS` и `ENV_PORTFOLIO_VARS` |
 | Письма не приходят | смотрите статус письма в админке → «Обращения» и `docker logs aledev-portfolio-app` |
 
@@ -158,7 +182,8 @@ docker logs aledev-portfolio-app --tail 50  # ошибки отправки пи
 docker compose -f ~/aledev/docker-compose.prod.yaml ps
 docker compose -f ~/aledev/services/auth/docker-compose.prod.yaml logs -f
 docker compose -f ~/aledev/services/portfolio/docker-compose.prod.yaml logs -f
-docker exec aledev-frontend nginx -t && docker exec aledev-frontend nginx -s reload
-docker exec aledev-frontend certbot certificates
+nginx -t && systemctl reload nginx          # системный nginx
+certbot certificates
+docker exec aledev-frontend nginx -t        # nginx внутри контейнера
 docker stats
 ```
