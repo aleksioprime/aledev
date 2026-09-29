@@ -2,17 +2,13 @@ name: Deploy All
 
 run-name: "Deploy all services for ${{ github.ref_name }} by ${{ github.actor }}"
 
-# Полный деплой одной кнопкой: подготовка сервера → сборка образов → auth →
-# portfolio → фронтенд → (по желанию) SSL-сертификаты.
+# Полный деплой одной кнопкой: сборка образов → auth → portfolio → фронтенд →
+# (по желанию) SSL-сертификаты.
 on:
   workflow_dispatch:
     inputs:
       build:
         description: "Собрать и загрузить образы в Docker Hub перед деплоем"
-        type: boolean
-        default: true
-      prepare_server:
-        description: "Подготовить сервер: установить Docker и создать каталоги/сеть"
         type: boolean
         default: true
       update_nginx:
@@ -33,11 +29,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  prepare:
-    if: ${{ inputs.prepare_server }}
-    uses: ./.github/workflows/server-prepare.yml
-    secrets: inherit
-
   build-auth:
     if: ${{ inputs.build }}
     uses: ./.github/workflows/auth-build.yml
@@ -54,7 +45,7 @@ jobs:
     secrets: inherit
 
   deploy-auth:
-    needs: [prepare, build-auth, build-portfolio, build-main]
+    needs: [build-auth, build-portfolio, build-main]
     if: ${{ !failure() && !cancelled() }}
     uses: ./.github/workflows/auth-deploy.yml
     secrets: inherit
