@@ -1,6 +1,10 @@
 import io
 import zipfile
 
+import pytest
+
+from src.api.v1.export import export
+
 DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
 
@@ -28,6 +32,19 @@ async def test_export_portfolio_english(client, admin_headers):
     assert "EXPERIENCE" in xml
 
 
-async def test_export_requires_admin(client):
+@pytest.fixture(autouse=True)
+def reset_export_state():
+    export._cache.clear()
+    export._hits.clear()
+
+
+async def test_export_is_public(client):
     response = await client.get("/api/v1/export/portfolio/")
-    assert response.status_code in (401, 403)
+    assert response.status_code == 200
+    assert response.headers["content-type"] == DOCX
+
+
+async def test_export_rate_limit(client):
+    for _ in range(export.RATE_LIMIT):
+        assert (await client.get("/api/v1/export/portfolio/")).status_code == 200
+    assert (await client.get("/api/v1/export/portfolio/")).status_code == 429

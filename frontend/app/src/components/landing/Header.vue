@@ -13,6 +13,11 @@
       </div>
 
       <div class="nav__actions">
+        <a :href="resumeUrl" class="resume" :title="t('header.resumeTitle')" :aria-label="t('header.resumeTitle')" download>
+          <Icon :path="mdiFileDownloadOutline" class="resume__icon" />
+          <span class="resume__label">{{ t('header.resume') }}</span>
+        </a>
+
         <div class="lang" role="group" aria-label="Language">
           <button v-for="lang in langs" :key="lang" type="button" class="lang__btn"
             :class="{ 'is-active': locale === lang }" :aria-pressed="locale === lang" @click="changeLang(lang)">
@@ -43,13 +48,14 @@
 
 <script setup>
 import Icon from '@/components/ui/Icon.vue'
-import { mdiArrowTopRight } from '@mdi/js'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { mdiArrowTopRight, mdiFileDownloadOutline } from '@mdi/js'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t, locale } = useI18n()
 
 const langs = ['ru', 'en']
+const resumeUrl = computed(() => `${import.meta.env.VITE_PORTFOLIO_URL || ""}/api/v1/export/portfolio/?lang=${locale.value}`)
 const menu = [
   { key: 'about', anchor: 'about' },
   { key: 'projects', anchor: 'projects' },
@@ -232,6 +238,32 @@ onBeforeUnmount(() => {
   gap: 0.6rem;
 }
 
+.resume {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.5rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.resume:hover,
+.resume:focus-visible {
+  border-color: var(--accent);
+  background: rgb(var(--accent-rgb) / 0.08);
+  color: var(--text);
+}
+
+.resume__icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
 .lang {
   position: relative;
   display: grid;
@@ -345,6 +377,16 @@ onBeforeUnmount(() => {
 
 @media (max-width: 860px) {
   .nav__links {
+    display: none;
+  }
+
+  .resume {
+    width: 2.5rem;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .resume__label {
     display: none;
   }
 
