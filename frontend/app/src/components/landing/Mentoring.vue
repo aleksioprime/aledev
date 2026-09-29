@@ -88,8 +88,8 @@ const MENTORING_CONTENT = {
   },
   en: {
     kicker: 'Mentoring',
-    title_start: 'Research, awards',
-    title_accent: 'and student teams',
+    title_start: 'Mentoring',
+    title_accent: 'and competitions',
     lead: 'Experience heading the Design & Technology department at the Skolkovo International Gymnasium: curricula in AI, programming and robotics, an engineering lab and dozens of student projects - from robots to neural networks.',
     metrics: [
       { key: 'projects', value: '30+', label: 'student projects' },

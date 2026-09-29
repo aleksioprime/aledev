@@ -5,6 +5,15 @@
         <span v-reveal class="section-kicker">04 - {{ $t('experience.kicker') }}</span>
         <h2 v-reveal="{ delay: 80 }" class="section-title">{{ $t('experience.sectionTitle') }}</h2>
         <p v-reveal="{ delay: 160 }" class="section-lead">{{ $t('experience.lead') }}</p>
+        <dl class="stats">
+          <div v-for="(stat, i) in stats" :key="stat.key" v-reveal="{ variant: 'scale', delay: 220 + i * 90 }"
+            class="stat">
+            <dt class="stat__label">{{ $t(`experience.stats.${stat.key}`) }}</dt>
+            <dd class="stat__value font-display">
+              <CountUp :value="stat.value" /><span class="stat__suffix">{{ stat.suffix }}</span>
+            </dd>
+          </div>
+        </dl>
       </header>
 
       <ol ref="listRef" class="timeline" :style="{ '--progress': progress }">
@@ -47,6 +56,7 @@
 import Icon from '@/components/ui/Icon.vue'
 import { mdiChevronDown } from '@mdi/js'
 import { onBeforeUnmount, onMounted, ref } from "vue";
+import CountUp from '@/components/landing/effects/CountUp.vue'
 
 import { formatDate } from '@/common/helpers/dateFormat'
 
@@ -55,6 +65,13 @@ const experienceStore = useExperienceStore();
 const experiences = ref([]);
 
 const sectionId = "experience"
+const EDUCATION_START_YEAR = 2007
+const DEVELOPMENT_START_YEAR = 2019
+const currentYear = new Date().getFullYear()
+const stats = [
+  { key: 'education', value: currentYear - EDUCATION_START_YEAR, suffix: '+' },
+  { key: 'years', value: currentYear - DEVELOPMENT_START_YEAR, suffix: '+' },
+]
 
 // --- СПИСОК ОПЫТА ---
 
@@ -152,6 +169,40 @@ onBeforeUnmount(() => {
   justify-self: start;
   align-items: flex-start;
   text-align: left;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+  align-items: start;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.35rem;
+  padding: 1.25rem 1.25rem 1.1rem;
+  border-left: 1px solid var(--line-strong);
+}
+
+.stat__value {
+  margin: 0;
+  font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.stat__suffix {
+  color: var(--accent);
+}
+
+.stat__label {
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 .timeline {
@@ -307,6 +358,16 @@ onBeforeUnmount(() => {
 
   .exp__more {
     grid-column: 1;
+  }
+}
+
+@media (max-width: 540px) {
+  .stat {
+    padding: 0.9rem 0.75rem 0.8rem;
+  }
+
+  .stat__label {
+    font-size: 0.75rem;
   }
 }
 

@@ -5,32 +5,10 @@
   "photoAlt": "Photo {number}",
   "openPhoto": "Enlarge photo {number}",
   "closePhoto": "Close enlarged photo",
-  "galleryLabel": "Photos and technology stack",
+  "galleryLabel": "Photos",
   "previousPhoto": "Previous photo",
   "nextPhoto": "Next photo",
   "selectPhoto": "Show photo {number}",
-  "p1": "I build educational web platforms and microservices, and develop ML and IoT solutions. After many years in education, I now focus on software development and help emerging engineers grow. I lead projects from architecture and APIs through interfaces and databases to deployment.",
-  "stats": {
-    "years": "years in development",
-    "education": "years in education"
-  },
-  "focus": {
-    "web": {
-      "title": "Web platforms",
-      "text": "I build with Django, FastAPI and Vue.js, from monoliths to microservices. I design databases and message queues, and set up DevOps, Docker and CI/CD."
-    },
-    "machineLearning": {
-      "title": "Machine learning & robotics",
-      "text": "I develop neural network and computer vision solutions, and build and program robots."
-    },
-    "iot": {
-      "title": "Programmable electronics & IoT",
-      "text": "I design electronic devices, write firmware and integrate them into IoT systems with Arduino, ESP32 and Raspberry Pi."
-    },
-    "mentoring": {
-      "title": "Mentoring",
-      "text": "I mentor school and university students, helping them take projects from an idea and prototype to competition entry. I also mentor at a career center."
-    }
-  },
+  "p1": "I build web platforms and services, desktop applications, interfaces for equipment, AI solutions, and integrated hardware and IoT systems. I lead projects from idea and architecture through implementation and launch. After many years working in education, I have focused on development while continuing to share my experience and help aspiring engineers master modern technologies and build their own projects.",
   "stackLabel": "Tech stack"
 }

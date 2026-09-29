@@ -37,28 +37,9 @@
 
         <p v-reveal="{ delay: 140 }" class="about__lead">{{ t('about.p1') }}</p>
 
-        <dl class="stats">
-          <div v-for="(stat, i) in stats" :key="stat.key" v-reveal="{ variant: 'scale', delay: 120 + i * 90 }"
-            class="stat">
-            <dt class="stat__label">{{ t(`about.stats.${stat.key}`) }}</dt>
-            <dd class="stat__value font-display">
-              <CountUp :value="stat.value" /><span class="stat__suffix">{{ stat.suffix }}</span>
-            </dd>
-          </div>
-        </dl>
       </div>
     </div>
 
-    <div class="focus shell">
-      <div v-for="(item, i) in focusAreas" :key="item.key" v-reveal="{ delay: i * 90 }">
-        <article v-tilt="6" class="focus__card glass">
-          <span class="focus__icon"><Icon :path="item.icon" /></span>
-          <h3 class="focus__title">{{ t(`about.focus.${item.key}.title`) }}</h3>
-          <p class="focus__text">{{ t(`about.focus.${item.key}.text`) }}</p>
-          <span class="focus__num font-mono">0{{ i + 1 }}</span>
-        </article>
-      </div>
-    </div>
   </section>
 
   <Teleport to="body">
@@ -70,7 +51,6 @@
         </button>
         <figure class="about-preview__figure">
           <img :src="activeSlide.src" :alt="t('about.photoAlt', { number: activePhoto + 1 })" />
-          <figcaption class="font-mono">{{ activeSlide.stack.join(' · ') }}</figcaption>
         </figure>
       </div>
     </Transition>
@@ -79,26 +59,21 @@
 
 <script setup>
 import Icon from '@/components/ui/Icon.vue'
-import { mdiAccountGroupOutline, mdiChevronLeft, mdiChevronRight, mdiChip, mdiClose, mdiServerNetwork, mdiWeb } from '@mdi/js'
+import { mdiChevronLeft, mdiChevronRight, mdiClose } from '@mdi/js'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import CountUp from '@/components/landing/effects/CountUp.vue'
-
 const sectionId = 'about'
 const { t } = useI18n()
 
 const photoRef = ref(null)
 const activePhoto = ref(0)
 const isPreviewOpen = ref(false)
-const EDUCATION_START_YEAR = 2007
-const DEVELOPMENT_START_YEAR = 2019
-const currentYear = new Date().getFullYear()
 const photoSlides = [
-  { src: '/images/placeholders/about-01.svg', stack: ['Vue.js', 'FastAPI', 'PostgreSQL'] },
-  { src: '/images/placeholders/about-02.svg', stack: ['Docker', 'CI/CD', 'Linux'] },
-  { src: '/images/placeholders/about-03.svg', stack: ['Python', 'Computer Vision', 'ML'] },
-  { src: '/images/placeholders/about-04.svg', stack: ['Arduino', 'ESP32', 'IoT'] },
-  { src: '/images/placeholders/about-05.svg', stack: ['Mentoring', 'Robotics', 'Education'] },
+  { src: '/images/placeholders/about-01.svg' },
+  { src: '/images/placeholders/about-02.svg' },
+  { src: '/images/placeholders/about-03.svg' },
+  { src: '/images/placeholders/about-04.svg' },
+  { src: '/images/placeholders/about-05.svg' },
 ]
 
 const activeSlide = computed(() => photoSlides[activePhoto.value])
@@ -124,18 +99,6 @@ function closePhotoPreview() {
 function handlePreviewKeydown(event) {
   if (event.key === 'Escape') closePhotoPreview()
 }
-
-const focusAreas = [
-  { key: 'web', icon: mdiWeb },
-  { key: 'machineLearning', icon: mdiChip },
-  { key: 'iot', icon: mdiServerNetwork },
-  { key: 'mentoring', icon: mdiAccountGroupOutline },
-]
-
-const stats = [
-  { key: 'education', value: currentYear - EDUCATION_START_YEAR, suffix: '+' },
-  { key: 'years', value: currentYear - DEVELOPMENT_START_YEAR, suffix: '+' },
-]
 
 // Параллакс фото при скролле
 let rafId = 0
@@ -309,26 +272,19 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.85rem;
-  max-width: 92vw;
-  max-height: 92svh;
+  width: min(92vw, 60rem);
+  height: min(92svh, 50rem);
   margin: 0;
   cursor: default;
 }
 
 .about-preview__figure img {
   display: block;
-  max-width: 92vw;
-  max-height: calc(92svh - 3rem);
+  width: 100%;
+  height: 100%;
   border: 1px solid var(--line-strong);
   border-radius: 0.75rem;
   object-fit: contain;
-}
-
-.about-preview__figure figcaption {
-  max-width: 100%;
-  color: var(--text);
-  text-align: center;
 }
 
 .about-preview__close {
@@ -374,111 +330,6 @@ onBeforeUnmount(() => {
   color: var(--muted);
 }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
-  gap: 1rem;
-  margin-top: 2.5rem;
-}
-
-.stat {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 0.35rem;
-  padding: 1.25rem 1.25rem 1.1rem;
-  border-left: 1px solid var(--line-strong);
-}
-
-.stat__value {
-  margin: 0;
-  font-size: clamp(2.2rem, 4.5vw, 3.2rem);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.03em;
-}
-
-.stat__suffix {
-  color: var(--accent);
-}
-
-.stat__label {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-/* --- Карточки направлений --- */
-.focus {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: clamp(3.5rem, 8vw, 6rem);
-}
-
-.focus__card {
-  position: relative;
-  height: 100%;
-  overflow: hidden;
-  padding: 1.6rem 1.4rem 1.8rem;
-  transition: transform 0.5s var(--ease-out), border-color 0.4s ease;
-  transform-style: preserve-3d;
-}
-
-.focus__card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 0%), rgb(var(--accent-rgb) / 0.12), transparent 45%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-
-.focus__card:hover {
-  border-color: rgb(var(--accent-rgb) / 0.35);
-}
-
-.focus__card:hover::before {
-  opacity: 1;
-}
-
-.focus__icon {
-  display: grid;
-  place-items: center;
-  width: 3rem;
-  height: 3rem;
-  margin-bottom: 1.4rem;
-  border-radius: 0.9rem;
-  background: linear-gradient(135deg, rgb(var(--accent-rgb) / 0.18), rgb(var(--accent-2-rgb) / 0.18));
-  font-size: 1.5rem;
-  color: var(--accent);
-}
-
-.focus__title {
-  margin-bottom: 0.6rem;
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.focus__text {
-  position: relative;
-  font-size: 0.92rem;
-  line-height: 1.65;
-  color: var(--muted);
-}
-
-.focus__num {
-  position: absolute;
-  top: 1.2rem;
-  right: 1.3rem;
-  font-size: 0.75rem;
-  color: rgb(255 255 255 / 0.25);
-}
-
-@media (max-width: 1024px) {
-  .focus {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 860px) {
   .about {
     grid-template-columns: 1fr;
@@ -509,17 +360,6 @@ onBeforeUnmount(() => {
     gap: 0.45rem;
   }
 
-  .stat {
-    padding: 0.9rem 0.75rem 0.8rem;
-  }
-
-  .stat__label {
-    font-size: 0.75rem;
-  }
-
-  .focus {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

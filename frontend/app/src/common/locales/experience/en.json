@@ -3,5 +3,9 @@
   "present": "Present",
   "kicker": "Journey",
   "lead": "Where I have worked and what I did there.",
+  "stats": {
+    "years": "years in development",
+    "education": "years in technical education"
+  },
   "showMore": "Show more"
 }
