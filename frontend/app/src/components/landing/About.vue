@@ -484,13 +484,19 @@ onBeforeUnmount(() => {
     grid-template-columns: 1fr;
   }
 
+  /* Планшетный режим: фото уже всей колонки, но не на всю ширину */
   .about__photo {
-    max-width: 420px;
+    width: 65%;
     margin-inline: auto;
   }
 }
 
 @media (max-width: 540px) {
+  /* Фотография почти на всю ширину - на телефоне 65% выглядит слишком узко */
+  .about__photo {
+    width: 90%;
+  }
+
   .about__gallery-controls {
     gap: 0.4rem;
   }
