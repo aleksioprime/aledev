@@ -12,7 +12,7 @@ cd aledev
 
 Запустите сервис локально:
 ```
-docker compose up -d --build
+docker compose -p aledev up -d --build
 ```
 
 Корневой compose подключает dev-конфигурации auth и portfolio из каталогов сервисов.
