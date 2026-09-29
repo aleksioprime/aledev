@@ -2,6 +2,8 @@
 
 set -e
 
+export DB_PORT="${DB_PORT:-5432}"
+
 echo "Ожидание базы данных..."
 while ! nc -z "$DB_HOST" "$DB_PORT"; do
     sleep 0.1
