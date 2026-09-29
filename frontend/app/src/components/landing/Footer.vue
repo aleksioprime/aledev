@@ -88,7 +88,7 @@ function scrollTo(anchor) {
   border-radius: 50%;
   background: var(--grad);
   background-size: 200% 100%;
-  color: #05060a !important;
+  color: var(--on-accent) !important;
   font-weight: 800;
   text-align: center;
   transition: transform 0.5s var(--ease-out), background-position 0.6s ease;

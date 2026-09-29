@@ -258,7 +258,7 @@ onUnmounted(() => {
   z-index: 2;
   border-radius: inherit;
   padding: 1px;
-  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgb(34 211 238 / 0.9), rgb(167 139 250 / 0.4) 35%, transparent 60%);
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgb(var(--accent-rgb) / 0.9), rgb(var(--accent-2-rgb) / 0.4) 35%, transparent 60%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -271,14 +271,14 @@ onUnmounted(() => {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgb(34 211 238 / 0.07), transparent 40%);
+  background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgb(var(--accent-rgb) / 0.07), transparent 40%);
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
 }
 
 .card:hover {
-  box-shadow: 0 30px 80px -30px rgb(34 211 238 / 0.35);
+  box-shadow: 0 30px 80px -30px rgb(var(--accent-rgb) / 0.35);
 }
 
 .card:hover::before,
@@ -371,7 +371,7 @@ onUnmounted(() => {
   transform: rotate(45deg);
   border-color: var(--accent);
   background: var(--accent);
-  color: #05060a;
+  color: var(--on-accent);
 }
 
 .card--skeleton {
@@ -449,7 +449,7 @@ onUnmounted(() => {
   height: 2.6rem;
   border: 1px solid var(--line-strong);
   border-radius: 50%;
-  background: rgb(10 12 18 / 0.7);
+  background: rgb(var(--panel-rgb) / 0.7);
   backdrop-filter: blur(8px);
   font-size: 1.2rem;
   transition: transform 0.4s var(--ease-out), border-color 0.3s ease;

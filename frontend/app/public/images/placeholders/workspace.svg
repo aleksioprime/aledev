@@ -2,12 +2,12 @@
   <!-- ЗАГЛУШКА: замените на своё фото (рабочее место, выступление, занятие со студентами). Рекомендуемый размер 1200×1500 -->
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0e1320"/>
+      <stop offset="0" stop-color="#0b0d17"/>
       <stop offset="1" stop-color="#1a1230"/>
     </linearGradient>
     <radialGradient id="glow" cx="0.7" cy="0.25" r="0.7">
-      <stop offset="0" stop-color="#22d3ee" stop-opacity="0.35"/>
-      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
+      <stop offset="0" stop-color="#ffb547" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ffb547" stop-opacity="0"/>
     </radialGradient>
     <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
       <path d="M60 0H0V60" fill="none" stroke="#ffffff" stroke-opacity="0.06"/>
@@ -16,11 +16,11 @@
   <rect width="1200" height="1500" fill="url(#bg)"/>
   <rect width="1200" height="1500" fill="url(#grid)"/>
   <rect width="1200" height="1500" fill="url(#glow)"/>
-  <g fill="none" stroke="#a78bfa" stroke-opacity="0.55" stroke-width="3">
+  <g fill="none" stroke="#ff6b4a" stroke-opacity="0.55" stroke-width="3">
     <rect x="330" y="560" width="540" height="340" rx="22"/>
     <path d="M280 940h640l-40 40H320z"/>
-    <path d="M390 640l60 50-60 50M480 760h110" stroke="#22d3ee" stroke-opacity="0.9"/>
+    <path d="M390 640l60 50-60 50M480 760h110" stroke="#ffb547" stroke-opacity="0.9"/>
   </g>
-  <text x="600" y="1110" text-anchor="middle" font-family="monospace" font-size="38" fill="#e9edf5" fill-opacity="0.75">photo placeholder</text>
-  <text x="600" y="1165" text-anchor="middle" font-family="monospace" font-size="28" fill="#8c95a8">1200 × 1500</text>
+  <text x="600" y="1110" text-anchor="middle" font-family="monospace" font-size="38" fill="#f1ede4" fill-opacity="0.75">photo placeholder</text>
+  <text x="600" y="1165" text-anchor="middle" font-family="monospace" font-size="28" fill="#9a9bb0">1200 × 1500</text>
 </svg>

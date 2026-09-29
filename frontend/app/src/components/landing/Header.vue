@@ -2,7 +2,7 @@
   <header class="site-header" :class="{ 'is-scrolled': scrolled }">
     <nav class="nav shell">
       <a href="#hero" class="brand" @click.prevent="scrollToSection('hero')">
-        <span class="brand__prompt">~/</span>aledev
+        <span class="brand__prompt">~/</span>aledev<span class="brand__caret" aria-hidden="true"></span>
       </a>
 
       <div class="nav__links">
@@ -161,7 +161,7 @@ onBeforeUnmount(() => {
 
 .is-scrolled .nav {
   border-color: var(--line);
-  background: rgb(10 12 18 / 0.72);
+  background: rgb(var(--panel-rgb) / 0.72);
   backdrop-filter: blur(18px) saturate(1.4);
   box-shadow: 0 10px 40px -20px rgb(0 0 0 / 0.8);
 }
@@ -176,6 +176,17 @@ onBeforeUnmount(() => {
 
 .brand__prompt {
   color: var(--accent);
+}
+
+/* Курсор терминала — горит ровно, без мигания */
+.brand__caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 0.15em;
+  vertical-align: -0.15em;
+  background: var(--accent);
+  box-shadow: 0 0 10px rgb(var(--accent-rgb) / 0.45);
 }
 
 .nav__links {
@@ -243,7 +254,7 @@ onBeforeUnmount(() => {
 }
 
 .lang__btn.is-active {
-  color: #05060a;
+  color: var(--on-accent);
 }
 
 .lang__thumb {
@@ -289,7 +300,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   gap: 0.5rem;
   padding: 6rem 1.5rem 2rem;
-  background: rgb(6 7 11 / 0.96);
+  background: rgb(var(--bg-rgb) / 0.96);
   backdrop-filter: blur(20px);
 }
 

@@ -13,15 +13,15 @@
           <circle cx="1" cy="1" r="1" fill="#fff" fill-opacity="0.12" />
         </pattern>
       </defs>
-      <rect width="400" height="225" fill="#0b0d14" />
+      <rect width="400" height="225" class="cover__base" />
       <rect width="400" height="225" :fill="`url(#g-${uid})`" />
       <rect width="400" height="225" :fill="`url(#p-${uid})`" />
       <g class="cover__traces" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="1.2">
         <path v-for="(d, i) in traces" :key="i" :d="d" />
       </g>
       <g>
-        <circle v-for="(n, i) in pads" :key="i" :cx="n.x" :cy="n.y" r="3.2" fill="#0b0d14"
-          :stroke="`hsl(${palette.h1} 90% 70%)`" stroke-width="1.5" class="cover__pad"
+        <circle v-for="(n, i) in pads" :key="i" :cx="n.x" :cy="n.y" r="3.2"
+          :stroke="`hsl(${palette.h1} 90% 70%)`" stroke-width="1.5" class="cover__pad cover__pad-fill"
           :style="{ animationDelay: `${i * 0.35}s` }" />
       </g>
     </svg>
@@ -61,8 +61,8 @@ const uid = computed(() => hash(props.seed || props.title).toString(36))
 
 const palette = computed(() => {
   const h = hash(props.seed || props.title)
-  const h1 = 170 + (h % 110) // от бирюзового до фиолетового
-  return { h1, h2: (h1 + 60 + ((h >> 8) % 60)) % 360 }
+  const h1 = 12 + (h % 38) // тёплый: от кораллового до янтарного
+  return { h1, h2: 225 + ((h >> 8) % 40) } // холодный: индиго
 })
 
 // «Дорожки печатной платы»: ломаные линии под 45°/90°
@@ -103,7 +103,7 @@ const monogram = computed(() => {
   position: relative;
   overflow: hidden;
   aspect-ratio: 16 / 9;
-  background: #0b0d14;
+  background: var(--bg-2);
 }
 
 .cover__svg,
@@ -137,5 +137,10 @@ const monogram = computed(() => {
   color: transparent;
   -webkit-text-stroke: 1px rgb(255 255 255 / 0.4);
   transition: transform 1s var(--ease-out);
+}
+
+.cover__base,
+.cover__pad-fill {
+  fill: var(--bg-2);
 }
 </style>

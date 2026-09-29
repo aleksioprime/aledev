@@ -4,7 +4,7 @@
     <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M60 0H0V60" fill="none" stroke="#fff" stroke-opacity=".06"/></pattern>
   </defs>
   <rect width="1200" height="1500" fill="url(#bg)"/><rect width="1200" height="1500" fill="url(#grid)"/>
-  <g fill="none" stroke="#76d2c0" stroke-opacity=".75" stroke-width="4"><rect x="410" y="500" width="380" height="380" rx="36"/><circle cx="600" cy="690" r="105"/><path d="M480 450v-90m120 90v-90m120 90v-90M480 1020v-90m120 90v-90m120 90v-90M360 570h-90m90 120h-90m90 120h-90m750-240h-90m90 120h-90m90 120h-90"/></g>
-  <text x="600" y="1080" text-anchor="middle" font-family="monospace" font-size="72" fill="#e9edf5" fill-opacity=".8">PHOTO 04</text>
+  <g fill="none" stroke="#ffd9a0" stroke-opacity=".75" stroke-width="4"><rect x="410" y="500" width="380" height="380" rx="36"/><circle cx="600" cy="690" r="105"/><path d="M480 450v-90m120 90v-90m120 90v-90M480 1020v-90m120 90v-90m120 90v-90M360 570h-90m90 120h-90m90 120h-90m750-240h-90m90 120h-90m90 120h-90"/></g>
+  <text x="600" y="1080" text-anchor="middle" font-family="monospace" font-size="72" fill="#f1ede4" fill-opacity=".8">PHOTO 04</text>
   <text x="600" y="1150" text-anchor="middle" font-family="monospace" font-size="28" fill="#b5cbc7">IOT &amp; HARDWARE</text>
 </svg>
