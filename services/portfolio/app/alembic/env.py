@@ -12,6 +12,13 @@ from src.db.postgres import Base
 from src.models.project import Project, Article, ArticleTOC
 from src.models.experience import Experience
 from src.models.feedback import Feedback
+from src.models.achievement import Achievement, AchievementTranslation
+from src.models.mentoring import (
+    MentoringMetric,
+    MentoringMetricTranslation,
+    MentoringPage,
+    MentoringPageTranslation,
+)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

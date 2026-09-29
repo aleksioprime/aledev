@@ -1,68 +1,24 @@
 {
-  "kicker": "Mentoring",
-  "titleStart": "Research, awards",
-  "titleAccent": "and student teams",
-  "lead": "Experience heading the Design & Technology department at the Skolkovo International Gymnasium: curricula in AI, programming and robotics, an engineering lab and dozens of student projects — from robots to neural networks.",
-  "numbers": {
-    "projects": "student projects",
-    "prizes": "team prizes",
-    "programs": "curricula"
+  "contentLoading": "Loading mentoring section…",
+  "contentUnavailable": "The mentoring section is temporarily unavailable.",
+  "filterCategory": "Filter by category",
+  "filterScope": "Filter by participants",
+  "allCategories": "All categories",
+  "loading": "Loading achievements…",
+  "empty": "No achievements match these filters.",
+  "source": "Details and evidence",
+  "scope": {
+    "all": "All results",
+    "personal": "Mine",
+    "team": "Teams",
+    "students": "Students"
   },
-  "awardsTitle": "Research and awards",
-  "awards": {
-    "umnik": {
-      "title": "Grant project: a platform for learning machine vision",
-      "text": "A mobile platform on a steerable chassis with neural networks for traffic sign recognition, a test track with 3D visualisation, and teaching materials for school students."
-    },
-    "intel": {
-      "title": "1st place — Intel AI for Youth national contest",
-      "text": "Teaching case “Machine vision with a 3D camera for a self-driving car on Raspberry Pi”."
-    },
-    "pedcom": {
-      "title": "1st place — PedKom national contest",
-      "text": "“Innovative technologies in education”: a computer science lesson with augmented reality."
-    },
-    "trainer": {
-      "title": "Intel AI for Youth master trainer",
-      "text": "Certified master trainer of the programme and teacher at Yandex Academy Lyceum."
-    },
-    "hackathon": {
-      "title": "StarLine “Smart Car” hackathon",
-      "text": "4th place with a team of teachers at the Robofinist international festival."
-    }
-  },
-  "teamsTitle": "Student team results",
-  "results": {
-    "intelStudents": {
-      "place": "2nd place",
-      "title": "Intel AI for Youth national project contest",
-      "text": "Project “Eye”: computer vision tracks how people move around a building."
-    },
-    "firstRussia": {
-      "place": "1st place",
-      "title": "First Russia Robotics Competition, Moscow",
-      "text": "“Smart home” project in FIRST LEGO League Junior."
-    },
-    "worldskills": {
-      "place": "3rd place",
-      "title": "Moscow Masters (WorldSkills standards)",
-      "text": "Mobile Robotics skill."
-    },
-    "prizma": {
-      "place": "Winner",
-      "title": "PRIZMA international contest",
-      "text": "A glove for blind and visually impaired people."
-    },
-    "eurobot": {
-      "place": "2nd place",
-      "title": "Eurobot national stage",
-      "text": "Resource-collecting robot on Arduino Mega."
-    },
-    "shustrik": {
-      "place": "1st place",
-      "title": "SHUSTRIK national contest, “Space” category",
-      "text": "Research complex: an Arduino rover and a station controlled from an Android app."
-    }
-  },
-  "expert": "Judge and expert at robotics competitions and project contests: Robofest, RRO, SK Junior Challenge national olympiad."
+  "categories": {
+    "grant": "Grants",
+    "award": "Awards",
+    "certification": "Certifications",
+    "competition": "Competitions",
+    "research": "Research",
+    "expertise": "Expert work"
+  }
 }

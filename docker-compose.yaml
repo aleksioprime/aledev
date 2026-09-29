@@ -1,3 +1,7 @@
+include:
+  - path: ./services/auth/docker-compose.yaml
+  - path: ./services/portfolio/docker-compose.yaml
+
 services:
 
   frontend-mysite:
@@ -18,3 +22,8 @@ services:
       - "8085:5173"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      auth-app:
+        condition: service_started
+      portfolio-app:
+        condition: service_started

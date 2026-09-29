@@ -2,9 +2,6 @@
 
 Сайт-портфолио: фронтенд (Vue 3 + Vite), сервис портфолио (FastAPI) и сервис авторизации для админ-панели.
 
-> Сторонние инфраструктурные стеки (3x-ui, 3proxy, reverse SSH-туннель, поддомены через туннель)
-> перенесены в ветку [`archive/infra`](https://github.com/aleksioprime/aledev/tree/archive/infra).
-
 ## Запуск для разработчика
 
 Скачайте репозиторий:
@@ -15,8 +12,11 @@ cd aledev
 
 Запустите сервис локально:
 ```
-docker-compose -p aledev up -d --build
+docker compose up -d --build
 ```
+
+Корневой compose подключает dev-конфигурации auth и portfolio из каталогов сервисов.
+Остановка всего стека: `docker compose down`.
 
 # Деплой на сервер
 

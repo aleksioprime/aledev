@@ -5,7 +5,7 @@ x-app: &app
   platform: linux/amd64
 
 services:
-  postgres:
+  auth-postgres:
     image: postgres:14
     container_name: aledev-auth-postgres
     <<: *app
@@ -19,24 +19,32 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - postgres_volume:/var/lib/postgresql/data/
+      - auth_postgres_volume:/var/lib/postgresql/data/
+    networks:
+      auth-internal:
+        aliases:
+          - postgres
     environment:
       TZ: "Europe/Moscow"
       PGTZ: "Europe/Moscow"
 
-  redis:
+  auth-redis:
     image: redis:6
     container_name: aledev-auth-redis
     <<: *app
     volumes:
-      - redis_volume:/data
+      - auth_redis_volume:/data
+    networks:
+      auth-internal:
+        aliases:
+          - redis
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  app:
+  auth-app:
     build:
       context: ./app
     container_name: aledev-auth-app
@@ -44,17 +52,23 @@ services:
     command: python src/main.py
     environment:
       UVICORN_RELOAD: "1"
+      DB_PORT: ${DB_PORT:-5432}
     volumes:
       - ./app:/usr/src/app/
+    networks:
+      - auth-internal
     ports:
       - "8501:8000"
     depends_on:
-      redis:
+      auth-redis:
         condition: service_healthy
-      postgres:
+      auth-postgres:
         condition: service_healthy
 
 
 volumes:
-  postgres_volume:
-  redis_volume:
+  auth_postgres_volume:
+  auth_redis_volume:
+
+networks:
+  auth-internal:

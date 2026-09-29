@@ -3,13 +3,32 @@
     <div class="about shell">
       <figure v-reveal="'left'" class="about__photo">
         <div ref="photoRef" class="about__photo-inner">
-          <!-- ЗАГЛУШКА: замените файл public/images/placeholders/workspace.svg на своё фото -->
-          <img src="/images/placeholders/workspace.svg" :alt="t('about.photoAlt')" loading="lazy" />
+          <button type="button" class="about__photo-open" :aria-label="t('about.openPhoto', { number: activePhoto + 1 })"
+            @click="openPhotoPreview">
+            <img :key="activePhoto" :src="activeSlide.src" :alt="t('about.photoAlt', { number: activePhoto + 1 })"
+              loading="lazy" />
+          </button>
         </div>
         <figcaption class="about__badge font-mono">
           <span class="about__pulse"></span>
-          {{ t('about.badge') }}
+          {{ activeSlide.stack.join(' · ') }}
         </figcaption>
+        <nav class="about__gallery-controls" :aria-label="t('about.galleryLabel')">
+          <button type="button" class="gallery-button" :aria-label="t('about.previousPhoto')"
+            @click="showPreviousPhoto">
+            <Icon :path="mdiChevronLeft" />
+          </button>
+          <div class="gallery-dots">
+            <button v-for="(slide, index) in photoSlides" :key="index" type="button" class="gallery-dot"
+              :class="{ 'gallery-dot--active': index === activePhoto }"
+              :aria-label="t('about.selectPhoto', { number: index + 1 })" :aria-current="index === activePhoto"
+              @click="activePhoto = index" />
+          </div>
+          <span class="gallery-count font-mono" aria-live="polite">{{ String(activePhoto + 1).padStart(2, '0') }} / 05</span>
+          <button type="button" class="gallery-button" :aria-label="t('about.nextPhoto')" @click="showNextPhoto">
+            <Icon :path="mdiChevronRight" />
+          </button>
+        </nav>
       </figure>
 
       <div class="about__content">
@@ -21,8 +40,6 @@
         </header>
 
         <p v-reveal="{ delay: 140 }" class="about__lead">{{ t('about.p1') }}</p>
-        <p v-reveal="{ delay: 200 }" class="about__text">{{ t('about.p2') }}</p>
-        <p v-reveal="{ delay: 240 }" class="about__text">{{ t('about.p3') }}</p>
 
         <dl class="stats">
           <div v-for="(stat, i) in stats" :key="stat.key" v-reveal="{ variant: 'scale', delay: 120 + i * 90 }"
@@ -47,59 +64,82 @@
       </div>
     </div>
   </section>
+
+  <Teleport to="body">
+    <Transition name="about-preview">
+      <div v-if="isPreviewOpen" class="about-preview" @click.self="closePhotoPreview">
+        <button type="button" class="about-preview__close" :aria-label="t('about.closePhoto')"
+          @click="closePhotoPreview">
+          <Icon :path="mdiClose" />
+        </button>
+        <figure class="about-preview__figure">
+          <img :src="activeSlide.src" :alt="t('about.photoAlt', { number: activePhoto + 1 })" />
+          <figcaption class="font-mono">{{ activeSlide.stack.join(' · ') }}</figcaption>
+        </figure>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup>
 import Icon from '@/components/ui/Icon.vue'
-import { mdiAccountGroupOutline, mdiChip, mdiServerNetwork, mdiWeb } from '@mdi/js'
+import { mdiAccountGroupOutline, mdiChevronLeft, mdiChevronRight, mdiChip, mdiClose, mdiServerNetwork, mdiWeb } from '@mdi/js'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import CountUp from '@/components/landing/effects/CountUp.vue'
-import { useProjectStore } from '@/stores/project'
-import { useExperienceStore } from '@/stores/experience'
 
 const sectionId = 'about'
 const { t } = useI18n()
 
-const projectStore = useProjectStore()
-const experienceStore = useExperienceStore()
+const photoRef = ref(null)
+const activePhoto = ref(0)
+const isPreviewOpen = ref(false)
+const EDUCATION_START_YEAR = 2007
+const DEVELOPMENT_START_YEAR = 2021
+const currentYear = new Date().getFullYear()
+const photoSlides = [
+  { src: '/images/placeholders/about-01.svg', stack: ['Vue.js', 'FastAPI', 'PostgreSQL'] },
+  { src: '/images/placeholders/about-02.svg', stack: ['Docker', 'CI/CD', 'Linux'] },
+  { src: '/images/placeholders/about-03.svg', stack: ['Python', 'Computer Vision', 'ML'] },
+  { src: '/images/placeholders/about-04.svg', stack: ['Arduino', 'ESP32', 'IoT'] },
+  { src: '/images/placeholders/about-05.svg', stack: ['Mentoring', 'Robotics', 'Education'] },
+]
 
-// Начало работы в образовании (из педагогического портфолио)
-const EDUCATION_SINCE = '2007-09-15'
+const activeSlide = computed(() => photoSlides[activePhoto.value])
 
-function yearsSince(date) {
-  return Math.floor((Date.now() - new Date(date).getTime()) / (365.25 * 24 * 3600 * 1000))
+function showPreviousPhoto() {
+  activePhoto.value = (activePhoto.value + photoSlides.length - 1) % photoSlides.length
 }
 
-const projectsTotal = ref(0)
-const years = ref(0)
-const photoRef = ref(null)
+function showNextPhoto() {
+  activePhoto.value = (activePhoto.value + 1) % photoSlides.length
+}
+
+function openPhotoPreview() {
+  isPreviewOpen.value = true
+  window.addEventListener('keydown', handlePreviewKeydown)
+}
+
+function closePhotoPreview() {
+  isPreviewOpen.value = false
+  window.removeEventListener('keydown', handlePreviewKeydown)
+}
+
+function handlePreviewKeydown(event) {
+  if (event.key === 'Escape') closePhotoPreview()
+}
 
 const focusAreas = [
   { key: 'web', icon: mdiWeb },
-  { key: 'microservices', icon: mdiServerNetwork },
-  { key: 'mliot', icon: mdiChip },
+  { key: 'machineLearning', icon: mdiChip },
+  { key: 'iot', icon: mdiServerNetwork },
   { key: 'mentoring', icon: mdiAccountGroupOutline },
 ]
 
-// Все цифры берутся из реальных данных: API проектов, опыта и списка навыков
-const stats = computed(() => [
-  { key: 'years', value: years.value, suffix: '+' },
-  { key: 'projects', value: projectsTotal.value, suffix: '' },
-  { key: 'education', value: yearsSince(EDUCATION_SINCE), suffix: '+' },
-].filter((s) => s.value > 0))
-
-async function loadStats() {
-  const [projects, experience] = await Promise.all([
-    projectStore.loadProjects({ params: { offset: 1, limit: 1 } }),
-    experienceStore.loadExperiences({ params: { offset: 1, limit: 100 } }),
-  ])
-  if (projects) projectsTotal.value = projects.total
-  if (experience?.items?.length) {
-    const first = Math.min(...experience.items.map((e) => new Date(e.start_date).getTime()))
-    years.value = Math.max(1, Math.floor((Date.now() - first) / (365.25 * 24 * 3600 * 1000)))
-  }
-}
+const stats = [
+  { key: 'education', value: currentYear - EDUCATION_START_YEAR, suffix: '+' },
+  { key: 'years', value: currentYear - DEVELOPMENT_START_YEAR, suffix: '+' },
+]
 
 // Параллакс фото при скролле
 let rafId = 0
@@ -115,7 +155,6 @@ function onScroll() {
 }
 
 onMounted(() => {
-  loadStats()
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const coarse = window.matchMedia('(pointer: coarse)').matches
   if (!reduced && !coarse) {
@@ -127,6 +166,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   cancelAnimationFrame(rafId)
   window.removeEventListener('scroll', onScroll)
+  window.removeEventListener('keydown', handlePreviewKeydown)
 })
 </script>
 
@@ -155,10 +195,15 @@ onBeforeUnmount(() => {
   content: "";
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background: linear-gradient(180deg, transparent 55%, rgb(6 7 11 / 0.75));
 }
 
 .about__photo img {
+  position: absolute;
+  top: -7.5%;
+  left: 0;
+  display: block;
   width: 100%;
   height: 115%;
   object-fit: cover;
@@ -166,19 +211,168 @@ onBeforeUnmount(() => {
   transition: transform 0.2s linear;
 }
 
-.about__badge {
+.about__photo-open {
   position: absolute;
-  left: 1.25rem;
-  bottom: 1.25rem;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.about__photo-open:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+}
+
+.about__badge {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
+  max-width: 100%;
+  margin-top: 0.8rem;
   padding: 0.55rem 0.9rem;
   border: 1px solid var(--line-strong);
   border-radius: 999px;
   background: rgb(10 12 18 / 0.8);
   backdrop-filter: blur(10px);
   font-size: 0.78rem;
+}
+
+.about__gallery-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+}
+
+.gallery-button {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 2.5rem;
+  aspect-ratio: 1;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: rgb(10 12 18 / 0.65);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.gallery-button:hover,
+.gallery-button:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.gallery-button:focus-visible,
+.gallery-dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.gallery-dots {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.gallery-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--muted);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.gallery-dot--active {
+  background: var(--accent);
+  transform: scale(1.2);
+}
+
+.gallery-count {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.about-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  background: rgb(0 0 0 / 0.84);
+  backdrop-filter: blur(10px);
+  cursor: zoom-out;
+}
+
+.about-preview__figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  max-width: 92vw;
+  max-height: 92svh;
+  margin: 0;
+  cursor: default;
+}
+
+.about-preview__figure img {
+  display: block;
+  max-width: 92vw;
+  max-height: calc(92svh - 3rem);
+  border: 1px solid var(--line-strong);
+  border-radius: 0.75rem;
+  object-fit: contain;
+}
+
+.about-preview__figure figcaption {
+  max-width: 100%;
+  color: var(--text);
+  text-align: center;
+}
+
+.about-preview__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  aspect-ratio: 1;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: rgb(10 12 18 / 0.8);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.about-preview__close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.about-preview-enter-active,
+.about-preview-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.about-preview-enter-from,
+.about-preview-leave-to {
+  opacity: 0;
 }
 
 .about__pulse {
@@ -318,6 +512,23 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 540px) {
+  .about__badge {
+    padding-inline: 0.75rem;
+    font-size: 0.7rem;
+  }
+
+  .about__gallery-controls {
+    gap: 0.4rem;
+  }
+
+  .gallery-button {
+    width: 2.25rem;
+  }
+
+  .gallery-dots {
+    gap: 0.45rem;
+  }
+
   .stat {
     padding: 0.9rem 0.75rem 0.8rem;
   }
@@ -328,6 +539,13 @@ onBeforeUnmount(() => {
 
   .focus {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-preview-enter-active,
+  .about-preview-leave-active {
+    transition: none;
   }
 }
 </style>

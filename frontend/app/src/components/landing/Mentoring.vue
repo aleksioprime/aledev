@@ -3,98 +3,125 @@
     <div class="shell">
       <header class="section-head mentoring-head">
         <div>
-          <span v-reveal class="section-kicker">03 — {{ t('mentoring.kicker') }}</span>
-          <h2 v-reveal="{ delay: 80 }" class="section-title">
-            {{ t('mentoring.titleStart') }} <span class="text-gradient">{{ t('mentoring.titleAccent') }}</span>
+          <span v-if="pageTranslation" v-reveal class="section-kicker">03 — {{ pageTranslation.kicker }}</span>
+          <h2 v-if="pageTranslation" v-reveal="{ delay: 80 }" class="section-title">
+            {{ pageTranslation.title_start }} <span class="text-gradient">{{ pageTranslation.title_accent }}</span>
           </h2>
+          <p v-else class="section-lead">{{ contentLoading ? t('mentoring.contentLoading') : t('mentoring.contentUnavailable') }}</p>
         </div>
-        <p v-reveal="{ delay: 160 }" class="section-lead">{{ t('mentoring.lead') }}</p>
+        <p v-if="pageTranslation" v-reveal="{ delay: 160 }" class="section-lead">{{ pageTranslation.lead }}</p>
       </header>
 
-      <dl class="numbers">
-        <div v-for="(n, i) in numbers" :key="n.key" v-reveal="{ variant: 'scale', delay: i * 80 }" class="number">
-          <dt class="number__label">{{ t(`mentoring.numbers.${n.key}`) }}</dt>
+      <dl v-if="metrics.length" class="numbers">
+        <div v-for="(n, i) in metrics" :key="n.key" v-reveal="{ variant: 'scale', delay: i * 80 }" class="number">
+          <dt class="number__label">{{ n.label }}</dt>
           <dd class="number__value font-display">{{ n.value }}</dd>
         </div>
       </dl>
 
-      <div class="grid">
-        <!-- Гранты, конкурсы и исследования -->
-        <div class="col">
-          <h3 v-reveal class="col__title">
-            <Icon :path="mdiTrophyOutline" />
-            {{ t('mentoring.awardsTitle') }}
-          </h3>
-          <ul class="awards">
-            <li v-for="(item, i) in awards" :key="item.key" v-reveal="{ delay: i * 70 }" class="award glass">
-              <span class="award__year font-mono">{{ item.year }}</span>
-              <div>
-                <p class="award__title">{{ t(`mentoring.awards.${item.key}.title`) }}</p>
-                <p class="award__text">{{ t(`mentoring.awards.${item.key}.text`) }}</p>
-              </div>
-            </li>
-          </ul>
+      <div class="achievement-toolbar" aria-label="Фильтры достижений">
+        <div class="filter-group" role="group" :aria-label="t('mentoring.filterCategory')">
+          <button type="button" class="filter-button" :class="{ 'filter-button--active': selectedCategory === 'all' }"
+            @click="selectedCategory = 'all'">{{ t('mentoring.allCategories') }}</button>
+          <button v-for="category in categories" :key="category" type="button" class="filter-button"
+            :class="{ 'filter-button--active': selectedCategory === category }"
+            @click="selectedCategory = category">{{ categoryLabel(category) }}</button>
         </div>
-
-        <!-- Результаты ученических команд -->
-        <div class="col">
-          <h3 v-reveal class="col__title">
-            <Icon :path="mdiAccountGroupOutline" />
-            {{ t('mentoring.teamsTitle') }}
-          </h3>
-          <ul class="results">
-            <li v-for="(item, i) in results" :key="item.key" v-reveal="{ variant: 'right', delay: i * 60 }"
-              class="result">
-              <span class="result__place">{{ t(`mentoring.results.${item.key}.place`) }}</span>
-              <span class="result__body">
-                <span class="result__title">{{ t(`mentoring.results.${item.key}.title`) }}</span>
-                <span class="result__text">{{ t(`mentoring.results.${item.key}.text`) }}</span>
-              </span>
-              <span class="result__year font-mono">{{ item.year }}</span>
-            </li>
-          </ul>
-
-          <p v-reveal class="expert">
-            <Icon :path="mdiScaleBalance" />
-            {{ t('mentoring.expert') }}
-          </p>
+        <div class="filter-group filter-group--scope" role="group" :aria-label="t('mentoring.filterScope')">
+          <button v-for="scope in scopes" :key="scope" type="button" class="filter-button"
+            :class="{ 'filter-button--active': selectedScope === scope }"
+            @click="selectedScope = scope">{{ t(`mentoring.scope.${scope}`) }}</button>
         </div>
       </div>
+
+      <p v-if="loading" class="achievements-state">{{ t('mentoring.loading') }}</p>
+      <p v-else-if="!filteredAchievements.length" class="achievements-state">{{ t('mentoring.empty') }}</p>
+      <ol v-else class="achievement-list">
+        <li v-for="(item, i) in filteredAchievements" :key="item.id" v-reveal="{ delay: Math.min(i * 45, 270) }">
+          <article class="achievement">
+            <div class="achievement__meta">
+              <span v-if="item.year" class="achievement__year font-mono">{{ item.year }}</span>
+              <span class="achievement__scope">{{ t(`mentoring.scope.${item.scope}`) }}</span>
+            </div>
+            <div class="achievement__content">
+              <div class="achievement__heading">
+                <h3 class="achievement__title">{{ translationFor(item).title }}</h3>
+                <span v-if="translationFor(item).result" class="achievement__result">{{ translationFor(item).result }}</span>
+              </div>
+              <p v-if="translationFor(item).organization" class="achievement__organization">
+                {{ translationFor(item).organization }}
+              </p>
+              <p v-if="translationFor(item).short_description || translationFor(item).description" class="achievement__description">
+                {{ translationFor(item).short_description || translationFor(item).description }}
+              </p>
+              <a v-if="item.source_url" class="achievement__source" :href="item.source_url" target="_blank"
+                rel="noopener noreferrer">{{ t('mentoring.source') }}</a>
+            </div>
+            <span class="achievement__category font-mono">{{ categoryLabel(item.category) }}</span>
+          </article>
+        </li>
+      </ol>
     </div>
   </section>
 </template>
 
 <script setup>
-import Icon from '@/components/ui/Icon.vue'
-import { mdiAccountGroupOutline, mdiScaleBalance, mdiTrophyOutline } from '@mdi/js'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAchievementStore } from '@/stores/achievement'
+import { useMentoringStore } from '@/stores/mentoring'
 
 // Факты — из педагогического портфолио (Международная гимназия «Сколково», 2016–2022)
 const sectionId = 'mentoring'
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const achievementStore = useAchievementStore()
+const mentoringStore = useMentoringStore()
+const achievements = ref([])
+const pageContent = ref(null)
+const loading = ref(true)
+const contentLoading = ref(true)
+const selectedCategory = ref('all')
+const selectedScope = ref('all')
 
-const numbers = [
-  { key: 'projects', value: '30+' },
-  { key: 'prizes', value: '15+' },
-  { key: 'programs', value: '6' },
-]
+const scopes = ['all', 'personal', 'team', 'students']
+const pageTranslation = computed(() => pageContent.value?.translations?.find((translation) => translation.lang === locale.value)
+  || pageContent.value?.translations?.find((translation) => translation.lang === 'ru')
+  || pageContent.value?.translations?.[0]
+  || null)
+const metrics = computed(() => (pageContent.value?.metrics || []).map((metric) => ({
+  ...metric,
+  label: metric.translations?.find((translation) => translation.lang === locale.value)?.label
+    || metric.translations?.find((translation) => translation.lang === 'ru')?.label
+    || metric.translations?.[0]?.label
+    || '',
+})))
+const categories = computed(() => [...new Set(achievements.value.map((item) => item.category))])
+const filteredAchievements = computed(() => achievements.value.filter((item) =>
+  (selectedCategory.value === 'all' || item.category === selectedCategory.value)
+  && (selectedScope.value === 'all' || item.scope === selectedScope.value)
+))
 
-const awards = [
-  { key: 'umnik', year: '2019' },
-  { key: 'intel', year: '2021' },
-  { key: 'pedcom', year: '2021' },
-  { key: 'trainer', year: '2020' },
-  { key: 'hackathon', year: '2018' },
-]
+function translationFor(item) {
+  return item.translations?.find((translation) => translation.lang === locale.value)
+    || item.translations?.find((translation) => translation.lang === 'ru')
+    || item.translations?.[0]
+    || {}
+}
 
-const results = [
-  { key: 'intelStudents', year: '2022' },
-  { key: 'firstRussia', year: '2020' },
-  { key: 'worldskills', year: '2019' },
-  { key: 'prizma', year: '2018' },
-  { key: 'eurobot', year: '2017' },
-  { key: 'shustrik', year: '2017' },
-]
+function categoryLabel(category) {
+  return t(`mentoring.categories.${category}`)
+}
+
+onMounted(async () => {
+  const [content, achievementsData] = await Promise.all([
+    mentoringStore.loadMentoringContent(),
+    achievementStore.loadAchievements({ params: { offset: 0, limit: 100 } }),
+  ])
+  pageContent.value = content
+  achievements.value = achievementsData?.items || []
+  contentLoading.value = false
+  loading.value = false
+})
 </script>
 
 <style scoped>
@@ -140,126 +167,124 @@ const results = [
   color: var(--muted);
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(2rem, 5vw, 4rem);
-  align-items: start;
-}
-
-.col__title {
+.achievement-toolbar {
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
-  font-size: 1.15rem;
-  font-weight: 700;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.col__title .icon {
-  color: var(--accent);
-}
-
-.awards {
+.filter-group {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
-.award {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 1rem;
-  padding: 1.1rem 1.25rem;
-  transition: border-color 0.3s ease;
-}
-
-.award:hover {
-  border-color: rgb(34 211 238 / 0.35);
-}
-
-.award__year {
-  padding-top: 0.15rem;
-  font-size: 0.8rem;
-  color: var(--accent);
-}
-
-.award__title {
-  font-weight: 700;
-  line-height: 1.4;
-}
-
-.award__text {
-  margin-top: 0.35rem;
-  font-size: 0.9rem;
-  line-height: 1.6;
+.filter-button {
+  min-height: 2.35rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
   color: var(--muted);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.results {
+.filter-button:hover,
+.filter-button--active {
+  border-color: var(--accent);
+  background: rgb(34 211 238 / 0.08);
+  color: var(--text);
+}
+
+.filter-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.achievement-list {
   margin: 0;
   padding: 0;
-  list-style: none;
   border-top: 1px solid var(--line);
+  list-style: none;
 }
 
-.result {
-  display: grid;
-  grid-template-columns: 5.5rem 1fr auto;
-  align-items: baseline;
-  gap: 1rem;
-  padding: 1rem 0.25rem;
+.achievement-list > li {
   border-bottom: 1px solid var(--line);
 }
 
-.result__place {
-  font-weight: 700;
-  color: var(--accent-3);
+.achievement {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.22fr) minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 1.25rem;
+  padding: 1.25rem 0.25rem;
 }
 
-.result__body {
+.achievement__meta {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.45rem;
+  padding-top: 0.1rem;
 }
 
-.result__title {
-  font-weight: 600;
-  line-height: 1.4;
+.achievement__year,
+.achievement__category {
+  font-size: 0.76rem;
+  color: var(--accent);
 }
 
-.result__text {
-  font-size: 0.88rem;
-  line-height: 1.55;
+.achievement__scope {
+  font-size: 0.8rem;
   color: var(--muted);
 }
 
-.result__year {
-  font-size: 0.78rem;
-  color: var(--muted);
-}
-
-.expert {
+.achievement__heading {
   display: flex;
-  gap: 0.6rem;
-  margin-top: 1.5rem;
-  font-size: 0.92rem;
-  line-height: 1.6;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.8rem;
+}
+
+.achievement__title {
+  font-size: 1.05rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.achievement__result {
+  color: var(--accent-3);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.achievement__organization {
+  margin-top: 0.25rem;
   color: var(--muted);
+  font-size: 0.85rem;
 }
 
-.expert .icon {
-  margin-top: 0.2rem;
-  color: var(--accent-2);
+.achievement__description {
+  max-width: 54rem;
+  margin-top: 0.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.65;
 }
 
-@media (max-width: 900px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
+.achievement__source {
+  display: inline-block;
+  margin-top: 0.55rem;
+  color: var(--accent);
+  font-size: 0.82rem;
+}
+
+.achievements-state {
+  padding-block: 2rem;
+  color: var(--muted);
 }
 
 @media (max-width: 540px) {
@@ -271,12 +296,37 @@ const results = [
     font-size: 0.75rem;
   }
 
-  .result {
+  .achievement {
     grid-template-columns: 1fr auto;
+    gap: 0.55rem 0.8rem;
   }
 
-  .result__place {
+  .achievement__meta {
     grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .achievement__content {
+    min-width: 0;
+  }
+
+  .achievement__category {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    max-width: 7.5rem;
+    text-align: right;
+  }
+
+  .achievement__heading {
+    display: block;
+  }
+
+  .achievement__result {
+    display: inline-block;
+    margin-top: 0.25rem;
   }
 }
 </style>

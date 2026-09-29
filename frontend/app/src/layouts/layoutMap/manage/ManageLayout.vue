@@ -122,6 +122,8 @@ const menuItems = [
   { title: 'Обращения', icon: 'mdi-email-outline', to: 'feedback' },
   { title: 'Проекты', icon: 'mdi-account-multiple', to: 'projects' },
   { title: 'Опыт работы', icon: 'mdi-account-multiple', to: 'experiences' },
+  { title: 'Достижения', icon: 'mdi-trophy-outline', to: 'achievements' },
+  { title: 'Контент наставничества', icon: 'mdi-account-group-outline', to: 'mentoring-content' },
 ]
 
 // Выход пользователя и переход на страницу логина

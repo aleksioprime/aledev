@@ -48,4 +48,24 @@ export const mainRoutes = [
       middlewares: [isLoggedIn],
     },
   },
+  {
+    path: "/admin/achievements",
+    name: "achievements",
+    component: () => import("@/views/admin/AchievementView.vue"),
+    meta: {
+      title: "Достижения",
+      layout: "manage",
+      middlewares: [isLoggedIn],
+    },
+  },
+  {
+    path: "/admin/mentoring-content",
+    name: "mentoring-content",
+    component: () => import("@/views/admin/MentoringContentView.vue"),
+    meta: {
+      title: "Контент наставничества",
+      layout: "manage",
+      middlewares: [isLoggedIn],
+    },
+  },
 ];

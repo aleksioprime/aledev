@@ -4,8 +4,7 @@
 
 <script setup>
 // «Сигнальная сеть» — узлы-устройства дрейфуют, соединяются линиями,
-// а по рёбрам бегут пакеты данных. Курсор — ещё один узел сети,
-// клик по фону запускает волну пакетов от курсора.
+// а по рёбрам бегут пакеты данных. Курсор — ещё один узел сети.
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const canvasRef = ref(null)
@@ -215,14 +214,6 @@ function onPointerLeave() {
   mouse.active = false
 }
 
-function onClick(e) {
-  if (!mouse.active || e.target.closest('a, button, input, textarea')) return
-  const origin = { x: mouse.x, y: mouse.y, color: COLORS[1], pulse: 0 }
-  for (const { n } of nearest(origin, MOUSE_DIST * 1.3).slice(0, 8)) {
-    spawnPacket(origin, n, COLORS[(Math.random() * 3) | 0])
-  }
-}
-
 onMounted(() => {
   const canvas = canvasRef.value
   ctx = canvas.getContext('2d')
@@ -238,7 +229,6 @@ onMounted(() => {
   })
   io.observe(canvas)
   window.addEventListener('pointermove', onPointerMove, { passive: true })
-  window.addEventListener('pointerdown', onClick)
   document.addEventListener('pointerleave', onPointerLeave)
   rafId = requestAnimationFrame(loop)
 })
@@ -248,7 +238,6 @@ onBeforeUnmount(() => {
   io?.disconnect()
   window.removeEventListener('resize', resize)
   window.removeEventListener('pointermove', onPointerMove)
-  window.removeEventListener('pointerdown', onClick)
   document.removeEventListener('pointerleave', onPointerLeave)
 })
 </script>

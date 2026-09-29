@@ -1,34 +1,36 @@
 {
   "kicker": "About",
-  "titleStart": "An engineer who builds platforms",
-  "titleAccent": "and grows engineers",
-  "photoAlt": "Workspace",
-  "badge": "Web · ML · IoT",
-  "p1": "I build full-cycle web platforms: microservice architecture and APIs, interfaces, databases, CI/CD and infrastructure. I choose a popular, proven stack — Python and FastAPI, Vue.js, PostgreSQL, message queues, Docker — so the system is reliable today and easy to evolve tomorrow.",
-  "p2": "An engineer by training (Computer Systems and Networks, diploma with honours). For a long time I combined development with education and headed the Design & Technology department at the Skolkovo International Gymnasium. Now I work in development full time: I build an educational platform for the gymnasium and a system for continuing professional education, and work on projects with startups.",
+  "titleStart": "Developer and mentor",
+  "titleAccent": "of future engineers",
+  "photoAlt": "Photo {number}",
+  "openPhoto": "Enlarge photo {number}",
+  "closePhoto": "Close enlarged photo",
+  "galleryLabel": "Photos and technology stack",
+  "previousPhoto": "Previous photo",
+  "nextPhoto": "Next photo",
+  "selectPhoto": "Show photo {number}",
+  "p1": "I build educational web platforms and microservices, and develop ML and IoT solutions. After many years in education, I now focus on software development and help emerging engineers grow. I lead projects from architecture and APIs through interfaces and databases to deployment.",
   "stats": {
     "years": "years in development",
-    "projects": "projects in portfolio",
     "education": "years in education"
   },
   "focus": {
     "web": {
       "title": "Web platforms",
-      "text": "Vue.js and FastAPI: user dashboards, admin panels and public services that are easy to evolve."
+      "text": "I build with Django, FastAPI and Vue.js, from monoliths to microservices. I design databases and message queues, and set up DevOps, Docker and CI/CD."
     },
-    "microservices": {
-      "title": "Microservices & DevOps",
-      "text": "Docker, PostgreSQL, Redis, RabbitMQ, CI/CD — reliable infrastructure and predictable releases."
+    "machineLearning": {
+      "title": "Machine learning & robotics",
+      "text": "I develop neural network and computer vision solutions, and build and program robots."
     },
-    "mliot": {
-      "title": "ML & IoT",
-      "text": "Computer vision with OpenCV and TensorFlow, devices on Arduino, ESP and Raspberry Pi."
+    "iot": {
+      "title": "Programmable electronics & IoT",
+      "text": "I design electronic devices, write firmware and integrate them into IoT systems with Arduino, ESP32 and Raspberry Pi."
     },
     "mentoring": {
       "title": "Mentoring",
-      "text": "I lead student project teams and create curricula in AI, programming and robotics."
+      "text": "I mentor school and university students, helping them take projects from an idea and prototype to competition entry. I also mentor at a career center."
     }
   },
-  "p3": "A separate focus of mine is science-intensive projects at the intersection of web, computer vision and hardware — from a grant-funded educational platform for learning machine vision to IoT monitoring systems. As a mentor I lead student project teams from idea to prizes at national competitions.",
   "stackLabel": "Tech stack"
 }

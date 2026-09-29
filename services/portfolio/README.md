@@ -10,8 +10,7 @@ cd aledev
 
 Запустите сервис локально:
 ```
-cd services/portfolio
-docker-compose -p aledev-portfolio up -d --build
+docker compose up -d --build portfolio-app
 ```
 
 Если выходит ошибка `exec /usr/src/app/entrypoint.sh: permission denied`, то нужно вручную установить флаг выполнения для entrypoint.sh в локальной системе:

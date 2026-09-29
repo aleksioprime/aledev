@@ -29,8 +29,8 @@ const { t } = useI18n()
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding-block: 2.5rem;
+  gap: 0.5rem;
+  padding-block: 1.5rem;
   border-block: 1px solid var(--line);
   background: rgb(255 255 255 / 0.015);
   transform: rotate(-1.5deg) scale(1.02);
@@ -46,8 +46,8 @@ const { t } = useI18n()
 .marquee__track {
   display: flex;
   flex-shrink: 0;
-  gap: 2.5rem;
-  padding-right: 2.5rem;
+  gap: 1.5rem;
+  padding-right: 1.5rem;
   animation: marquee 70s linear infinite;
 }
 
@@ -63,9 +63,9 @@ const { t } = useI18n()
 .marquee__item {
   display: inline-flex;
   align-items: center;
-  gap: 2.5rem;
+  gap: 1.5rem;
   font-family: var(--font-display);
-  font-size: clamp(1.4rem, 3.6vw, 2.6rem);
+  font-size: clamp(0.95rem, 2.4vw, 1.7rem);
   font-weight: 600;
   letter-spacing: -0.02em;
   white-space: nowrap;

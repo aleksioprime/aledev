@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#13201d"/><stop offset="1" stop-color="#203b36"/></linearGradient>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M60 0H0V60" fill="none" stroke="#fff" stroke-opacity=".06"/></pattern>
+  </defs>
+  <rect width="1200" height="1500" fill="url(#bg)"/><rect width="1200" height="1500" fill="url(#grid)"/>
+  <g fill="none" stroke="#75d4ac" stroke-opacity=".72" stroke-width="4"><path d="M300 900V600l150-100 150 100v300M600 900V530l150-100 150 100v370"/><path d="M390 690h120M690 620h120"/></g>
+  <text x="600" y="1080" text-anchor="middle" font-family="monospace" font-size="72" fill="#e9edf5" fill-opacity=".8">PHOTO 02</text>
+  <text x="600" y="1150" text-anchor="middle" font-family="monospace" font-size="28" fill="#b3c9bd">INFRASTRUCTURE</text>
+</svg>

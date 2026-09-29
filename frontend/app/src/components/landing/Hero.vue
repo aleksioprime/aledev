@@ -8,7 +8,7 @@
           <span v-for="(word, wi) in nameWords" :key="`${locale}-${wi}`" class="hero__word"
             :class="{ 'text-gradient': wi === nameWords.length - 1 }">
             <span v-for="(ch, ci) in word" :key="ci" class="hero__char" aria-hidden="true"
-              :style="{ '--d': `${(wi * 8 + ci) * 38 + 250}ms`, '--i': ci, '--n': word.length }">{{ ch }}</span>
+              :style="{ '--d': `${(wi * 8 + ci) * 18 + 100}ms`, '--i': ci, '--n': word.length }">{{ ch }}</span>
           </span>
         </h1>
 
@@ -45,12 +45,6 @@
           <span class="avatar__ring"></span>
           <img :src="avatar" :alt="t('hero.name')" class="avatar__img" width="640" height="640" fetchpriority="high" decoding="async" />
         </button>
-        <div class="orbit" aria-hidden="true">
-          <span v-for="(tag, i) in orbitTags" :key="tag" class="orbit__tag"
-            :style="{ '--a': `${(360 / orbitTags.length) * i}deg` }">
-            <span class="orbit__label">{{ tag }}</span>
-          </span>
-        </div>
       </div>
     </div>
 
@@ -82,7 +76,6 @@ import SignalNetwork from '@/components/landing/effects/SignalNetwork.vue'
 import { socials } from '@/common/constants/socials'
 
 const sectionId = 'hero'
-const orbitTags = ['Vue.js', 'FastAPI', 'Docker', 'PostgreSQL', 'ML', 'IoT']
 
 const { t, tm, rt, locale } = useI18n()
 
@@ -194,7 +187,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 0 0.3em;
-  font-size: clamp(2.6rem, 8.2vw, 6.4rem);
+  font-size: clamp(2.4rem, 7vw, 5.6rem);
   font-weight: 700;
   line-height: 0.98;
   letter-spacing: -0.04em;
@@ -222,9 +215,9 @@ onBeforeUnmount(() => {
 
 .hero__char {
   display: inline-block;
-  transform: translateY(110%) rotate(8deg);
+  transform: translateY(18px);
   opacity: 0;
-  animation: char-rise 1s var(--ease-out) forwards;
+  animation: char-rise 0.65s var(--ease-out) forwards;
   animation-delay: var(--d);
 }
 
@@ -316,13 +309,13 @@ onBeforeUnmount(() => {
   to { opacity: 1; transform: none; }
 }
 
-/* --- Аватар с вращающимся градиентным кольцом и орбитой --- */
+/* --- Аватар с вращающимся градиентным кольцом --- */
 .hero__visual {
   position: relative;
   display: grid;
   place-items: center;
   aspect-ratio: 1;
-  width: min(100%, 440px);
+  width: min(100%, 460px);
   justify-self: center;
   container-type: inline-size;
   opacity: 0;
@@ -336,7 +329,7 @@ onBeforeUnmount(() => {
 
 .avatar {
   position: relative;
-  width: 64%;
+  width: 70%;
   aspect-ratio: 1;
   border-radius: 50%;
   cursor: zoom-in;
@@ -377,47 +370,6 @@ onBeforeUnmount(() => {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-.orbit {
-  position: absolute;
-  inset: 0;
-  border: 1px dashed rgb(255 255 255 / 0.1);
-  border-radius: 50%;
-  animation: spin 90s linear infinite;
-  pointer-events: none;
-}
-
-.orbit__tag {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  /* точка на окружности орбиты, без собственного поворота */
-  transform: rotate(var(--a)) translateY(-50cqw) rotate(calc(-1 * var(--a)));
-}
-
-.orbit__label {
-  position: absolute;
-  top: 0;
-  left: 0;
-  translate: -50% -50%;
-  padding: 0.3rem 0.7rem;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  background: rgb(10 12 18 / 0.85);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--text);
-  white-space: nowrap;
-  /* вращаемся навстречу орбите — подпись остаётся горизонтальной */
-  animation: counter-spin 90s linear infinite;
-}
-
-@keyframes counter-spin {
-  from { rotate: 0deg; }
-  to { rotate: -360deg; }
 }
 
 /* --- Подсказка скролла --- */
@@ -511,11 +463,8 @@ onBeforeUnmount(() => {
 
   .hero__visual {
     order: -1;
-    width: min(72vw, 300px);
+    width: min(78vw, 340px);
   }
 
-  .orbit__label {
-    font-size: 0.62rem;
-  }
 }
 </style>

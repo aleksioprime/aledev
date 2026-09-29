@@ -5,7 +5,7 @@ x-app: &app
   platform: linux/amd64
 
 services:
-  postgres:
+  portfolio-postgres:
     image: postgres:14
     container_name: aledev-portfolio-postgres
     <<: *app
@@ -19,12 +19,16 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - postgres_volume:/var/lib/postgresql/data/
+      - portfolio_postgres_volume:/var/lib/postgresql/data/
+    networks:
+      portfolio-internal:
+        aliases:
+          - postgres
     environment:
       TZ: "Europe/Moscow"
       PGTZ: "Europe/Moscow"
 
-  app:
+  portfolio-app:
     build:
       context: ./app
     container_name: aledev-portfolio-app
@@ -34,12 +38,17 @@ services:
       UVICORN_RELOAD: "1"
     volumes:
       - ./app:/usr/src/app/
+    networks:
+      - portfolio-internal
     ports:
       - "8502:8000"
     depends_on:
-      postgres:
+      portfolio-postgres:
         condition: service_healthy
 
 
 volumes:
-  postgres_volume:
+  portfolio_postgres_volume:
+
+networks:
+  portfolio-internal:

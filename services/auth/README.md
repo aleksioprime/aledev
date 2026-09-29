@@ -10,8 +10,7 @@ cd aledev
 
 Запустите сервис локально:
 ```
-cd services/auth
-docker-compose -p aledev-auth up -d --build
+docker compose up -d --build auth-app
 ```
 
 Если выходит ошибка `exec /usr/src/app/entrypoint.sh: permission denied`, то нужно вручную установить флаг выполнения для entrypoint.sh в локальной системе:
@@ -36,7 +35,7 @@ docker exec -it aledev-auth-postgres psql -U admin aledev -c "\dt"
 
 Создание суперпользователя:
 ```shell
-docker-compose -p aledev-auth exec app python scripts/create_superuser.py --username admin --password Rp2lx3 --email admin@aledev.ru
+docker compose exec auth-app python scripts/create_superuser.py --username admin --password '<пароль>' --email <email>
 ```
 
 

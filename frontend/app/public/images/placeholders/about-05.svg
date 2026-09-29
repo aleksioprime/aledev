@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1e1c17"/><stop offset="1" stop-color="#403726"/></linearGradient>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M60 0H0V60" fill="none" stroke="#fff" stroke-opacity=".06"/></pattern>
+  </defs>
+  <rect width="1200" height="1500" fill="url(#bg)"/><rect width="1200" height="1500" fill="url(#grid)"/>
+  <g fill="none" stroke="#e5c778" stroke-opacity=".75" stroke-width="4"><circle cx="470" cy="620" r="90"/><circle cx="730" cy="620" r="90"/><circle cx="600" cy="810" r="90"/><path d="M470 710v80l130 20m130-100v80L600 810m-130-100 130 200 130-200"/></g>
+  <text x="600" y="1080" text-anchor="middle" font-family="monospace" font-size="72" fill="#e9edf5" fill-opacity=".8">PHOTO 05</text>
+  <text x="600" y="1150" text-anchor="middle" font-family="monospace" font-size="28" fill="#d2c9b4">MENTORING</text>
+</svg>
