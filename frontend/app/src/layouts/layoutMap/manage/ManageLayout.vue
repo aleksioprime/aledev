@@ -25,8 +25,8 @@
     <!-- Логотип -->
     <v-img :src="admin" alt="Логотип" max-width="38" max-height="38" class="ms-2" />
 
-    <!-- Заголовок -->
-    <v-toolbar-title>
+    <!-- Заголовок: flex-grow-0, чтобы не делить рост с невидимым v-spacer и не обрезаться -->
+    <v-toolbar-title class="flex-grow-0">
       <router-link :to="{ name: 'login' }" class="text-white text-decoration-none">
         Администраторская панель
       </router-link>

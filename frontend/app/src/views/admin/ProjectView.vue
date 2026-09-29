@@ -1,35 +1,32 @@
 <template>
   <div>
-    <h1 class="text-h5 mb-4">Проекты</h1>
-
-    <div class="d-flex align-top justify-space-between">
-      <v-btn v-if="canEdit" color="primary" class="my-2" @click="openEditDialog()">
-        <v-icon start>mdi-plus</v-icon>
-        Добавить
+    <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-4">
+      <div>
+        <h1 class="text-h5">Проекты</h1>
+        <p class="text-body-2 text-medium-emphasis mt-1">Работы в портфолио: краткое описание, стек и ссылки</p>
+      </div>
+      <v-btn v-if="canEdit" color="primary" @click="openEditDialog()">
+        <v-icon start>mdi-plus</v-icon>Добавить проект
       </v-btn>
     </div>
 
     <draggable v-model="projects" item-key="id" :disabled="!canEdit()" @end="onProjectsReorder" handle=".drag-handle">
       <template #item="{ element: project }">
-        <v-list-item :key="project.id">
+        <v-list-item :key="project.id" class="border-b">
           <template #prepend v-if="canEdit()">
-            <v-icon class="drag-handle me-1 drag-handle" small>mdi-drag</v-icon>
+            <v-icon class="drag-handle me-1">mdi-drag</v-icon>
           </template>
-          <v-list-item-title>
+          <v-list-item-title class="font-weight-medium">
             {{ getProjectTitle(project) }}
           </v-list-item-title>
           <v-list-item-subtitle>
-            {{ getProjectDescription(project) }}
+            {{ getProjectSummary(project) }}
           </v-list-item-subtitle>
           <!-- остальной контент, как раньше -->
           <template #append>
             <template v-if="canEdit()">
-              <v-btn icon @click.stop="openEditDialog(project)" class="me-2">
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
-              <v-btn icon @click.stop="deleteProject(project)">
-                <v-icon color="red">mdi-delete</v-icon>
-              </v-btn>
+              <v-btn icon="mdi-pencil" variant="text" aria-label="Редактировать проект" @click.stop="openEditDialog(project)" />
+              <v-btn icon="mdi-delete" variant="text" color="error" aria-label="Удалить проект" @click.stop="deleteProject(project)" />
             </template>
           </template>
         </v-list-item>
@@ -53,7 +50,7 @@
     </v-alert>
 
     <!-- Модальное окно добавления/редактирования -->
-    <v-dialog v-model="modalDialogEdit.visible" max-width="600px" persistent>
+    <v-dialog v-model="modalDialogEdit.visible" max-width="900px" persistent>
       <v-card>
         <v-card-title>
           {{ modalDialogEdit.editing ? 'Редактировать проект' : 'Новый проект' }}
@@ -98,6 +95,8 @@ import ru from "date-fns/locale/ru";
 import { useI18n } from 'vue-i18n'
 const { locale } = useI18n()
 
+import { truncate } from "@/common/helpers/truncate";
+
 import ProjectForm from "@/components/projects/ProjectForm.vue";
 
 import { useProjectStore } from "@/stores/project";
@@ -117,8 +116,9 @@ function getProjectTitle(project) {
   return getProjectTranslation(project).title || "Без названия";
 }
 
-function getProjectDescription(project) {
-  return getProjectTranslation(project).description || "";
+function getProjectSummary(project) {
+  const tr = getProjectTranslation(project);
+  return truncate(tr.short_description || tr.description || "");
 }
 
 const canEdit = (project) => {
@@ -316,6 +316,8 @@ const confirmDeleteProject = async () => {
 <style scoped>
 .drag-handle {
   cursor: grab;
+  align-self: flex-start;
+  margin-top: 0.65rem;
 }
 
 .drag-handle:active {

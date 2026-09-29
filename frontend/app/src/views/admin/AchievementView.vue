@@ -29,7 +29,7 @@
     </v-list>
     <v-alert v-else-if="!loading" type="info" variant="tonal">Достижения пока не добавлены.</v-alert>
 
-    <v-dialog v-model="editorOpen" max-width="800" persistent>
+    <v-dialog v-model="editorOpen" max-width="900" persistent>
       <v-card>
         <v-card-title>{{ editing ? 'Редактировать достижение' : 'Новое достижение' }}</v-card-title>
         <v-card-text><AchievementForm ref="formRef" v-model="form" /></v-card-text>

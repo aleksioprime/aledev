@@ -1,30 +1,27 @@
 <template>
   <div>
-    <h1 class="text-h5 mb-4">Опыт работы</h1>
-
-    <div class="d-flex align-top justify-space-between">
-      <v-btn v-if="canEdit" color="primary" class="my-2" @click="openEditDialog()">
-        <v-icon start>mdi-plus</v-icon>
-        Добавить
+    <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-4">
+      <div>
+        <h1 class="text-h5">Опыт работы</h1>
+        <p class="text-body-2 text-medium-emphasis mt-1">Места работы, должности и обязанности</p>
+      </div>
+      <v-btn v-if="canEdit" color="primary" @click="openEditDialog()">
+        <v-icon start>mdi-plus</v-icon>Добавить опыт
       </v-btn>
     </div>
 
     <v-list class="pa-0 mt-4">
-      <v-list-item v-for="experience in experiences" :key="experience.id">
-        <v-list-item-title>
+      <v-list-item v-for="experience in experiences" :key="experience.id" class="border-b">
+        <v-list-item-title class="font-weight-medium">
           {{ getExperienceTitle(experience) }}
         </v-list-item-title>
         <v-list-item-subtitle>
-          {{ getExperienceTranslation(experience).responsibilities }}
+          {{ getExperienceSummary(experience) }}
         </v-list-item-subtitle>
         <template #append>
           <template v-if="canEdit">
-            <v-btn icon @click.stop="openEditDialog(experience)" class="me-2">
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn>
-            <v-btn icon @click.stop="deleteExperience(experience)">
-              <v-icon color="red">mdi-delete</v-icon>
-            </v-btn>
+            <v-btn icon="mdi-pencil" variant="text" aria-label="Редактировать опыт" @click.stop="openEditDialog(experience)" />
+            <v-btn icon="mdi-delete" variant="text" color="error" aria-label="Удалить опыт" @click.stop="deleteExperience(experience)" />
           </template>
         </template>
       </v-list-item>
@@ -47,7 +44,7 @@
     </v-alert>
 
     <!-- Модальное окно добавления/редактирования -->
-    <v-dialog v-model="modalDialogEdit.visible" max-width="600px" persistent>
+    <v-dialog v-model="modalDialogEdit.visible" max-width="900px" persistent>
       <v-card>
         <v-card-title>
           {{ modalDialogEdit.editing ? 'Редактировать опыт' : 'Новый опыт' }}
@@ -91,6 +88,8 @@ import ru from "date-fns/locale/ru";
 import { useI18n } from 'vue-i18n'
 const { locale } = useI18n()
 
+import { truncate } from "@/common/helpers/truncate";
+
 import ExperienceForm from "@/components/experiences/ExperienceForm.vue";
 
 import { useExperienceStore } from "@/stores/experience";
@@ -113,6 +112,10 @@ function getExperienceTitle(experience) {
   if (tr.position) return tr.position;
   if (tr.company) return tr.company;
   return "Без данных";
+}
+
+function getExperienceSummary(experience) {
+  return truncate(getExperienceTranslation(experience).responsibilities || "");
 }
 
 const canEdit = (experience) => {
