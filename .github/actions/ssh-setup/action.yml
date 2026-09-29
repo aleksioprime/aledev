@@ -27,10 +27,54 @@ runs:
         SSH_PORT: ${{ inputs.port }}
         SSH_KEY: ${{ inputs.key }}
       run: |
+        # Каждая проверка падает с понятным сообщением, чтобы по логу было видно, что именно не так
+        fail() { echo "::error title=SSH::$1"; exit 1; }
+
+        # Секреты часто вставляют с пробелами или переводом строки в конце
+        SSH_HOST=$(printf '%s' "$SSH_HOST" | tr -d '[:space:]')
+        SSH_USER=$(printf '%s' "$SSH_USER" | tr -d '[:space:]')
+        SSH_PORT=$(printf '%s' "${SSH_PORT:-22}" | tr -d '[:space:]')
+
+        [ -n "$SSH_HOST" ] || fail "Секрет SERVER_HOST пуст или не задан"
+        [ -n "$SSH_USER" ] || fail "Секрет SERVER_USER пуст или не задан"
+        [ -n "$SSH_KEY" ] || fail "Секрет SSH_KEY пуст или не задан"
+        case "$SSH_HOST" in
+          *://*|*/*|*@*|*:*) fail "SERVER_HOST должен быть только IP или доменом — без протокола, пользователя, порта и пути" ;;
+        esac
+        [[ "$SSH_PORT" =~ ^[0-9]+$ ]] || fail "SSH_PORT должен быть числом"
+
+        RUNNER_IP=$(curl -s --max-time 5 https://api.ipify.org || echo "не удалось определить")
+        echo "IP раннера GitHub: $RUNNER_IP"
+
+        # 1. Ключ
         mkdir -p ~/.ssh && chmod 700 ~/.ssh
-        printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy
+        printf '%s\n' "$SSH_KEY" | tr -d '\r' > ~/.ssh/id_deploy
         chmod 600 ~/.ssh/id_deploy
-        ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+        grep -q -- '-----BEGIN .*PRIVATE KEY-----' ~/.ssh/id_deploy \
+          || fail "SSH_KEY не похож на приватный ключ: нужна приватная часть целиком, со строками -----BEGIN/END ... PRIVATE KEY-----"
+        ssh-keygen -y -P '' -f ~/.ssh/id_deploy > /dev/null 2>&1 \
+          || fail "SSH_KEY не читается: ключ повреждён при копировании или защищён паролем (нужен ключ без passphrase)"
+        echo "✓ Ключ читается"
+
+        # 2. DNS
+        if ! [[ "$SSH_HOST" =~ ^[0-9.]+$ ]]; then
+          getent hosts "$SSH_HOST" > /dev/null || fail "Домен из SERVER_HOST не резолвится"
+        fi
+
+        # 3. Сеть: открыт ли порт для раннера
+        timeout 10 bash -c "exec 3<>/dev/tcp/$SSH_HOST/$SSH_PORT" 2> /dev/null \
+          || fail "Порт $SSH_PORT закрыт или не отвечает для раннера GitHub (IP $RUNNER_IP). Проверьте SERVER_HOST/SSH_PORT, файрвол сервера (ufw), fail2ban и ограничения хостера на входящий SSH из-за рубежа"
+        echo "✓ Порт $SSH_PORT доступен"
+
+        # 4. SSH-сервер отвечает рукопожатием
+        ssh-keyscan -T 10 -p "$SSH_PORT" -H "$SSH_HOST" > /tmp/known_hosts 2> /tmp/keyscan.err || true
+        if [ ! -s /tmp/known_hosts ]; then
+          cat /tmp/keyscan.err
+          fail "Порт открыт, но SSH-сервер не отвечает раннеру (IP $RUNNER_IP): соединение сбрасывается — обычно это fail2ban, geo-блокировка или порт не SSH"
+        fi
+        cat /tmp/known_hosts >> ~/.ssh/known_hosts
+        echo "✓ SSH-сервер отвечает"
+
         cat > ~/.ssh/config <<CONFIG
         Host server
           HostName $SSH_HOST
@@ -38,7 +82,17 @@ runs:
           Port $SSH_PORT
           IdentityFile ~/.ssh/id_deploy
           IdentitiesOnly yes
+          BatchMode yes
+          ConnectTimeout 15
           ServerAliveInterval 30
         CONFIG
         chmod 600 ~/.ssh/config
-        ssh server 'echo "SSH OK: $(whoami)@$(hostname)"'
+
+        # 5. Авторизация
+        if ! ssh server 'echo "SSH OK: $(whoami)@$(hostname)"' 2> /tmp/ssh.err; then
+          cat /tmp/ssh.err
+          if grep -q 'Permission denied' /tmp/ssh.err; then
+            fail "Сервер отклонил ключ: публичная часть SSH_KEY не добавлена в ~/.ssh/authorized_keys пользователя SERVER_USER (или вход под ним запрещён в sshd_config)"
+          fi
+          fail "Не удалось подключиться по SSH, подробности выше"
+        fi
