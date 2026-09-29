@@ -1,0 +1,257 @@
+name: Deploy
+
+run-name: "Deploy ${{ github.event_name == 'push' && 'changes' || inputs.services }} for ${{ github.ref_name }} by ${{ github.actor }}"
+
+# Единственный workflow проекта: при пуше в main собирает и деплоит только то, что изменилось
+# (auth → portfolio → фронтенд), вручную — выбранные сервисы.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - 'services/**'
+      - 'deploy/**'
+      - 'docker-compose.prod.yaml'
+      - '!**.md'
+  workflow_dispatch:
+    inputs:
+      services:
+        description: "Что деплоить"
+        type: choice
+        options:
+          - all
+          - frontend
+          - portfolio
+          - auth
+        default: all
+      build:
+        description: "Собрать и загрузить образы в Docker Hub перед деплоем"
+        type: boolean
+        default: true
+      update_nginx:
+        description: "Перезаписать сайт aledev.ru в системном nginx версией из репозитория"
+        type: boolean
+        default: false
+      certbot_email:
+        description: "Email для Let's Encrypt (нужен только при первом выпуске на сервере без учётки certbot)"
+        type: string
+        default: ""
+      domains:
+        description: "Домены для SSL через пробел"
+        type: string
+        default: "aledev.ru www.aledev.ru auth.aledev.ru portfolio.aledev.ru"
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      auth: ${{ steps.detect.outputs.auth }}
+      portfolio: ${{ steps.detect.outputs.portfolio }}
+      frontend: ${{ steps.detect.outputs.frontend }}
+      build: ${{ steps.detect.outputs.build }}
+      matrix: ${{ steps.detect.outputs.matrix }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect what to deploy
+        id: detect
+        env:
+          EVENT: ${{ github.event_name }}
+          SERVICES: ${{ inputs.services }}
+          BUILD: ${{ inputs.build }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          AUTH=false; PORTFOLIO=false; FRONTEND=false; DO_BUILD=true
+
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            DO_BUILD=$BUILD
+            case "$SERVICES" in
+              all) AUTH=true; PORTFOLIO=true; FRONTEND=true ;;
+              auth) AUTH=true ;;
+              portfolio) PORTFOLIO=true ;;
+              frontend) FRONTEND=true ;;
+            esac
+          elif ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            # первый пуш или переписанная история — сравнить не с чем, деплоим всё
+            echo "Предыдущий коммит недоступен — деплоим всё"
+            AUTH=true; PORTFOLIO=true; FRONTEND=true
+          else
+            # документация не требует пересборки
+            FILES=$(git diff --name-only "$BEFORE" "$GITHUB_SHA" | grep -vE '\.md$' || true)
+            echo "Изменённые файлы:"; echo "$FILES"; echo
+            if echo "$FILES" | grep -qE '^services/auth/'; then AUTH=true; fi
+            if echo "$FILES" | grep -qE '^services/portfolio/'; then PORTFOLIO=true; fi
+            if echo "$FILES" | grep -qE '^(frontend/|deploy/|docker-compose\.prod\.yaml$)'; then FRONTEND=true; fi
+          fi
+
+          # Матрица сборки — только нужные образы
+          MATRIX=$(jq -cn --argjson a "$AUTH" --argjson p "$PORTFOLIO" --argjson f "$FRONTEND" --argjson b "$DO_BUILD" '
+            [ {service: "auth", image: "aleksioprime/aledev-auth", context: "./services/auth/app", on: $a},
+              {service: "portfolio", image: "aleksioprime/aledev-portfolio", context: "./services/portfolio/app", on: $p},
+              {service: "frontend", image: "aleksioprime/aledev-frontend", context: "./frontend", on: $f} ]
+            | map(select(.on and $b) | del(.on))')
+
+          {
+            echo "auth=$AUTH"
+            echo "portfolio=$PORTFOLIO"
+            echo "frontend=$FRONTEND"
+            echo "build=$DO_BUILD"
+            echo "matrix=$MATRIX"
+          } | tee -a "$GITHUB_OUTPUT"
+
+  # Тесты — ворота перед сборкой: если упали, ничего не деплоится
+  test-portfolio:
+    needs: changes
+    if: needs.changes.outputs.portfolio == 'true' && needs.changes.outputs.build == 'true'
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_USER: test
+      DB_PASSWORD: test
+      DB_NAME: test
+
+    defaults:
+      run:
+        working-directory: services/portfolio/app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: services/portfolio/app/requirements*.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run tests
+        run: python -m pytest -q
+
+  build:
+    needs: [changes, test-portfolio]
+    if: ${{ !failure() && !cancelled() && needs.changes.outputs.matrix != '[]' }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: true
+      matrix:
+        include: ${{ fromJSON(needs.changes.outputs.matrix) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build image
+        env:
+          SERVICE: ${{ matrix.service }}
+          IMAGE: ${{ matrix.image }}
+          CONTEXT: ${{ matrix.context }}
+          # переменные фронтенда подставляются в сборку Vite
+          ENV_FILE: ${{ matrix.service == 'frontend' && secrets.ENV_VARS || '' }}
+        run: |
+          ARGS=()
+          if [ "$SERVICE" = "frontend" ]; then
+            while IFS= read -r line; do
+              line=${line%$'\r'}
+              if [[ "$line" =~ ^VITE_[A-Z_]+= ]]; then ARGS+=(--build-arg "$line"); fi
+            done <<< "$ENV_FILE"
+            ARGS+=(--build-arg VITE_LOGGING=0 --target prod)
+          fi
+          docker build --pull "${ARGS[@]}" -t "$IMAGE:latest" "$CONTEXT"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Push image
+        run: docker push "${{ matrix.image }}:latest"
+
+  deploy:
+    needs: [changes, build]
+    if: >-
+      ${{ !failure() && !cancelled() && (needs.changes.outputs.auth == 'true'
+      || needs.changes.outputs.portfolio == 'true' || needs.changes.outputs.frontend == 'true') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: ./.github/actions/ssh-setup
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          user: ${{ secrets.SERVER_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+
+      - name: Docker Hub login on server
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+        run: |
+          printf '%s' "$DOCKER_HUB_ACCESS_TOKEN" | ssh server "docker login --username '$DOCKER_HUB_USERNAME' --password-stdin"
+          ssh server 'docker network inspect aledev-shared >/dev/null 2>&1 || docker network create aledev-shared'
+
+      - name: Deploy auth
+        if: needs.changes.outputs.auth == 'true'
+        env:
+          ENV_FILE: ${{ secrets.ENV_AUTH_VARS }}
+        run: .github/scripts/deploy-compose.sh aledev/services/auth services/auth/docker-compose.prod.yaml
+
+      - name: Deploy portfolio
+        if: needs.changes.outputs.portfolio == 'true'
+        env:
+          ENV_FILE: ${{ secrets.ENV_PORTFOLIO_VARS }}
+        run: .github/scripts/deploy-compose.sh aledev/services/portfolio services/portfolio/docker-compose.prod.yaml
+
+      - name: Deploy frontend
+        if: needs.changes.outputs.frontend == 'true'
+        env:
+          ENV_FILE: ${{ secrets.ENV_VARS }}
+        run: .github/scripts/deploy-compose.sh aledev docker-compose.prod.yaml
+
+      # Порты 80/443 держит системный nginx сервера (там же другие сайты),
+      # он проксирует aledev.ru и поддомены в контейнер и отвечает за SSL
+      - name: Configure host nginx and SSL
+        if: needs.changes.outputs.frontend == 'true'
+        env:
+          UPDATE_NGINX: ${{ inputs.update_nginx && '1' || '0' }}
+          EMAIL: ${{ inputs.certbot_email }}
+          DOMAINS: ${{ inputs.domains || 'aledev.ru www.aledev.ru auth.aledev.ru portfolio.aledev.ru' }}
+        run: |
+          ssh server 'mkdir -p ~/aledev/deploy'
+          scp deploy/nginx/aledev.conf server:aledev/deploy/nginx-aledev.conf
+          ssh server UPDATE_NGINX="$UPDATE_NGINX" EMAIL="'$EMAIL'" DOMAINS="'$DOMAINS'" bash -s < .github/scripts/host-nginx.sh
