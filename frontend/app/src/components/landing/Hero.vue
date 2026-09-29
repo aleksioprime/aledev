@@ -22,11 +22,11 @@
         <p class="hero__about">{{ t('hero.about') }}</p>
 
         <div class="hero__cta">
-          <a v-magnetic href="#contacts" class="btn btn-primary" @click.prevent="scrollToSection('contacts')">
+          <a v-magnetic="0.08" href="#contacts" class="btn btn-primary" @click.prevent="scrollToSection('contacts')">
             {{ t('hero.contact') }}
             <Icon :path="mdiArrowRight" />
           </a>
-          <a v-magnetic href="#projects" class="btn btn-ghost" @click.prevent="scrollToSection('projects')">
+          <a v-magnetic="0.08" href="#projects" class="btn btn-ghost" @click.prevent="scrollToSection('projects')">
             {{ t('hero.projects') }}
           </a>
         </div>
@@ -276,6 +276,10 @@ onBeforeUnmount(() => {
   margin-top: 2.2rem;
   opacity: 0;
   animation: fade-up 1s var(--ease-out) 1.3s forwards;
+}
+
+.hero__cta .btn {
+  transition-duration: 0.16s;
 }
 
 .hero__socials {
