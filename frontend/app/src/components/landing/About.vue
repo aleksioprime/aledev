@@ -95,7 +95,7 @@ const photoRef = ref(null)
 const activePhoto = ref(0)
 const isPreviewOpen = ref(false)
 const EDUCATION_START_YEAR = 2007
-const DEVELOPMENT_START_YEAR = 2021
+const DEVELOPMENT_START_YEAR = 2019
 const currentYear = new Date().getFullYear()
 const photoSlides = [
   { src: '/images/placeholders/about-01.svg', stack: ['Vue.js', 'FastAPI', 'PostgreSQL'] },
