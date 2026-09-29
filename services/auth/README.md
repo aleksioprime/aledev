@@ -35,7 +35,7 @@ docker exec -it aledev-auth-postgres psql -U admin aledev -c "\dt"
 
 Создание суперпользователя:
 ```shell
-docker compose exec auth-app python scripts/create_superuser.py --username admin --password '<пароль>' --email <email>
+docker compose exec auth-app python scripts/create_superuser.py --username admin --password 'Rp2lx3' --email aleksioprime@gmail.com
 ```
 
 
