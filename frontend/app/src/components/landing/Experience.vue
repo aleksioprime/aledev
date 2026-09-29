@@ -2,7 +2,7 @@
   <section :id="sectionId" class="section">
     <div class="shell exp">
       <header class="section-head exp__head">
-        <span v-reveal class="section-kicker">04 — {{ $t('experience.kicker') }}</span>
+        <span v-reveal class="section-kicker">04 - {{ $t('experience.kicker') }}</span>
         <h2 v-reveal="{ delay: 80 }" class="section-title">{{ $t('experience.sectionTitle') }}</h2>
         <p v-reveal="{ delay: 160 }" class="section-lead">{{ $t('experience.lead') }}</p>
       </header>
@@ -14,7 +14,7 @@
 
           <div class="timeline__meta font-mono">
             <time>{{ formatDate(exp.start_date, "auto", $i18n.locale) }}</time>
-            <span class="timeline__dash">—</span>
+            <span class="timeline__dash">-</span>
             <time v-if="exp.end_date">{{ formatDate(exp.end_date, "auto", $i18n.locale) }}</time>
             <span v-else-if="exp.is_current" class="timeline__now">{{ $t('experience.present') }}</span>
           </div>
@@ -138,20 +138,28 @@ onBeforeUnmount(() => {
 <style scoped>
 .exp {
   display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr);
   gap: clamp(2rem, 6vw, 5rem);
   align-items: start;
 }
 
 .exp__head {
+  grid-column: 2;
+  grid-row: 1;
   position: sticky;
   top: 7rem;
+  width: min(100%, 25rem);
+  justify-self: start;
+  align-items: flex-start;
+  text-align: left;
 }
 
 .timeline {
+  grid-column: 1;
+  grid-row: 1;
   position: relative;
   margin: 0;
-  padding: 0 0 0 2.25rem;
+  padding: 0 2.25rem 0 0;
   list-style: none;
 }
 
@@ -162,7 +170,7 @@ onBeforeUnmount(() => {
   position: absolute;
   top: 0.4rem;
   bottom: 0;
-  left: 0.45rem;
+  right: 0.45rem;
   width: 2px;
   border-radius: 2px;
 }
@@ -191,7 +199,7 @@ onBeforeUnmount(() => {
 .timeline__dot {
   position: absolute;
   top: 0.3rem;
-  left: -2.25rem;
+  right: -2.25rem;
   z-index: 1;
   width: 1.1rem;
   height: 1.1rem;
@@ -274,8 +282,8 @@ onBeforeUnmount(() => {
 }
 
 .exp__more {
-  grid-column: 2;
-  padding-left: 2.25rem;
+  grid-column: 1;
+  padding-right: 2.25rem;
 }
 
 @media (max-width: 900px) {
@@ -285,10 +293,21 @@ onBeforeUnmount(() => {
 
   .exp__head {
     position: static;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: stretch;
+    align-items: flex-start;
+    width: auto;
+    text-align: left;
+  }
+
+  .timeline {
+    grid-row: 2;
   }
 
   .exp__more {
     grid-column: 1;
   }
 }
+
 </style>

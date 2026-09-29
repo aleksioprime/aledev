@@ -9,10 +9,6 @@
               loading="lazy" />
           </button>
         </div>
-        <figcaption class="about__badge font-mono">
-          <span class="about__pulse"></span>
-          {{ activeSlide.stack.join(' · ') }}
-        </figcaption>
         <nav class="about__gallery-controls" :aria-label="t('about.galleryLabel')">
           <button type="button" class="gallery-button" :aria-label="t('about.previousPhoto')"
             @click="showPreviousPhoto">
@@ -33,7 +29,7 @@
 
       <div class="about__content">
         <header class="section-head">
-          <span v-reveal class="section-kicker">01 — {{ t('about.kicker') }}</span>
+          <span v-reveal class="section-kicker">01 - {{ t('about.kicker') }}</span>
           <h2 v-reveal="{ delay: 80 }" class="section-title">
             {{ t('about.titleStart') }} <span class="text-gradient">{{ t('about.titleAccent') }}</span>
           </h2>
@@ -233,20 +229,6 @@ onBeforeUnmount(() => {
   outline-offset: -4px;
 }
 
-.about__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  max-width: 100%;
-  margin-top: 0.8rem;
-  padding: 0.55rem 0.9rem;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  background: rgb(var(--panel-rgb) / 0.8);
-  backdrop-filter: blur(10px);
-  font-size: 0.78rem;
-}
-
 .about__gallery-controls {
   display: flex;
   align-items: center;
@@ -380,15 +362,6 @@ onBeforeUnmount(() => {
   opacity: 0;
 }
 
-.about__pulse {
-  position: relative;
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 50%;
-  background: var(--accent-3);
-}
-
-
 .about__lead {
   font-size: clamp(1.15rem, 2vw, 1.35rem);
   line-height: 1.6;
@@ -513,15 +486,11 @@ onBeforeUnmount(() => {
 
   .about__photo {
     max-width: 420px;
+    margin-inline: auto;
   }
 }
 
 @media (max-width: 540px) {
-  .about__badge {
-    padding-inline: 0.75rem;
-    font-size: 0.7rem;
-  }
-
   .about__gallery-controls {
     gap: 0.4rem;
   }

@@ -3,7 +3,7 @@
     <div class="shell contact">
       <div class="contact__intro">
         <header class="section-head">
-          <span v-reveal class="section-kicker">05 — {{ $t('contacts.kicker') }}</span>
+          <span v-reveal class="section-kicker">05 - {{ $t('contacts.kicker') }}</span>
           <h2 v-reveal="{ delay: 80 }" class="section-title">
             {{ $t('contacts.titleStart') }} <span class="text-gradient">{{ $t('contacts.titleAccent') }}</span>
           </h2>
@@ -406,9 +406,14 @@ onUnmounted(() => {
 <style scoped>
 .contact {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   gap: clamp(2.5rem, 6vw, 5rem);
   align-items: start;
+}
+
+.contact__intro {
+  position: sticky;
+  top: 7rem;
 }
 
 .channels {
@@ -852,6 +857,10 @@ onUnmounted(() => {
 @media (max-width: 900px) {
   .contact {
     grid-template-columns: 1fr;
+  }
+
+  .contact__intro {
+    position: static;
   }
 }
 

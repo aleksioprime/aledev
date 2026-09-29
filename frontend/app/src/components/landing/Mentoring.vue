@@ -1,66 +1,63 @@
 <template>
   <section :id="sectionId" class="section">
     <div class="shell">
-      <header class="section-head mentoring-head">
-        <div>
-          <span v-if="pageTranslation" v-reveal class="section-kicker">03 — {{ pageTranslation.kicker }}</span>
-          <h2 v-if="pageTranslation" v-reveal="{ delay: 80 }" class="section-title">
-            {{ pageTranslation.title_start }} <span class="text-gradient">{{ pageTranslation.title_accent }}</span>
-          </h2>
-          <p v-else class="section-lead">{{ contentLoading ? t('mentoring.contentLoading') : t('mentoring.contentUnavailable') }}</p>
-        </div>
-        <p v-if="pageTranslation" v-reveal="{ delay: 160 }" class="section-lead">{{ pageTranslation.lead }}</p>
-      </header>
+      <div class="mentoring-layout">
+        <div class="mentoring-info">
+          <header class="section-head mentoring-head">
+            <span v-if="pageTranslation" v-reveal class="section-kicker">03 - {{ pageTranslation.kicker }}</span>
+            <h2 v-if="pageTranslation" v-reveal="{ delay: 80 }" class="section-title">
+              {{ pageTranslation.title_start }} <span class="text-gradient">{{ pageTranslation.title_accent }}</span>
+            </h2>
+            <p v-if="pageTranslation" v-reveal="{ delay: 160 }" class="section-lead">{{ pageTranslation.lead }}</p>
+            <p v-else class="section-lead">{{ contentLoading ? t('mentoring.contentLoading') : t('mentoring.contentUnavailable') }}</p>
+          </header>
 
-      <dl v-if="metrics.length" class="numbers">
-        <div v-for="(n, i) in metrics" :key="n.key" v-reveal="{ variant: 'scale', delay: i * 80 }" class="number">
-          <dt class="number__label">{{ n.label }}</dt>
-          <dd class="number__value font-display">{{ n.value }}</dd>
+          <dl v-if="metrics.length" class="numbers">
+            <div v-for="(n, i) in metrics" :key="n.key" v-reveal="{ variant: 'scale', delay: i * 80 }" class="number">
+              <dt class="number__label">{{ n.label }}</dt>
+              <dd class="number__value font-display">{{ n.value }}</dd>
+            </div>
+          </dl>
         </div>
-      </dl>
 
-      <div class="achievement-toolbar" aria-label="Фильтры достижений">
-        <div class="filter-group" role="group" :aria-label="t('mentoring.filterCategory')">
-          <button type="button" class="filter-button" :class="{ 'filter-button--active': selectedCategory === 'all' }"
-            @click="selectedCategory = 'all'">{{ t('mentoring.allCategories') }}</button>
-          <button v-for="category in categories" :key="category" type="button" class="filter-button"
-            :class="{ 'filter-button--active': selectedCategory === category }"
-            @click="selectedCategory = category">{{ categoryLabel(category) }}</button>
-        </div>
-        <div class="filter-group filter-group--scope" role="group" :aria-label="t('mentoring.filterScope')">
-          <button v-for="scope in scopes" :key="scope" type="button" class="filter-button"
-            :class="{ 'filter-button--active': selectedScope === scope }"
-            @click="selectedScope = scope">{{ t(`mentoring.scope.${scope}`) }}</button>
+        <div class="achievements-panel">
+          <div class="achievement-toolbar" :aria-label="t('mentoring.filterScope')">
+            <div class="filter-group" role="group" :aria-label="t('mentoring.filterScope')">
+              <button v-for="scope in scopes" :key="scope" type="button" class="filter-button"
+                :class="{ 'filter-button--active': selectedScope === scope }"
+                @click="selectedScope = scope">{{ t(`mentoring.scope.${scope}`) }}</button>
+            </div>
+          </div>
+
+          <p v-if="loading" class="achievements-state">{{ t('mentoring.loading') }}</p>
+          <p v-else-if="!filteredAchievements.length" class="achievements-state">{{ t('mentoring.empty') }}</p>
+          <ol v-else class="achievement-list">
+            <li v-for="(item, i) in filteredAchievements" :key="item.id" v-reveal="{ delay: Math.min(i * 45, 270) }">
+              <article class="achievement">
+                <div class="achievement__meta">
+                  <span class="achievement__category font-mono">{{ categoryLabel(item.category) }}</span>
+                  <span v-if="item.year" class="achievement__year font-mono">{{ item.year }}</span>
+                  <span class="achievement__scope">{{ t(`mentoring.scope.${item.scope}`) }}</span>
+                </div>
+                <div class="achievement__content">
+                  <div class="achievement__heading">
+                    <h3 class="achievement__title">{{ translationFor(item).title }}</h3>
+                    <span v-if="translationFor(item).result" class="achievement__result">{{ translationFor(item).result }}</span>
+                  </div>
+                  <p v-if="translationFor(item).organization" class="achievement__organization">
+                    {{ translationFor(item).organization }}
+                  </p>
+                  <p v-if="translationFor(item).short_description || translationFor(item).description" class="achievement__description">
+                    {{ translationFor(item).short_description || translationFor(item).description }}
+                  </p>
+                  <a v-if="item.source_url" class="achievement__source" :href="item.source_url" target="_blank"
+                    rel="noopener noreferrer">{{ t('mentoring.source') }}</a>
+                </div>
+              </article>
+            </li>
+          </ol>
         </div>
       </div>
-
-      <p v-if="loading" class="achievements-state">{{ t('mentoring.loading') }}</p>
-      <p v-else-if="!filteredAchievements.length" class="achievements-state">{{ t('mentoring.empty') }}</p>
-      <ol v-else class="achievement-list">
-        <li v-for="(item, i) in filteredAchievements" :key="item.id" v-reveal="{ delay: Math.min(i * 45, 270) }">
-          <article class="achievement">
-            <div class="achievement__meta">
-              <span v-if="item.year" class="achievement__year font-mono">{{ item.year }}</span>
-              <span class="achievement__scope">{{ t(`mentoring.scope.${item.scope}`) }}</span>
-            </div>
-            <div class="achievement__content">
-              <div class="achievement__heading">
-                <h3 class="achievement__title">{{ translationFor(item).title }}</h3>
-                <span v-if="translationFor(item).result" class="achievement__result">{{ translationFor(item).result }}</span>
-              </div>
-              <p v-if="translationFor(item).organization" class="achievement__organization">
-                {{ translationFor(item).organization }}
-              </p>
-              <p v-if="translationFor(item).short_description || translationFor(item).description" class="achievement__description">
-                {{ translationFor(item).short_description || translationFor(item).description }}
-              </p>
-              <a v-if="item.source_url" class="achievement__source" :href="item.source_url" target="_blank"
-                rel="noopener noreferrer">{{ t('mentoring.source') }}</a>
-            </div>
-            <span class="achievement__category font-mono">{{ categoryLabel(item.category) }}</span>
-          </article>
-        </li>
-      </ol>
     </div>
   </section>
 </template>
@@ -79,14 +76,23 @@ const achievements = ref([])
 const pageContent = ref(null)
 const loading = ref(true)
 const contentLoading = ref(true)
-const selectedCategory = ref('all')
 const selectedScope = ref('all')
 
 const scopes = ['all', 'personal', 'students']
-const pageTranslation = computed(() => pageContent.value?.translations?.find((translation) => translation.lang === locale.value)
-  || pageContent.value?.translations?.find((translation) => translation.lang === 'ru')
-  || pageContent.value?.translations?.[0]
-  || null)
+const pageTranslation = computed(() => {
+  const translation = pageContent.value?.translations?.find((item) => item.lang === locale.value)
+    || pageContent.value?.translations?.find((item) => item.lang === 'ru')
+    || pageContent.value?.translations?.[0]
+    || null
+
+  if (translation?.lang === 'ru'
+    && translation.title_start === 'Исследования, конкурсы'
+    && translation.title_accent === 'и команды учеников') {
+    return { ...translation, title_start: 'Менторство', title_accent: 'и конкурсы' }
+  }
+
+  return translation
+})
 const metrics = computed(() => (pageContent.value?.metrics || []).map((metric) => ({
   ...metric,
   label: metric.translations?.find((translation) => translation.lang === locale.value)?.label
@@ -94,10 +100,8 @@ const metrics = computed(() => (pageContent.value?.metrics || []).map((metric) =
     || metric.translations?.[0]?.label
     || '',
 })))
-const categories = computed(() => [...new Set(achievements.value.map((item) => item.category))])
 const filteredAchievements = computed(() => achievements.value.filter((item) =>
-  (selectedCategory.value === 'all' || item.category === selectedCategory.value)
-  && (selectedScope.value === 'all' || item.scope === selectedScope.value)
+  selectedScope.value === 'all' || item.scope === selectedScope.value
 ))
 
 function translationFor(item) {
@@ -124,32 +128,37 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.mentoring-head {
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1.5rem 3rem;
+.mentoring-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  align-items: start;
+  gap: clamp(3rem, 7vw, 6rem);
 }
 
-.mentoring-head > div {
-  display: flex;
+.mentoring-info {
+  position: sticky;
+  top: 7rem;
+}
+
+.mentoring-head {
   flex-direction: column;
+  align-items: flex-start;
   gap: 0.9rem;
 }
 
 .numbers {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-  margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 2rem;
 }
 
 .number {
   display: flex;
   flex-direction: column-reverse;
+  justify-content: flex-end;
   gap: 0.35rem;
-  padding: 1rem 1.25rem;
+  padding: 0.85rem 0.75rem;
   border-left: 1px solid var(--line-strong);
 }
 
@@ -169,7 +178,7 @@ onMounted(async () => {
 .achievement-toolbar {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 0.75rem 1.5rem;
   margin-bottom: 1.5rem;
 }
@@ -217,8 +226,8 @@ onMounted(async () => {
 
 .achievement {
   display: grid;
-  /* фиксированные крайние колонки, чтобы заголовки строк были на одной линии */
-  grid-template-columns: 9rem minmax(0, 1fr) 9.5rem;
+  /* Первый столбец подстраивается под самое длинное значение категории. */
+  grid-template-columns: 8rem minmax(0, 1fr);
   align-items: start;
   gap: 1.25rem;
   padding: 1.25rem 0.25rem;
@@ -238,7 +247,7 @@ onMounted(async () => {
 }
 
 .achievement__category {
-  text-align: right;
+  white-space: nowrap;
 }
 
 .achievement__scope {
@@ -291,7 +300,32 @@ onMounted(async () => {
   color: var(--muted);
 }
 
+@media (max-width: 900px) {
+  .mentoring-info {
+    position: static;
+  }
+}
+
 @media (max-width: 540px) {
+  .mentoring-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .achievement {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .achievement__meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .numbers {
+    margin-bottom: 2rem;
+  }
+
   .number {
     padding: 0.8rem 0.75rem;
   }
@@ -300,28 +334,8 @@ onMounted(async () => {
     font-size: 0.75rem;
   }
 
-  .achievement {
-    grid-template-columns: 1fr auto;
-    gap: 0.55rem 0.8rem;
-  }
-
-  .achievement__meta {
-    grid-column: 1 / -1;
-    flex-direction: row;
-    align-items: baseline;
-    gap: 0.75rem;
-  }
-
   .achievement__content {
     min-width: 0;
-  }
-
-  .achievement__category {
-    grid-column: 2;
-    grid-row: 2;
-    justify-self: end;
-    max-width: 7.5rem;
-    text-align: right;
   }
 
   .achievement__heading {
