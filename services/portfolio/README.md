@@ -79,37 +79,11 @@ RESEND_SENDER=no-reply@aledev.ru
 
 В письме выставляется `Reply-To` с адресом посетителя — ответить можно прямо из почты.
 
-## Добавление бесплатного SSL-сертификата
+## SSL-сертификат
 
-В контейнер фронтенда добавлен CertBot, с помощью которого происходит регистрация сертификата
+SSL для всех доменов (включая этот сервис) выпускает certbot системного nginx сервера
+во время деплоя фронтенда, продлевает — `certbot.timer`. Подробнее — [docs/deploy.md](../../docs/deploy.md).
 
-Проверьте установку:
-```
-docker exec -it aledev-frontend certbot --version
-```
-
-Запустите CertBot для получения сертификатов
-```
-docker exec -it aledev-frontend certbot --nginx -d portfolio.aledev.ru -d www.portfolio.aledev.ru
-ls -l /etc/letsencrypt/live/portfolio.aledev.ru/
-```
-
-Добавьте автообновление сертификатов (каждые 90 дней). Для этого откройте crontab:
-```
-sudo crontab -e
-```
-
-Добавьте строку:
-```
-0 3 * * * docker exec aledev-frontend certbot renew --quiet && docker exec aledev-frontend nginx -s reload
-```
-
-В случае необхожимости можно удалить сертификаты:
-```
-docker exec -it aledev-frontend rm -rf /etc/letsencrypt/renewal/portfolio.aledev.ru.conf
-docker exec -it aledev-frontend rm -rf /etc/letsencrypt/live/portfolio.aledev.ru
-docker exec -it aledev-frontend rm -rf /etc/letsencrypt/archive/portfolio.aledev.ru
-```
 ## Справочные команды:
 
 Удаление контейнеров и переменных:

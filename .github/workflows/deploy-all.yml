@@ -2,8 +2,8 @@ name: Deploy All
 
 run-name: "Deploy all services for ${{ github.ref_name }} by ${{ github.actor }}"
 
-# Полный деплой одной кнопкой: сборка образов → auth → portfolio → фронтенд →
-# (по желанию) SSL-сертификаты.
+# Полный деплой одной кнопкой: сборка образов → auth → portfolio → фронтенд
+# (вместе с сайтом в системном nginx и SSL-сертификатами).
 on:
   workflow_dispatch:
     inputs:
@@ -12,11 +12,11 @@ on:
         type: boolean
         default: true
       update_nginx:
-        description: "Перезаписать nginx.conf на сервере версией из репозитория"
+        description: "Перезаписать сайт aledev.ru в системном nginx версией из репозитория"
         type: boolean
         default: false
       certbot_email:
-        description: "Email для Let's Encrypt — если указан, будут выпущены/установлены SSL-сертификаты"
+        description: "Email для Let's Encrypt (нужен только при первом выпуске на сервере без учётки certbot)"
         type: string
         default: ""
       domains:
@@ -62,43 +62,7 @@ jobs:
     uses: ./.github/workflows/main-deploy.yml
     with:
       update_nginx: ${{ inputs.update_nginx }}
+      certbot_email: ${{ inputs.certbot_email }}
+      domains: ${{ inputs.domains }}
     secrets: inherit
 
-  ssl:
-    needs: deploy-main
-    if: ${{ !failure() && !cancelled() && inputs.certbot_email != '' }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup SSH
-        uses: ./.github/actions/ssh-setup
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          user: ${{ secrets.SERVER_USER }}
-          port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.SSH_KEY }}
-
-      - name: Issue or reinstall certificates
-        env:
-          EMAIL: ${{ inputs.certbot_email }}
-          DOMAINS: ${{ inputs.domains }}
-        run: |
-          ARGS=""
-          for d in $DOMAINS; do ARGS="$ARGS -d $d"; done
-          # --keep-until-expiring: не перевыпускает действующий сертификат,
-          # но заново прописывает его в nginx.conf (нужно после update_nginx)
-          ssh server "docker exec aledev-frontend certbot --nginx --non-interactive --agree-tos \
-            --email '$EMAIL' --redirect --keep-until-expiring $ARGS"
-
-      - name: Enable auto-renewal (cron)
-        run: |
-          ssh server bash -s <<'SCRIPT'
-          set -e
-          LINE='0 3 * * * docker exec aledev-frontend timeout 180 certbot renew --non-interactive --deploy-hook "nginx -s reload" >> $HOME/aledev/certbot-cron.log 2>&1 # aledev-certbot'
-          ( crontab -l 2>/dev/null | grep -v 'aledev-certbot' ; echo "$LINE" ) | crontab -
-          echo "Автообновление сертификатов настроено:"
-          crontab -l | grep aledev-certbot
-          SCRIPT
