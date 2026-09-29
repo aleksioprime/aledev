@@ -2,8 +2,7 @@ name: Prepare Server
 
 run-name: "Prepare server by ${{ github.actor }}"
 
-# Идемпотентная подготовка чистого сервера: Docker + Compose, каталоги, общая сеть.
-# Повторный запуск ничего не ломает.
+# Идемпотентная подготовка нового или пересобранного сервера.
 on:
   workflow_dispatch:
   workflow_call:
@@ -40,7 +39,7 @@ jobs:
           fi
           if [ -n "$SUDO" ] && ! id -nG | grep -qw docker; then
             $SUDO usermod -aG docker "$(whoami)"
-            echo "Пользователь добавлен в группу docker (вступит в силу при следующем подключении)"
+            echo "Пользователь добавлен в группу docker (применится при следующем SSH-подключении)"
           fi
           $SUDO systemctl enable --now docker >/dev/null 2>&1 || true
 

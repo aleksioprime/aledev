@@ -86,7 +86,14 @@ function scrollToSection(anchor) {
   if (!el) return
   const header = document.querySelector('.site-header')
   const offset = header ? header.offsetHeight : 0
-  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - offset + 1, behavior: 'smooth' })
+  const sectionPadding = el.classList.contains('section')
+    ? Number.parseFloat(getComputedStyle(el).paddingTop) || 0
+    : 0
+  const gap = el.classList.contains('section') ? 24 : 0
+  window.scrollTo({
+    top: el.getBoundingClientRect().top + window.scrollY + sectionPadding - offset - gap + 1,
+    behavior: 'smooth',
+  })
 }
 
 function onScroll() {

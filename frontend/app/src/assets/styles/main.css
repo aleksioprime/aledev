@@ -81,7 +81,7 @@ body {
 
 .section {
   position: relative;
-  padding-block: clamp(4.5rem, 10vw, 8rem);
+  padding-block: clamp(2rem, 4vw, 3rem) clamp(4.5rem, 10vw, 8rem);
 }
 
 .font-display {

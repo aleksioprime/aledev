@@ -19,18 +19,17 @@
 
 ## 1. Сервер
 
-1. Ubuntu 22.04+ (подойдёт любой Linux, где работает `get.docker.com`).
+1. Ubuntu 22.04+ или другой поддерживаемый Linux.
 2. Откройте в файрволе порты **80**, **443** и порт SSH.
-3. Если деплоите не под `root`, пользователю нужен `sudo` без пароля
-   (только для первой установки Docker; потом он попадает в группу `docker`).
+3. На первом деплое включите шаг **Подготовить сервер**: он установит Docker/Compose,
+   создаст каталоги и общую сеть. Для пользователя не `root` нужен `sudo` без пароля
+   на время установки; workflow добавит его в группу `docker`.
 4. Создайте SSH-ключ для GitHub Actions — на своём компьютере:
    ```bash
    ssh-keygen -t ed25519 -f aledev_deploy -N "" -C "github-actions@aledev"
    ssh-copy-id -i aledev_deploy.pub -p <SSH-порт> <пользователь>@<IP-сервера>
    ```
    Содержимое `aledev_deploy` (приватная часть) пойдёт в секрет `SSH_KEY`.
-
-Docker вручную ставить не нужно — это сделает шаг **Prepare Server**.
 
 ## 2. DNS
 
@@ -148,8 +147,8 @@ docker logs aledev-portfolio-app --tail 50  # ошибки отправки пи
 | Симптом | Причина / решение |
 | --- | --- |
 | `Setup SSH` падает на `ssh-keyscan` или `Permission denied` | неверные `SERVER_HOST` / `SSH_PORT` / `SSH_KEY`, или публичный ключ не добавлен в `~/.ssh/authorized_keys` |
-| `sudo: a password is required` на Prepare Server | дайте пользователю `sudo` без пароля или деплойте под `root` |
-| `permission denied ... docker.sock` | пользователь только что добавлен в группу `docker` — перезапустите workflow |
+| `sudo: a password is required` на Prepare Server | настройте `sudo` без пароля для первого запуска или деплойте под `root` |
+| `permission denied ... docker.sock` | добавьте `SERVER_USER` в группу `docker` и переподключитесь по SSH |
 | Certbot: `DNS problem` / `Timeout during connect` | DNS ещё не обновился или закрыт порт 80 |
 | В админке 401/403 на запросах к портфолио | разные `JWT_SECRET_KEY` в `ENV_AUTH_VARS` и `ENV_PORTFOLIO_VARS` |
 | Письма не приходят | смотрите статус письма в админке → «Обращения» и `docker logs aledev-portfolio-app` |

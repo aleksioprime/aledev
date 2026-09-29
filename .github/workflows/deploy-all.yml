@@ -2,8 +2,8 @@ name: Deploy All
 
 run-name: "Deploy all services for ${{ github.ref_name }} by ${{ github.actor }}"
 
-# Полный деплой одной кнопкой: подготовка сервера → сборка образов →
-# auth → portfolio → фронтенд → (по желанию) SSL-сертификаты.
+# Полный деплой одной кнопкой: подготовка сервера → сборка образов → auth →
+# portfolio → фронтенд → (по желанию) SSL-сертификаты.
 on:
   workflow_dispatch:
     inputs:
@@ -12,7 +12,7 @@ on:
         type: boolean
         default: true
       prepare_server:
-        description: "Подготовить сервер (установить Docker, создать каталоги и сеть)"
+        description: "Подготовить сервер: установить Docker и создать каталоги/сеть"
         type: boolean
         default: true
       update_nginx:
