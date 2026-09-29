@@ -196,7 +196,7 @@ onMounted(async () => {
 .filter-button:hover,
 .filter-button--active {
   border-color: var(--accent);
-  background: rgb(34 211 238 / 0.08);
+  background: rgb(var(--accent-rgb) / 0.08);
   color: var(--text);
 }
 

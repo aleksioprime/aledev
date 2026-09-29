@@ -5,6 +5,6 @@
   </defs>
   <rect width="1200" height="1500" fill="url(#bg)"/><rect width="1200" height="1500" fill="url(#grid)"/>
   <g fill="none" stroke="#f0b06a" stroke-opacity=".75" stroke-width="4"><circle cx="600" cy="680" r="190"/><circle cx="600" cy="680" r="110"/><path d="M600 420v520M340 680h520M416 496l368 368M784 496 416 864"/></g>
-  <text x="600" y="1080" text-anchor="middle" font-family="monospace" font-size="72" fill="#e9edf5" fill-opacity=".8">PHOTO 03</text>
+  <text x="600" y="1080" text-anchor="middle" font-family="monospace" font-size="72" fill="#f1ede4" fill-opacity=".8">PHOTO 03</text>
   <text x="600" y="1150" text-anchor="middle" font-family="monospace" font-size="28" fill="#d3c1b6">MACHINE LEARNING</text>
 </svg>

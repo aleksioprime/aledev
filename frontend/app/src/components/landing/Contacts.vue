@@ -431,7 +431,7 @@ onUnmounted(() => {
 
 .channel:hover {
   padding-left: 1rem;
-  background: linear-gradient(90deg, rgb(34 211 238 / 0.06), transparent);
+  background: linear-gradient(90deg, rgb(var(--accent-rgb) / 0.06), transparent);
 }
 
 .channel__icon {
@@ -497,7 +497,7 @@ onUnmounted(() => {
   width: 70%;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(167 139 250 / 0.18), transparent 65%);
+  background: radial-gradient(circle, rgb(var(--accent-2-rgb) / 0.18), transparent 65%);
   pointer-events: none;
 }
 
@@ -516,7 +516,7 @@ onUnmounted(() => {
   padding: 4px;
   border: 1px solid var(--line-strong);
   border-radius: 999px;
-  background: rgb(6 7 11 / 0.6);
+  background: rgb(var(--bg-rgb) / 0.6);
 }
 
 .kind__btn {
@@ -536,7 +536,7 @@ onUnmounted(() => {
 }
 
 .kind__btn.is-active {
-  color: #05060a;
+  color: var(--on-accent);
 }
 
 .kind__thumb {
@@ -547,7 +547,7 @@ onUnmounted(() => {
   width: calc((100% - 8px) / 3);
   border-radius: 999px;
   background: var(--grad);
-  box-shadow: 0 8px 30px -8px rgb(34 211 238 / 0.6);
+  box-shadow: 0 8px 30px -8px rgb(var(--accent-rgb) / 0.6);
   transition: transform 0.5s var(--ease-out);
 }
 
@@ -608,13 +608,13 @@ onUnmounted(() => {
 }
 
 .option:hover {
-  border-color: rgb(34 211 238 / 0.6);
+  border-color: rgb(var(--accent-rgb) / 0.6);
 }
 
 .option.is-active {
   border-color: var(--accent);
-  background: rgb(34 211 238 / 0.14);
-  color: #a5f3fc;
+  background: rgb(var(--accent-rgb) / 0.14);
+  color: var(--accent-3);
   transform: translateY(-1px);
 }
 
@@ -662,7 +662,7 @@ onUnmounted(() => {
   padding: 1.45rem 1rem 0.6rem;
   border: 1px solid var(--line-strong);
   border-radius: 0.9rem;
-  background: rgb(6 7 11 / 0.6);
+  background: rgb(var(--bg-rgb) / 0.6);
   color: var(--text);
   font-size: 1rem;
   outline: none;
@@ -673,8 +673,8 @@ onUnmounted(() => {
 .field input:focus,
 .field textarea:focus {
   border-color: var(--accent);
-  background: rgb(6 7 11 / 0.85);
-  box-shadow: 0 0 0 4px rgb(34 211 238 / 0.12);
+  background: rgb(var(--bg-rgb) / 0.85);
+  box-shadow: 0 0 0 4px rgb(var(--accent-rgb) / 0.12);
 }
 
 .field__box {
@@ -761,7 +761,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.3rem;
   padding: 0.3rem 0.8rem;
-  border: 1px solid rgb(34 211 238 / 0.4);
+  border: 1px solid rgb(var(--accent-rgb) / 0.4);
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 700;
@@ -781,7 +781,7 @@ onUnmounted(() => {
 .submit__spinner {
   width: 1.2rem;
   height: 1.2rem;
-  border: 2px solid #05060a;
+  border: 2px solid var(--on-accent);
   border-top-color: transparent;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;

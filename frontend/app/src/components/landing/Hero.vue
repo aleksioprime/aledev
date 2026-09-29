@@ -41,8 +41,10 @@
       </div>
 
       <div class="hero__visual">
+        <span class="hero__initials font-display" aria-hidden="true">{{ t('hero.initials') }}</span>
         <button type="button" class="avatar" :aria-label="t('hero.openPhoto')" @click="openPreview">
-          <span class="avatar__ring"></span>
+          <span class="avatar__corner avatar__corner--top" aria-hidden="true"></span>
+          <span class="avatar__corner avatar__corner--bottom" aria-hidden="true"></span>
           <img :src="avatar" :alt="t('hero.name')" class="avatar__img" width="640" height="640" fetchpriority="high" decoding="async" />
         </button>
       </div>
@@ -311,7 +313,7 @@ onBeforeUnmount(() => {
 .social:hover {
   color: var(--accent);
   border-color: var(--accent);
-  background: rgb(34 211 238 / 0.08);
+  background: rgb(var(--accent-rgb) / 0.08);
   transform: translateY(-3px) rotate(-6deg);
 }
 
@@ -338,49 +340,77 @@ onBeforeUnmount(() => {
   to { opacity: 1; transform: none; }
 }
 
+/* Крупные контурные инициалы за фото */
+.hero__initials {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 62cqi;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(255 255 255 / 0.13);
+  user-select: none;
+  pointer-events: none;
+}
+
 .avatar {
   position: relative;
-  width: 70%;
+  z-index: 1;
+  width: 66%;
   aspect-ratio: 1;
-  border-radius: 50%;
+  border-radius: 1.5rem;
   cursor: zoom-in;
   transition: transform 0.6s var(--ease-out);
 }
 
 .avatar:hover {
-  transform: scale(1.04);
+  transform: scale(1.03);
 }
 
-.avatar__ring {
+/* Уголки-рамка: сдвинуты наружу, на hover чуть разъезжаются */
+.avatar__corner {
   position: absolute;
-  inset: -6px;
-  border-radius: 50%;
-  background: conic-gradient(from 0deg, var(--accent), var(--accent-2), #f472b6, var(--accent-3), var(--accent));
-  animation: spin 20s linear infinite;
-  filter: blur(0.5px);
+  width: 18%;
+  aspect-ratio: 1;
+  pointer-events: none;
+  transition: transform 0.6s var(--ease-out);
 }
 
-.avatar__ring::after {
-  content: "";
-  position: absolute;
-  inset: -18px;
-  border-radius: 50%;
-  background: inherit;
-  filter: blur(34px);
-  opacity: 0.45;
+.avatar__corner--top {
+  top: -12px;
+  right: -12px;
+  border-top: 2px solid var(--accent);
+  border-right: 2px solid var(--accent);
+  border-radius: 0 1rem 0 0;
+}
+
+.avatar__corner--bottom {
+  bottom: -12px;
+  left: -12px;
+  border-bottom: 2px solid var(--accent-2);
+  border-left: 2px solid var(--accent-2);
+  border-radius: 0 0 0 1rem;
+}
+
+.avatar:hover .avatar__corner--top {
+  transform: translate(4px, -4px);
+}
+
+.avatar:hover .avatar__corner--bottom {
+  transform: translate(-4px, 4px);
 }
 
 .avatar__img {
   position: relative;
   width: 100%;
   height: 100%;
-  border: 5px solid var(--bg);
-  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  border-radius: 1.5rem;
   object-fit: cover;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+  box-shadow: 0 40px 80px -30px rgb(0 0 0 / 0.9);
 }
 
 /* --- Подсказка скролла --- */

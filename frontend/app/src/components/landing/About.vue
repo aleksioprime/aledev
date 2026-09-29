@@ -196,7 +196,7 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, transparent 55%, rgb(6 7 11 / 0.75));
+  background: linear-gradient(180deg, transparent 55%, rgb(var(--bg-rgb) / 0.75));
 }
 
 .about__photo img {
@@ -237,7 +237,7 @@ onBeforeUnmount(() => {
   padding: 0.55rem 0.9rem;
   border: 1px solid var(--line-strong);
   border-radius: 999px;
-  background: rgb(10 12 18 / 0.8);
+  background: rgb(var(--panel-rgb) / 0.8);
   backdrop-filter: blur(10px);
   font-size: 0.78rem;
 }
@@ -257,7 +257,7 @@ onBeforeUnmount(() => {
   aspect-ratio: 1;
   border: 1px solid var(--line-strong);
   border-radius: 50%;
-  background: rgb(10 12 18 / 0.65);
+  background: rgb(var(--panel-rgb) / 0.65);
   color: var(--text);
   cursor: pointer;
   transition: border-color 0.2s ease, color 0.2s ease;
@@ -355,7 +355,7 @@ onBeforeUnmount(() => {
   aspect-ratio: 1;
   border: 1px solid var(--line-strong);
   border-radius: 50%;
-  background: rgb(10 12 18 / 0.8);
+  background: rgb(var(--panel-rgb) / 0.8);
   color: var(--text);
   cursor: pointer;
 }
@@ -449,13 +449,13 @@ onBeforeUnmount(() => {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 0%), rgb(34 211 238 / 0.12), transparent 45%);
+  background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 0%), rgb(var(--accent-rgb) / 0.12), transparent 45%);
   opacity: 0;
   transition: opacity 0.4s ease;
 }
 
 .focus__card:hover {
-  border-color: rgb(34 211 238 / 0.35);
+  border-color: rgb(var(--accent-rgb) / 0.35);
 }
 
 .focus__card:hover::before {
@@ -469,7 +469,7 @@ onBeforeUnmount(() => {
   height: 3rem;
   margin-bottom: 1.4rem;
   border-radius: 0.9rem;
-  background: linear-gradient(135deg, rgb(34 211 238 / 0.18), rgb(167 139 250 / 0.18));
+  background: linear-gradient(135deg, rgb(var(--accent-rgb) / 0.18), rgb(var(--accent-2-rgb) / 0.18));
   font-size: 1.5rem;
   color: var(--accent);
 }

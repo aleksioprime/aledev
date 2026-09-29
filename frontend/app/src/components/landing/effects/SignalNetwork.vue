@@ -9,7 +9,14 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const canvasRef = ref(null)
 
-const COLORS = ['34, 211, 238', '167, 139, 250', '190, 242, 100']
+// Цвета берутся из токенов --accent-rgb / --accent-2-rgb / --accent-3-rgb (main.css)
+let COLORS = ['255, 181, 71', '255, 107, 74', '255, 217, 160']
+
+function readColors() {
+  const css = getComputedStyle(document.documentElement)
+  const fromToken = (name, fallback) => css.getPropertyValue(name).trim().split(/\s+/).join(', ') || fallback
+  COLORS = COLORS.map((c, i) => fromToken(['--accent-rgb', '--accent-2-rgb', '--accent-3-rgb'][i], c))
+}
 const LINK_DIST = 150
 const MOUSE_DIST = 210
 
@@ -145,7 +152,7 @@ function draw(time) {
     if (mouse.active) {
       const d = Math.hypot(a.x - mouse.x, a.y - mouse.y)
       if (d < MOUSE_DIST) {
-        ctx.strokeStyle = `rgba(34, 211, 238, ${(1 - d / MOUSE_DIST) * 0.5})`
+        ctx.strokeStyle = `rgba(${COLORS[0]}, ${(1 - d / MOUSE_DIST) * 0.5})`
         ctx.beginPath()
         ctx.moveTo(a.x, a.y)
         ctx.lineTo(mouse.x, mouse.y)
@@ -215,6 +222,7 @@ function onPointerLeave() {
 }
 
 onMounted(() => {
+  readColors()
   const canvas = canvasRef.value
   ctx = canvas.getContext('2d')
   lowPower = window.matchMedia('(pointer: coarse)').matches || (navigator.hardwareConcurrency || 8) <= 4

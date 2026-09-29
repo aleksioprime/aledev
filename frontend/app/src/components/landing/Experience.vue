@@ -174,7 +174,7 @@ onBeforeUnmount(() => {
 /* заполненная часть */
 .timeline::after {
   background: linear-gradient(var(--accent), var(--accent-2));
-  box-shadow: 0 0 12px rgb(34 211 238 / 0.6);
+  box-shadow: 0 0 12px rgb(var(--accent-rgb) / 0.6);
   transform: scaleY(var(--progress, 0));
   transform-origin: top;
 }
@@ -202,7 +202,7 @@ onBeforeUnmount(() => {
 
 .is-current .timeline__dot {
   background: var(--accent);
-  box-shadow: 0 0 0 6px rgb(34 211 238 / 0.15);
+  box-shadow: 0 0 0 6px rgb(var(--accent-rgb) / 0.15);
 }
 
 .timeline__meta {
@@ -223,7 +223,7 @@ onBeforeUnmount(() => {
 .timeline__now {
   padding: 0.1rem 0.55rem;
   border-radius: 999px;
-  background: rgb(190 242 100 / 0.12);
+  background: rgb(var(--accent-3-rgb) / 0.12);
   color: var(--accent-3);
 }
 
@@ -234,7 +234,7 @@ onBeforeUnmount(() => {
 }
 
 .timeline__card:hover {
-  border-color: rgb(34 211 238 / 0.3);
+  border-color: rgb(var(--accent-rgb) / 0.3);
   transform: translateX(6px);
 }
 

@@ -49,6 +49,6 @@ onBeforeUnmount(() => {
   height: 100%;
   background: var(--grad);
   transform-origin: 0 50%;
-  box-shadow: 0 0 12px rgb(34 211 238 / 0.7);
+  box-shadow: 0 0 12px rgb(var(--accent-rgb) / 0.7);
 }
 </style>
