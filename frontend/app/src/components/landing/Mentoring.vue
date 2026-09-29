@@ -83,7 +83,7 @@ const contentLoading = ref(true)
 const selectedCategory = ref('all')
 const selectedScope = ref('all')
 
-const scopes = ['all', 'personal', 'team', 'students']
+const scopes = ['all', 'personal', 'students']
 const pageTranslation = computed(() => pageContent.value?.translations?.find((translation) => translation.lang === locale.value)
   || pageContent.value?.translations?.find((translation) => translation.lang === 'ru')
   || pageContent.value?.translations?.[0]

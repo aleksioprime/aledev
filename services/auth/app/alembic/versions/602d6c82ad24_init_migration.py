@@ -1,4 +1,4 @@
-"""squashed baseline
+"""init migration
 
 Revision ID: 602d6c82ad24
 Revises: None

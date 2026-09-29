@@ -56,7 +56,6 @@ const categoryItems = [
 ]
 const scopeItems = [
   { title: 'Личное достижение', value: 'personal' },
-  { title: 'Командный результат', value: 'team' },
   { title: 'Результат учеников', value: 'students' },
 ]
 

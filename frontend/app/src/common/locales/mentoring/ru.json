@@ -10,7 +10,6 @@
   "scope": {
     "all": "Все результаты",
     "personal": "Мои",
-    "team": "Командные",
     "students": "Ученики"
   },
   "categories": {

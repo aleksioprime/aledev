@@ -1,4 +1,4 @@
-"""squashed baseline
+"""init migration
 
 Revision ID: 10865b216202
 Revises: None
@@ -228,7 +228,7 @@ def upgrade() -> None:
         ('certification', 'personal', 2020,
          ('Мастер-тренер Intel AI for Youth', 'Intel AI for Youth', 'Мастер-тренер', 'Сертифицированный мастер-тренер программы и педагог Лицея Академии Яндекса.'),
          ('Intel AI for Youth master trainer', 'Intel AI for Youth', 'Master trainer', 'Certified master trainer of the programme and teacher at Yandex Academy Lyceum.')),
-        ('competition', 'team', 2018,
+        ('competition', 'personal', 2018,
          ('Хакатон StarLine «Умный автомобиль»', 'Фестиваль «Робофинист»', '4 место', 'Участие в команде педагогов на международном фестивале робототехники.'),
          ('StarLine Smart Car hackathon', 'Robofinist international festival', '4th place', 'Competed as part of a team of teachers at an international robotics festival.')),
         ('competition', 'students', 2022,
@@ -307,8 +307,8 @@ def upgrade() -> None:
 
     metric_rows = [
         ('projects', '30+', 'проектов учеников', 'student projects'),
-        ('prizes', '15+', 'призовых мест команд', 'team prizes'),
-        ('programs', '6', 'учебных программ', 'curricula'),
+        ('prizes', '20', 'призёров и победителей конкурсов', 'competition prize winners'),
+        ('programs', '10+', 'учебных программ', 'curricula'),
     ]
     metric_ids = [UUID(f'32000000-0000-4000-8000-{index:012d}') for index in range(1, 4)]
     metric_table = sa.table(

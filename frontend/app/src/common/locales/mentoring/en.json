@@ -10,7 +10,6 @@
   "scope": {
     "all": "All results",
     "personal": "Mine",
-    "team": "Teams",
     "students": "Students"
   },
   "categories": {
