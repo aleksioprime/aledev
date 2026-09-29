@@ -56,6 +56,7 @@ class FeedbackRepository(BaseSQLRepository):
             count().label("total"),
             count(Feedback.status == FeedbackStatus.new).label("new"),
             count(Feedback.kind == FeedbackKind.order).label("orders"),
+            count(Feedback.kind == FeedbackKind.training).label("trainings"),
             count(Feedback.kind == FeedbackKind.question).label("questions"),
             count(Feedback.email_status == EmailStatus.failed).label("email_failed"),
         ))).one()

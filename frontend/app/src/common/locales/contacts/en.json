@@ -18,12 +18,14 @@
   "github": "GitHub",
   "kindLabel": "Request type",
   "kinds": {
-    "order": "Start a project",
-    "question": "Ask a question"
+    "order": "Project",
+    "training": "Training",
+    "question": "Question"
   },
   "kindHints": {
-    "order": "Tell me about the task — I'll reply with a time and cost estimate.",
-    "question": "Consulting, code review, mentoring or anything else."
+    "order": "Need something built? Tell me about the task — I'll reply with a time and cost estimate.",
+    "question": "Consulting, code review or any other question.",
+    "training": "Lessons in programming, web, AI and robotics, mentoring of project teams."
   },
   "contactField": "Telegram or phone",
   "serviceLabel": "What you need",
@@ -33,7 +35,6 @@
     "iot": "IoT / devices",
     "ml": "ML / vision",
     "automation": "Automation",
-    "mentoring": "Mentoring",
     "other": "Other"
   },
   "budgetLabel": "Budget",
@@ -47,17 +48,28 @@
   "deadline": "Preferred timeline",
   "messageLabels": {
     "order": "Describe the task",
-    "question": "Your question"
+    "question": "Your question",
+    "training": "Who needs to learn what"
   },
   "note": "By sending, you agree that I'll use this data only to reply to your request.",
   "successByKind": {
     "order": "Thank you! Request received — I'll get back to you shortly.",
-    "question": "Thank you! Question received — I'll reply by email."
+    "question": "Thank you! Question received — I'll reply by email.",
+    "training": "Thank you! Training request received — I'll get in touch to discuss the programme."
   },
   "sendAnother": "Send another one",
   "errors": {
     "required": "Required field",
     "minLength": "At least {n} characters",
     "email": "Invalid email"
-  }
+  },
+  "trainingLabel": "Format",
+  "trainingFormats": {
+    "individual": "One-to-one",
+    "group": "Group or class",
+    "team": "Project team",
+    "corporate": "Your employees",
+    "curriculum": "Course or curriculum"
+  },
+  "startLabel": "Preferred start date"
 }

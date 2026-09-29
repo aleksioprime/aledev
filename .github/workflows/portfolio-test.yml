@@ -1,0 +1,63 @@
+name: Test Portfolio Service
+
+run-name: "Test Portfolio Service for ${{ github.ref_name }} by ${{ github.actor }}"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'services/portfolio/**'
+      - '.github/workflows/portfolio-test.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/portfolio/**'
+      - '.github/workflows/portfolio-test.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_USER: test
+      DB_PASSWORD: test
+      DB_NAME: test
+
+    defaults:
+      run:
+        working-directory: services/portfolio/app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: services/portfolio/app/requirements*.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run tests
+        run: python -m pytest -q

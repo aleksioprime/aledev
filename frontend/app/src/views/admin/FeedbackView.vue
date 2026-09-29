@@ -9,6 +9,7 @@
     <div v-if="stats" class="d-flex flex-wrap ga-2 mb-4">
       <v-chip color="primary" variant="tonal" prepend-icon="mdi-bell-outline">Новые: {{ stats.new }}</v-chip>
       <v-chip variant="tonal" prepend-icon="mdi-briefcase-outline">Заказы: {{ stats.orders }}</v-chip>
+      <v-chip variant="tonal" prepend-icon="mdi-school-outline">Обучение: {{ stats.trainings }}</v-chip>
       <v-chip variant="tonal" prepend-icon="mdi-help-circle-outline">Вопросы: {{ stats.questions }}</v-chip>
       <v-chip v-if="stats.email_failed" color="red" variant="tonal" prepend-icon="mdi-email-alert-outline">
         Не доставлено на почту: {{ stats.email_failed }}
@@ -21,6 +22,7 @@
         <v-btn-toggle v-model="filters.kind" mandatory density="comfortable" variant="outlined" divided class="w-100">
           <v-btn value="" class="flex-grow-1">Все</v-btn>
           <v-btn value="order" class="flex-grow-1">Заказы</v-btn>
+          <v-btn value="training" class="flex-grow-1">Обучение</v-btn>
           <v-btn value="question" class="flex-grow-1">Вопросы</v-btn>
         </v-btn-toggle>
       </v-col>
@@ -39,14 +41,14 @@
       variant="outlined">
       <v-card-item>
         <template #prepend>
-          <v-avatar :color="item.kind === 'order' ? 'teal' : 'indigo'" variant="tonal">
-            <v-icon>{{ item.kind === 'order' ? 'mdi-briefcase-outline' : 'mdi-help-circle-outline' }}</v-icon>
+          <v-avatar :color="kindMeta(item).color" variant="tonal">
+            <v-icon>{{ kindMeta(item).icon }}</v-icon>
           </v-avatar>
         </template>
         <v-card-title class="d-flex flex-wrap align-center ga-2">
           {{ item.name }}
-          <v-chip size="x-small" :color="item.kind === 'order' ? 'teal' : 'indigo'" label>
-            {{ item.kind === 'order' ? 'Заказ' : 'Вопрос' }}
+          <v-chip size="x-small" :color="kindMeta(item).color" label>
+            {{ kindMeta(item).title }}
           </v-chip>
           <v-chip v-if="item.lang" size="x-small" label variant="outlined">{{ item.lang.toUpperCase() }}</v-chip>
         </v-card-title>
@@ -68,8 +70,8 @@
       </v-card-item>
 
       <v-card-text>
-        <div v-if="item.kind === 'order'" class="d-flex flex-wrap ga-2 mb-3">
-          <v-chip v-if="item.service" size="small" prepend-icon="mdi-shape-outline">{{ SERVICE_LABELS[item.service] || item.service }}</v-chip>
+        <div v-if="item.kind !== 'question'" class="d-flex flex-wrap ga-2 mb-3">
+          <v-chip v-if="item.service" size="small" prepend-icon="mdi-shape-outline">{{ serviceLabel(item) }}</v-chip>
           <v-chip v-if="item.budget" size="small" prepend-icon="mdi-cash">{{ BUDGET_LABELS[item.budget] || item.budget }}</v-chip>
           <v-chip v-if="item.deadline" size="small" prepend-icon="mdi-calendar-clock">{{ item.deadline }}</v-chip>
         </div>
@@ -124,6 +126,8 @@ import { onMounted, reactive, ref, watch } from 'vue'
 import { useFeedbackStore } from '@/stores/feedback'
 import {
   SERVICE_LABELS,
+  TRAINING_LABELS,
+  KIND_META,
   BUDGET_LABELS,
   STATUS_OPTIONS,
   EMAIL_STATUS,
@@ -164,8 +168,17 @@ function emailTooltip(item) {
   return parts.join(' · ')
 }
 
+function kindMeta(item) {
+  return KIND_META[item.kind] || KIND_META.question
+}
+
+function serviceLabel(item) {
+  const labels = item.kind === 'training' ? TRAINING_LABELS : SERVICE_LABELS
+  return labels[item.service] || item.service
+}
+
 function replyLink(item) {
-  const subject = item.kind === 'order' ? 'Re: ваш заказ на aledev.ru' : 'Re: ваш вопрос на aledev.ru'
+  const subject = kindMeta(item).subject
   const quote = item.message.split('\n').map((l) => `> ${l}`).join('\n')
   return `mailto:${item.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`\n\n${quote}`)}`
 }

@@ -8,6 +8,7 @@ class LangEnum(Enum):
 class FeedbackKind(str, Enum):
     """ Тип обращения """
     order = "order"          # заказ / проект
+    training = "training"    # обучение / менторство
     question = "question"    # вопрос / консультация
 
 
@@ -35,8 +36,16 @@ FEEDBACK_SERVICES = {
     "iot": "IoT / устройства",
     "ml": "ML / компьютерное зрение",
     "automation": "Автоматизация / интеграции",
-    "mentoring": "Обучение / менторство",
     "other": "Другое",
+}
+
+# Форматы обучения (для обращений типа training хранятся в поле service)
+FEEDBACK_TRAINING_FORMATS = {
+    "individual": "Индивидуальные занятия",
+    "group": "Группа или класс",
+    "team": "Менторство проектной команды",
+    "corporate": "Обучение сотрудников",
+    "curriculum": "Разработка курса или программы",
 }
 
 FEEDBACK_BUDGETS = {
