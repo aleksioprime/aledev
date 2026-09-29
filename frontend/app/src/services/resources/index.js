@@ -4,7 +4,6 @@ import { ProjectResource } from "./project.resource";
 import { ExperienceResource } from "./experience.resource";
 import { FeedbackResource } from "./feedback.resource";
 import { AchievementResource } from "./achievement.resource";
-import { MentoringResource } from "./mentoring.resource";
 import { ExportResource } from "./export.resource";
 
 export default {
@@ -14,6 +13,5 @@ export default {
     experience: new ExperienceResource(),
     feedback: new FeedbackResource(),
     achievement: new AchievementResource(),
-    mentoring: new MentoringResource(),
     export: new ExportResource(),
 };

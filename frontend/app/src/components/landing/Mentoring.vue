@@ -4,12 +4,11 @@
       <div class="mentoring-layout">
         <div class="mentoring-info">
           <header class="section-head mentoring-head">
-            <span v-if="pageTranslation" v-reveal class="section-kicker">03 - {{ pageTranslation.kicker }}</span>
-            <h2 v-if="pageTranslation" v-reveal="{ delay: 80 }" class="section-title">
+            <span v-reveal class="section-kicker">03 - {{ pageTranslation.kicker }}</span>
+            <h2 v-reveal="{ delay: 80 }" class="section-title">
               {{ pageTranslation.title_start }} <span class="text-gradient">{{ pageTranslation.title_accent }}</span>
             </h2>
-            <p v-if="pageTranslation" v-reveal="{ delay: 160 }" class="section-lead">{{ pageTranslation.lead }}</p>
-            <p v-else class="section-lead">{{ contentLoading ? t('mentoring.contentLoading') : t('mentoring.contentUnavailable') }}</p>
+            <p v-reveal="{ delay: 160 }" class="section-lead">{{ pageTranslation.lead }}</p>
           </header>
 
           <dl v-if="metrics.length" class="numbers">
@@ -66,40 +65,43 @@
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAchievementStore } from '@/stores/achievement'
-import { useMentoringStore } from '@/stores/mentoring'
 
 const sectionId = 'mentoring'
 const { t, locale } = useI18n()
 const achievementStore = useAchievementStore()
-const mentoringStore = useMentoringStore()
 const achievements = ref([])
-const pageContent = ref(null)
 const loading = ref(true)
-const contentLoading = ref(true)
 const selectedScope = ref('all')
 
+// Контент секции наставничества задаётся статически на лендинге, без бэкенда
+const MENTORING_CONTENT = {
+  ru: {
+    kicker: 'Наставничество',
+    title_start: 'Менторство',
+    title_accent: 'и конкурсы',
+    lead: 'Опыт руководства кафедрой дизайна и технологии Международной гимназии «Сколково»: учебные программы по ИИ, программированию и робототехнике, инженерная лаборатория и десятки ученических проектов - от роботов до нейросетей.',
+    metrics: [
+      { key: 'projects', value: '30+', label: 'проектов учеников' },
+      { key: 'prizes', value: '20+', label: 'призёров и победителей конкурсов' },
+      { key: 'programs', value: '10+', label: 'учебных программ' },
+    ],
+  },
+  en: {
+    kicker: 'Mentoring',
+    title_start: 'Research, awards',
+    title_accent: 'and student teams',
+    lead: 'Experience heading the Design & Technology department at the Skolkovo International Gymnasium: curricula in AI, programming and robotics, an engineering lab and dozens of student projects - from robots to neural networks.',
+    metrics: [
+      { key: 'projects', value: '30+', label: 'student projects' },
+      { key: 'prizes', value: '20+', label: 'competition prize winners' },
+      { key: 'programs', value: '10+', label: 'curricula' },
+    ],
+  },
+}
+
 const scopes = ['all', 'personal', 'students']
-const pageTranslation = computed(() => {
-  const translation = pageContent.value?.translations?.find((item) => item.lang === locale.value)
-    || pageContent.value?.translations?.find((item) => item.lang === 'ru')
-    || pageContent.value?.translations?.[0]
-    || null
-
-  if (translation?.lang === 'ru'
-    && translation.title_start === 'Исследования, конкурсы'
-    && translation.title_accent === 'и команды учеников') {
-    return { ...translation, title_start: 'Менторство', title_accent: 'и конкурсы' }
-  }
-
-  return translation
-})
-const metrics = computed(() => (pageContent.value?.metrics || []).map((metric) => ({
-  ...metric,
-  label: metric.translations?.find((translation) => translation.lang === locale.value)?.label
-    || metric.translations?.find((translation) => translation.lang === 'ru')?.label
-    || metric.translations?.[0]?.label
-    || '',
-})))
+const pageTranslation = computed(() => MENTORING_CONTENT[locale.value] || MENTORING_CONTENT.ru)
+const metrics = computed(() => pageTranslation.value.metrics)
 const filteredAchievements = computed(() => achievements.value.filter((item) =>
   selectedScope.value === 'all' || item.scope === selectedScope.value
 ))
@@ -116,13 +118,8 @@ function categoryLabel(category) {
 }
 
 onMounted(async () => {
-  const [content, achievementsData] = await Promise.all([
-    mentoringStore.loadMentoringContent(),
-    achievementStore.loadAchievements({ params: { offset: 0, limit: 100 } }),
-  ])
-  pageContent.value = content
+  const achievementsData = await achievementStore.loadAchievements({ params: { offset: 0, limit: 100 } })
   achievements.value = achievementsData?.items || []
-  contentLoading.value = false
   loading.value = false
 })
 </script>

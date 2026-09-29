@@ -1,10 +1,8 @@
 from sqlalchemy import desc, nulls_first, select
-from sqlalchemy.orm import selectinload
 
 from src.constants.base import LangEnum
 from src.models.achievement import Achievement
 from src.models.experience import Experience
-from src.models.mentoring import MentoringMetric, MentoringPage
 from src.models.project import Project
 from src.repositories.uow import UnitOfWork
 from src.utils.portfolio_docx import (
@@ -15,6 +13,32 @@ from src.utils.portfolio_docx import (
     PortfolioExportData,
     build_portfolio_docx,
 )
+
+# Контент секции наставничества задаётся статически (совпадает с лендингом)
+_MENTORING_STATIC = {
+    "ru": {
+        "lead": (
+            "Опыт руководства кафедрой дизайна и технологии Международной гимназии «Сколково»: учебные программы по ИИ, программированию и робототехнике, инженерная лаборатория и десятки ученических проектов - от роботов до нейросетей."
+        ),
+        "metrics": [
+            ("30+", "проектов учеников"),
+            ("20+", "призёров и победителей конкурсов"),
+            ("10+", "учебных программ"),
+        ],
+    },
+    "en": {
+        "lead": (
+            "Experience heading the Design & Technology department at the Skolkovo International Gymnasium: "
+            "curricula in AI, programming and robotics, an engineering lab and dozens of student projects - "
+            "from robots to neural networks."
+        ),
+        "metrics": [
+            ("30+", "student projects"),
+            ("20+", "competition prize winners"),
+            ("10+", "curricula"),
+        ],
+    },
+}
 
 
 def _translation(translations, lang: str):
@@ -47,14 +71,6 @@ class PortfolioExportService:
                 .where(Achievement.is_published.is_(True))
                 .order_by(Achievement.year.desc().nullslast(), Achievement.order)
             )).scalars().unique().all()
-            page = (await session.execute(
-                select(MentoringPage)
-                .where(MentoringPage.slug == "mentoring", MentoringPage.is_published.is_(True))
-                .options(
-                    selectinload(MentoringPage.translations),
-                    selectinload(MentoringPage.metrics).selectinload(MentoringMetric.translations),
-                )
-            )).scalars().unique().one_or_none()
 
             data = PortfolioExportData(lang=lang)
             for exp in experiences:
@@ -83,11 +99,10 @@ class PortfolioExportService:
                     organization=tr.organization, result=tr.result,
                     description=tr.short_description or tr.description,
                 ))
-            if page is not None:
-                page_tr = _translation(page.translations, lang)
-                data.mentoring_lead = page_tr.lead if page_tr else None
-                for metric in sorted(page.metrics, key=lambda m: m.order):
-                    metric_tr = _translation(metric.translations, lang)
-                    data.metrics.append(ExportMetric(value=metric.value, label=metric_tr.label if metric_tr else metric.key))
+            mentoring_content = _MENTORING_STATIC.get(lang) or _MENTORING_STATIC["ru"]
+            data.mentoring_lead = mentoring_content["lead"]
+            data.metrics = [
+                ExportMetric(value=value, label=label) for value, label in mentoring_content["metrics"]
+            ]
 
         return build_portfolio_docx(data)
