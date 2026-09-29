@@ -60,14 +60,19 @@
           <span>{{ formatDateTime(item.created_at) }}</span>
         </v-card-subtitle>
         <template #append>
-          <v-tooltip :text="emailTooltip(item)" location="top" max-width="420">
-            <template #activator="{ props }">
-              <v-chip v-bind="props" size="small" :color="emailStatus(item).color" variant="tonal"
-                :prepend-icon="emailStatus(item).icon">
-                {{ emailStatus(item).title }}
-              </v-chip>
-            </template>
-          </v-tooltip>
+          <div class="d-flex flex-wrap align-center justify-end ga-2">
+            <v-select :model-value="item.status" :items="STATUS_OPTIONS" item-title="title" item-value="value"
+              label="Статус" density="compact" hide-details class="feedback__status-select"
+              @update:model-value="(v) => save(item, { status: v })" />
+            <v-tooltip :text="emailTooltip(item)" location="top" max-width="420">
+              <template #activator="{ props }">
+                <v-chip v-bind="props" size="small" :color="emailStatus(item).color" variant="tonal"
+                  :prepend-icon="emailStatus(item).icon">
+                  {{ emailStatus(item).title }}
+                </v-chip>
+              </template>
+            </v-tooltip>
+          </div>
         </template>
       </v-card-item>
 
@@ -77,18 +82,11 @@
           <v-chip v-if="item.budget" size="small" prepend-icon="mdi-cash">{{ BUDGET_LABELS[item.budget] || item.budget }}</v-chip>
           <v-chip v-if="item.deadline" size="small" prepend-icon="mdi-calendar-clock">{{ item.deadline }}</v-chip>
         </div>
-        <div class="feedback__message">{{ item.message }}</div>
-
-        <v-row dense class="mt-3">
-          <v-col cols="12" sm="4">
-            <v-select :model-value="item.status" :items="STATUS_OPTIONS" item-title="title" item-value="value"
-              label="Статус" density="compact" hide-details @update:model-value="(v) => save(item, { status: v })">
-              <template #selection="{ item: opt }">
-                <v-chip size="small" :color="opt.raw.color" label>{{ opt.raw.title }}</v-chip>
-              </template>
-            </v-select>
+        <v-row dense class="feedback__content-row">
+          <v-col cols="12" md="8">
+            <div class="feedback__message">{{ item.message }}</div>
           </v-col>
-          <v-col cols="12" sm="8">
+          <v-col cols="12" md="4">
             <v-text-field v-model="notes[item.id]" label="Заметка (видна только вам)" density="compact" hide-details
               :append-inner-icon="notes[item.id] !== (item.admin_note || '') ? 'mdi-content-save' : undefined"
               @click:append-inner="save(item, { admin_note: notes[item.id] })"
@@ -290,9 +288,22 @@ onMounted(reload)
 }
 
 .feedback__message {
+  min-height: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.18);
+  border-radius: 6px;
   white-space: pre-line;
+  overflow-wrap: anywhere;
   font-size: 0.95rem;
   line-height: 1.6;
   color: rgba(var(--v-theme-on-surface), 0.9);
+}
+
+.feedback__status-select {
+  width: 150px;
+}
+
+.feedback__content-row {
+  align-items: stretch;
 }
 </style>
